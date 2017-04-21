@@ -148,6 +148,34 @@ def check(bot, update):
     text += "\nHw: " + platform.processor()
     bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
+def launch(bot, update, args):
+    import platform;platform.system()
+    if platform.system() == "Windows":
+        ret = os.system("start %s" % (args[0]))
+        text = "Launching " + (args[0]) + "..."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        if ret == 1:
+            text = "Cannot launch " + (args[0])
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        os.system("%s" % (args[0]))
+        text = "Launching " + (args[0]) + "..."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
+def link(bot, update, args):
+    import platform;platform.system()
+    if platform.system() == "Windows":
+        ret = os.system("start %s" % (args[0]))
+        text = "Opening " + (args[0]) + "..."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        if ret == 1:
+            text = "Cannot open " + (args[0])
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        os.system("xdg-open %s" % (args[0]))
+        text = "Opening " + (args[0]) + "..."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -193,6 +221,12 @@ def main():
 
     # Check the PC status
     dp.add_handler(CommandHandler("check", check))
+
+    # Launch a program
+    dp.add_handler(CommandHandler("launch", launch, pass_args=True))
+
+    # Open a link with the default browser
+    dp.add_handler(CommandHandler("link", link, pass_args=True))
 
     # Log all errors
     dp.add_error_handler(error)
