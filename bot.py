@@ -63,6 +63,28 @@ def shutdown_time(bot, update, args):
         text = "Shutting down..."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
+def reboot(bot, update):
+    import platform;platform.system()
+    if platform.system() == "Windows":
+        os.system('shutdown /r')
+        text = "Rebooted."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        os.system('reboot')
+        text = "Rebooted."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
+def reboot_time(bot, update, args):
+    import platform;platform.system()
+    if platform.system() == "Windows":
+        os.system("shutdown /r /t %s" % (args[0]))
+        text = "Rebooting..."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        os.system("reboot -t %s" % (args[0]/60))
+        text = "Rebooting..."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -84,6 +106,12 @@ def main():
 
     # Shutdown time
     dp.add_handler(CommandHandler("shutdown_t", shutdown_time, pass_args=True))
+
+    # Reboot
+    dp.add_handler(CommandHandler("reboot", reboot))
+
+    # Reboot time
+    dp.add_handler(CommandHandler("reboot_t", reboot_time, pass_args=True))
 
     # Log all errors
     dp.add_error_handler(error)
