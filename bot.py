@@ -127,6 +127,17 @@ def hibernate_time(bot, update, args):
         text = "Hibernating..."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
+def cancel(bot, update):
+    import platform;platform.system()
+    if platform.system() == "Windows":
+        os.system('shutdown /a')
+        text = "Annulled."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        os.system('shutdown -c')
+        text = "Annulled."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -166,6 +177,9 @@ def main():
 
     # Hibernate time
     dp.add_handler(CommandHandler("hibernate_t", hibernate_time, pass_args=True))
+
+    # Annul the previous command
+    dp.add_handler(CommandHandler("cancel", cancel))
 
     # Log all errors
     dp.add_error_handler(error)
