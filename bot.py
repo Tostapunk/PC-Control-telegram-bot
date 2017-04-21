@@ -41,6 +41,28 @@ You can set a delay time for the execution of the first four commands by using _
     bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.HTML
                     , disable_web_page_preview="true")
 
+def shutdown(bot, update):
+    import platform;platform.system()
+    if platform.system() == "Windows":
+        os.system('shutdown /s')
+        text = "Shutted down."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        os.system('shutdown -h now')
+        text = "Shutted down."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
+def shutdown_time(bot, update, args):
+    import platform;platform.system()
+    if platform.system() == "Windows":
+        os.system("shutdown /s /t %s" % (args[0]))
+        text = "Shutting down..."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        os.system("shutdown -t %s" % (args[0]/60))
+        text = "Shutting down..."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -56,6 +78,12 @@ def main():
 
     # Help
     dp.add_handler(CommandHandler("help", help))
+
+    # Shutdown
+    dp.add_handler(CommandHandler("shutdown", shutdown))
+
+    # Shutdown time
+    dp.add_handler(CommandHandler("shutdown_t", shutdown_time, pass_args=True))
 
     # Log all errors
     dp.add_error_handler(error)
