@@ -33,7 +33,3 @@ Now you're ready!
 /memo - To show a memo on your pc
 /task - To check if a process is currently running | Example: /task chrome
 /screen - To take a screenshot and receive it through Imgur```
-
-## Built With
-
-[python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot)
