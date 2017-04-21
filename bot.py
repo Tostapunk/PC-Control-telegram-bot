@@ -188,6 +188,21 @@ def memo(bot, update, args):
     B1.pack()
     popup.mainloop()
 
+def task(bot, update, args):
+    import platform;platform.system()
+    if platform.system() == "Windows":
+        try:
+            out = os.popen("tasklist | findstr %s" % (args[0])).read()
+            bot.sendMessage(chat_id=update.message.chat.id, text=out)
+        except:
+            bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
+    else:
+        try:
+            out = os.popen("ps -A | grep %s" % (args[0])).read()
+            bot.sendMessage(chat_id=update.message.chat.id, text=out)
+        except:
+            bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
+
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -242,6 +257,9 @@ def main():
 
     # Show a popup with the memo
     dp.add_handler(CommandHandler("memo", memo, pass_args=True))
+
+    # Check if a program is currently active
+    dp.add_handler(CommandHandler("task", task, pass_args=True))
 
     # Log all errors
     dp.add_error_handler(error)
