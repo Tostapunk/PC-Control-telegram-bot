@@ -138,6 +138,16 @@ def cancel(bot, update):
         text = "Annulled."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
+def check(bot, update):
+    print(socket.gethostname())
+    print platform.platform()
+    text = ""
+    text += "Your PC is online.\n\n"
+    text += "PC name: " + (socket.gethostname())
+    text += "\nOS: " + platform.platform()
+    text += "\nHw: " + platform.processor()
+    bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -180,6 +190,9 @@ def main():
 
     # Annul the previous command
     dp.add_handler(CommandHandler("cancel", cancel))
+
+    # Check the PC status
+    dp.add_handler(CommandHandler("check", check))
 
     # Log all errors
     dp.add_error_handler(error)
