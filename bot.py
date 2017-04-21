@@ -203,6 +203,31 @@ def task(bot, update, args):
         except:
             bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
 
+def imgur(bot, update):
+    import platform;platform.system()
+    if platform.system() == "Windows":
+        SaveDirectory = r''
+        ImageEditorPath = r'C:\WINDOWS\system32\mspaint.exe'
+        img = ImageGrab.grab()
+        saveas = os.path.join(SaveDirectory, 'screenshot' + '.png')
+        img.save(saveas)
+        editorstring = '"start"%s" "%s"' % (ImageEditorPath, saveas)
+        os.system(editorstring)
+    else:
+        os.system("import -window root screenshot.png")
+
+    CLIENT_ID = "INSERT YOUR CLIENT ID HERE"
+    PATH = "screenshot.png"
+
+    im = pyimgur.Imgur(CLIENT_ID)
+    uploaded_image = im.upload_image(PATH, title="Uploaded with PC-Control")
+    bot.sendMessage(chat_id=update.message.chat.id, text=uploaded_image.link)
+
+    if platform.system() == "Windows":
+        os.system('del screenshot.png')
+    else:
+        os.system("rm -rf screenshot.png")
+
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -260,6 +285,9 @@ def main():
 
     # Check if a program is currently active
     dp.add_handler(CommandHandler("task", task, pass_args=True))
+
+    # Send a full screen screenshot through Imgur
+    dp.add_handler(CommandHandler("screen", imgur))
 
     # Log all errors
     dp.add_error_handler(error)
