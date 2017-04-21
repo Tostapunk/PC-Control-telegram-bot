@@ -85,6 +85,26 @@ def reboot_time(bot, update, args):
         text = "Rebooting..."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
+def logout(bot, update):
+    import platform;platform.system()
+    if platform.system() == "Windows":
+        os.system('shutdown /l')
+        text = "Logged out."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        text = "Currently not supported."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
+def logout_time(bot, update, args):
+    import platform;platform.system()
+    if platform.system() == "Windows":
+        os.system("shutdown /l /t %s" % (args[0]))
+        text = "Logging out..."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        text = "Currently not supported."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -112,6 +132,12 @@ def main():
 
     # Reboot time
     dp.add_handler(CommandHandler("reboot_t", reboot_time, pass_args=True))
+
+    # Log out
+    dp.add_handler(CommandHandler("logout", logout))
+
+    # Log out time
+    dp.add_handler(CommandHandler("logout_t", logout_time, pass_args=True))
 
     # Log all errors
     dp.add_error_handler(error)
