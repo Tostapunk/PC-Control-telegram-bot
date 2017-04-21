@@ -6,7 +6,7 @@ Through this bot you can execute actions on your PC directly from Telegram!
 
 ### Prerequisites
 
-Python 2.7, the stuff listed on dependencies.txt, an [Imgur client ID](http://api.imgur.com/)
+Python 2.7, an [Imgur client ID](http://api.imgur.com/)
 and a [BotFather](www.t.me/BotFather) token
 
 ## Setup the bot
