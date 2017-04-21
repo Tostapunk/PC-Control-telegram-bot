@@ -105,6 +105,28 @@ def logout_time(bot, update, args):
         text = "Currently not supported."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
+def hibernate(bot, update):
+    import platform;platform.system()
+    if platform.system() == "Windows":
+        os.system('shutdown /h')
+        text = "Hibernated."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        os.system('systemctl suspend')
+        text = "Hibernated."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
+def hibernate_time(bot, update, args):
+    import platform;platform.system()
+    if platform.system() == "Windows":
+        os.system("shutdown /h /t %s" % (args[0]))
+        text = "Hibernating..."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        os.system("sleep %s" % (args[0]) + "s; systemctl suspend")
+        text = "Hibernating..."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -138,6 +160,12 @@ def main():
 
     # Log out time
     dp.add_handler(CommandHandler("logout_t", logout_time, pass_args=True))
+
+    # Hibernate
+    dp.add_handler(CommandHandler("hibernate", hibernate))
+
+    # Hibernate time
+    dp.add_handler(CommandHandler("hibernate_t", hibernate_time, pass_args=True))
 
     # Log all errors
     dp.add_error_handler(error)
