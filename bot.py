@@ -176,6 +176,18 @@ def link(bot, update, args):
         text = "Opening " + (args[0]) + "..."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
+def memo(bot, update, args):
+    popup = tk.Tk()
+    popup.wm_title("Memo")
+    label = ttk.Label(popup, text=update.message.text[6:] + "\nsent by " + update.message.from_user.name +
+" through PC-Control", font=("Helvetica", 10))
+    label.pack(side="top", fill="x", pady=10)
+    global delete
+    delete = popup.destroy
+    B1 = ttk.Button(popup, text="Okay", command=delete)
+    B1.pack()
+    popup.mainloop()
+
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
@@ -227,6 +239,9 @@ def main():
 
     # Open a link with the default browser
     dp.add_handler(CommandHandler("link", link, pass_args=True))
+
+    # Show a popup with the memo
+    dp.add_handler(CommandHandler("memo", memo, pass_args=True))
 
     # Log all errors
     dp.add_error_handler(error)
