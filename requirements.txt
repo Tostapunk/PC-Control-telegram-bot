@@ -1,0 +1,4 @@
+pyimgur==0.6.0
+pyscreenshot==0.4.2
+python_telegram_bot==5.3.0
+telegram==0.0.1
