@@ -43,10 +43,10 @@ class DBHandler:
 
 def setGlobals():
     global db
-    db = DBHandler("modding.sqlite")
+    db = DBHandler("pccontrol.sqlite")
 
 def start(bot, update):
-    handle = sqlite3.connect('modding.sqlite')
+    handle = sqlite3.connect('pccontrol.sqlite')
     handle.row_factory = sqlite3.Row
     cursor = handle.cursor()
     # The bot will automatically create the right db if it not exist
@@ -67,7 +67,12 @@ Made by <a href='http://www.t.me/Tostapunk'>Tostapunk</a>
 
 def help(bot, update):
     db.update_user(update.message.from_user)
-    text = """<b>Available commands:</b>
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        text = """<b>Available commands:</b>
     /shutdown - To shutdown your PC
     /reboot - To reboot your PC
     /logout - To log out from your current account
@@ -82,211 +87,332 @@ def help(bot, update):
 
 You can set a delay time for the execution of the first four commands by using _t + time in seconds after a command.
     Example: /shutdown_t 20"""
+    else:
+        text = "Unauthorized."
     bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.HTML
                     , disable_web_page_preview="true")
 
 def shutdown(bot, update):
     db.update_user(update.message.from_user)
-    import platform;platform.system()
-    if platform.system() == "Windows":
-        os.system('shutdown /s')
-        text = "Shutted down."
-        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;platform.system()
+        if platform.system() == "Windows":
+            os.system('shutdown /s')
+            text = "Shutted down."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        else:
+            os.system('shutdown -h now')
+            text = "Shutted down."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        os.system('shutdown -h now')
-        text = "Shutted down."
+        text = "Unauthorized."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def shutdown_time(bot, update, args):
     db.update_user(update.message.from_user)
-    import platform;platform.system()
-    if platform.system() == "Windows":
-        os.system("shutdown /s /t %s" % (args[0]))
-        text = "Shutting down..."
-        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;platform.system()
+        if platform.system() == "Windows":
+            os.system("shutdown /s /t %s" % (args[0]))
+            text = "Shutting down..."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        else:
+            os.system("shutdown -t %s" % (args[0]/60))
+            text = "Shutting down..."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        os.system("shutdown -t %s" % (args[0]/60))
-        text = "Shutting down..."
+        text = "Unauthorized."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def reboot(bot, update):
     db.update_user(update.message.from_user)
-    import platform;platform.system()
-    if platform.system() == "Windows":
-        os.system('shutdown /r')
-        text = "Rebooted."
-        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;platform.system()
+        if platform.system() == "Windows":
+            os.system('shutdown /r')
+            text = "Rebooted."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        else:
+            os.system('reboot')
+            text = "Rebooted."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        os.system('reboot')
-        text = "Rebooted."
+        text = "Unauthorized."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def reboot_time(bot, update, args):
     db.update_user(update.message.from_user)
-    import platform;platform.system()
-    if platform.system() == "Windows":
-        os.system("shutdown /r /t %s" % (args[0]))
-        text = "Rebooting..."
-        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;platform.system()
+        if platform.system() == "Windows":
+            os.system("shutdown /r /t %s" % (args[0]))
+            text = "Rebooting..."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        else:
+            os.system("reboot -t %s" % (args[0]/60))
+            text = "Rebooting..."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        os.system("reboot -t %s" % (args[0]/60))
-        text = "Rebooting..."
+        text = "Unauthorized."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def logout(bot, update):
     db.update_user(update.message.from_user)
-    import platform;platform.system()
-    if platform.system() == "Windows":
-        os.system('shutdown /l')
-        text = "Logged out."
-        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;platform.system()
+        if platform.system() == "Windows":
+            os.system('shutdown /l')
+            text = "Logged out."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        else:
+            text = "Currently not supported."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = "Currently not supported."
+        text = "Unauthorized."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def logout_time(bot, update, args):
     db.update_user(update.message.from_user)
-    import platform;platform.system()
-    if platform.system() == "Windows":
-        os.system("shutdown /l /t %s" % (args[0]))
-        text = "Logging out..."
-        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;platform.system()
+        if platform.system() == "Windows":
+            os.system("shutdown /l /t %s" % (args[0]))
+            text = "Logging out..."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        else:
+            text = "Currently not supported."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = "Currently not supported."
+        text = "Unauthorized."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def hibernate(bot, update):
     db.update_user(update.message.from_user)
-    import platform;platform.system()
-    if platform.system() == "Windows":
-        os.system('shutdown /h')
-        text = "Hibernated."
-        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;platform.system()
+        if platform.system() == "Windows":
+            os.system('shutdown /h')
+            text = "Hibernated."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        else:
+            os.system('systemctl suspend')
+            text = "Hibernated."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        os.system('systemctl suspend')
-        text = "Hibernated."
+        text = "Unauthorized."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def hibernate_time(bot, update, args):
     db.update_user(update.message.from_user)
-    import platform;platform.system()
-    if platform.system() == "Windows":
-        os.system("shutdown /h /t %s" % (args[0]))
-        text = "Hibernating..."
-        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;platform.system()
+        if platform.system() == "Windows":
+            os.system("shutdown /h /t %s" % (args[0]))
+            text = "Hibernating..."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        else:
+            os.system("sleep %s" % (args[0]) + "s; systemctl suspend")
+            text = "Hibernating..."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        os.system("sleep %s" % (args[0]) + "s; systemctl suspend")
-        text = "Hibernating..."
+        text = "Unauthorized."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def cancel(bot, update):
     db.update_user(update.message.from_user)
-    import platform;platform.system()
-    if platform.system() == "Windows":
-        os.system('shutdown /a')
-        text = "Annulled."
-        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;platform.system()
+        if platform.system() == "Windows":
+            os.system('shutdown /a')
+            text = "Annulled."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        else:
+            os.system('shutdown -c')
+            text = "Annulled."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        os.system('shutdown -c')
-        text = "Annulled."
+        text = "Unauthorized."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def check(bot, update):
     db.update_user(update.message.from_user)
-    print(socket.gethostname())
-    print platform.platform()
-    text = ""
-    text += "Your PC is online.\n\n"
-    text += "PC name: " + (socket.gethostname())
-    text += "\nOS: " + platform.platform()
-    text += "\nHw: " + platform.processor()
-    bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        print(socket.gethostname())
+        print platform.platform()
+        text = ""
+        text += "Your PC is online.\n\n"
+        text += "PC name: " + (socket.gethostname())
+        text += "\nOS: " + platform.platform()
+        text += "\nHw: " + platform.processor()
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        text = "Unauthorized."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def launch(bot, update, args):
     db.update_user(update.message.from_user)
-    import platform;platform.system()
-    if platform.system() == "Windows":
-        ret = os.system("start %s" % (args[0]))
-        text = "Launching " + (args[0]) + "..."
-        bot.sendMessage(chat_id=update.message.chat.id, text=text)
-        if ret == 1:
-            text = "Cannot launch " + (args[0])
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;platform.system()
+        if platform.system() == "Windows":
+            ret = os.system("start %s" % (args[0]))
+            text = "Launching " + (args[0]) + "..."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            if ret == 1:
+                text = "Cannot launch " + (args[0])
+                bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        else:
+            os.system("%s" % (args[0]))
+            text = "Launching " + (args[0]) + "..."
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        os.system("%s" % (args[0]))
-        text = "Launching " + (args[0]) + "..."
+        text = "Unauthorized."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def link(bot, update, args):
     db.update_user(update.message.from_user)
-    import platform;platform.system()
-    if platform.system() == "Windows":
-        ret = os.system("start %s" % (args[0]))
-        text = "Opening " + (args[0]) + "..."
-        bot.sendMessage(chat_id=update.message.chat.id, text=text)
-        if ret == 1:
-            text = "Cannot open " + (args[0])
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;platform.system()
+        if platform.system() == "Windows":
+            ret = os.system("start %s" % (args[0]))
+            text = "Opening " + (args[0]) + "..."
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            if ret == 1:
+                text = "Cannot open " + (args[0])
+                bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        else:
+            os.system("xdg-open %s" % (args[0]))
+            text = "Opening " + (args[0]) + "..."
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        os.system("xdg-open %s" % (args[0]))
-        text = "Opening " + (args[0]) + "..."
+        text = "Unauthorized."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def memo(bot, update, args):
     db.update_user(update.message.from_user)
-    popup = tk.Tk()
-    popup.wm_title("Memo")
-    label = ttk.Label(popup, text=update.message.text[6:] + "\nsent by " + update.message.from_user.name +
-" through PC-Control", font=("Helvetica", 10))
-    label.pack(side="top", fill="x", pady=10)
-    global delete
-    delete = popup.destroy
-    B1 = ttk.Button(popup, text="Okay", command=delete)
-    B1.pack()
-    popup.mainloop()
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        popup = tk.Tk()
+        popup.wm_title("Memo")
+        label = ttk.Label(popup, text=update.message.text[6:] + "\nsent by " + update.message.from_user.name +
+        " through PC-Control", font=("Helvetica", 10))
+        label.pack(side="top", fill="x", pady=10)
+        global delete
+        delete = popup.destroy
+        B1 = ttk.Button(popup, text="Okay", command=delete)
+        B1.pack()
+        popup.mainloop()
+    else:
+        text = "Unauthorized."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def task(bot, update, args):
     db.update_user(update.message.from_user)
-    import platform;platform.system()
-    if platform.system() == "Windows":
-        try:
-            out = os.popen("tasklist | findstr %s" % (args[0])).read()
-            bot.sendMessage(chat_id=update.message.chat.id, text=out)
-        except:
-            bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;platform.system()
+        if platform.system() == "Windows":
+            try:
+                out = os.popen("tasklist | findstr %s" % (args[0])).read()
+                bot.sendMessage(chat_id=update.message.chat.id, text=out)
+            except:
+                bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
+        else:
+            try:
+                out = os.popen("ps -A | grep %s" % (args[0])).read()
+                bot.sendMessage(chat_id=update.message.chat.id, text=out)
+            except:
+                bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
     else:
-        try:
-            out = os.popen("ps -A | grep %s" % (args[0])).read()
-            bot.sendMessage(chat_id=update.message.chat.id, text=out)
-        except:
-            bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
+        text = "Unauthorized."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def imgur(bot, update):
     db.update_user(update.message.from_user)
-    import platform;platform.system()
-    if platform.system() == "Windows":
-        SaveDirectory = r''
-        ImageEditorPath = r'C:\WINDOWS\system32\mspaint.exe'
-        img = ImageGrab.grab()
-        saveas = os.path.join(SaveDirectory, 'screenshot' + '.png')
-        img.save(saveas)
-        editorstring = '"start"%s" "%s"' % (ImageEditorPath, saveas)
-        os.system(editorstring)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;platform.system()
+        if platform.system() == "Windows":
+            SaveDirectory = r''
+            ImageEditorPath = r'C:\WINDOWS\system32\mspaint.exe'
+            img = ImageGrab.grab()
+            saveas = os.path.join(SaveDirectory, 'screenshot' + '.png')
+            img.save(saveas)
+            editorstring = '"start"%s" "%s"' % (ImageEditorPath, saveas)
+            os.system(editorstring)
+        else:
+            os.system("import -window root screenshot.png")
+
+        CLIENT_ID = "INSERT YOUR CLIENT ID HERE"
+        PATH = "screenshot.png"
+
+        im = pyimgur.Imgur(CLIENT_ID)
+        uploaded_image = im.upload_image(PATH, title="Uploaded with PC-Control")
+        bot.sendMessage(chat_id=update.message.chat.id, text=uploaded_image.link)
+
+        if platform.system() == "Windows":
+            os.system('del screenshot.png')
+        else:
+            os.system("rm -rf screenshot.png")
     else:
-        os.system("import -window root screenshot.png")
-
-    CLIENT_ID = "INSERT YOUR CLIENT ID HERE"
-    PATH = "screenshot.png"
-
-    im = pyimgur.Imgur(CLIENT_ID)
-    uploaded_image = im.upload_image(PATH, title="Uploaded with PC-Control")
-    bot.sendMessage(chat_id=update.message.chat.id, text=uploaded_image.link)
-
-    if platform.system() == "Windows":
-        os.system('del screenshot.png')
-    else:
-        os.system("rm -rf screenshot.png")
-
+        text = "Unauthorized."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
