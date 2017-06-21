@@ -20,9 +20,19 @@ Now you're ready!
 
 ```python bot.py```
 
+## Setup the bot
+
+Set ```privs -2 ``` in the db (that will be created after the /start command) for the trusted people, only who have privs -2 can
+use the bot.
+Example:
+![alt tag](http://i.imgur.com/ObTJRJ0.png)
+
+Now you're ready!
+
 ### Available commands
 
-```/shutdown - To shutdown your PC
+```
+/shutdown - To shutdown your PC
 /reboot - To reboot your PC
 /logout - To log out from your current account | Currently not working on Linux
 /hibernate - To hibernate your PC
@@ -32,4 +42,5 @@ Now you're ready!
 /link - To open a link | Example: /link http://google.com (don't use "www")
 /memo - To show a memo on your pc
 /task - To check if a process is currently running | Example: /task chrome
-/screen - To take a screenshot and receive it through Imgur```
+/screen - To take a screenshot and receive it through Imgur
+```
