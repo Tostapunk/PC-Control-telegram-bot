@@ -1,19 +1,62 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging, os, platform, socket, pyimgur
+import logging, os, platform, socket, pyimgur, sqlite3, pytz
 from telegram.ext import Updater, CommandHandler
 from telegram import ParseMode
 import tkinter as tk
 from tkinter import ttk
 import pyscreenshot as ImageGrab
+from datetime import datetime
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+class DBHandler:
+    def __init__(self, path):
+        self._dbpath = path
+
+    def update_user(self, from_user):  # Update the user list (db)
+        handle = sqlite3.connect(self._dbpath)
+        handle.row_factory = sqlite3.Row
+        cursor = handle.cursor()
+        check = cursor.execute("SELECT id,time_used FROM users WHERE id=?", (from_user.id,)).fetchone()
+        used = 0
+        if check:
+            if check["time_used"]:
+                used = check["time_used"]
+        query = (from_user.first_name,
+                 from_user.last_name,
+                 from_user.username,
+                 datetime.now(pytz.timezone('Europe/Rome')),
+                 used + 1,
+                 from_user.id)
+        if check:
+            cursor.execute("UPDATE users SET name_first=?,name_last=?,username=?,last_use=?,time_used=? WHERE id=?",
+                           query)
+        else:
+            cursor.execute("INSERT INTO users(name_first,name_last,username,last_use,time_used,id) VALUES(?,?,?,?,?,?)",
+                           query)
+        handle.commit()
+
+def setGlobals():
+    global db
+    db = DBHandler("modding.sqlite")
+
 def start(bot, update):
+    handle = sqlite3.connect('modding.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    # The bot will automatically create the right db if it not exist
+    cursor.execute(
+        "CREATE TABLE IF NOT EXISTS `users` ( `id` INTEGER UNIQUE, `name_first` TEXT, `name_last` TEXT, `username` TEXT,"
+        " `privs` INTEGER, `last_use` INTEGER, `time_used` INTEGER, `notifications` INTEGER DEFAULT 1"
+        ", PRIMARY KEY(`id`))")
+    handle.commit()
+    db.update_user(update.message.from_user)
+
     text = """Welcome to PC-Control bot.
 Use /help to see all the commands!
 
@@ -23,6 +66,7 @@ Made by <a href='http://www.t.me/Tostapunk'>Tostapunk</a>
                     , disable_web_page_preview="true")
 
 def help(bot, update):
+    db.update_user(update.message.from_user)
     text = """<b>Available commands:</b>
     /shutdown - To shutdown your PC
     /reboot - To reboot your PC
@@ -42,6 +86,7 @@ You can set a delay time for the execution of the first four commands by using _
                     , disable_web_page_preview="true")
 
 def shutdown(bot, update):
+    db.update_user(update.message.from_user)
     import platform;platform.system()
     if platform.system() == "Windows":
         os.system('shutdown /s')
@@ -53,6 +98,7 @@ def shutdown(bot, update):
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def shutdown_time(bot, update, args):
+    db.update_user(update.message.from_user)
     import platform;platform.system()
     if platform.system() == "Windows":
         os.system("shutdown /s /t %s" % (args[0]))
@@ -64,6 +110,7 @@ def shutdown_time(bot, update, args):
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def reboot(bot, update):
+    db.update_user(update.message.from_user)
     import platform;platform.system()
     if platform.system() == "Windows":
         os.system('shutdown /r')
@@ -75,6 +122,7 @@ def reboot(bot, update):
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def reboot_time(bot, update, args):
+    db.update_user(update.message.from_user)
     import platform;platform.system()
     if platform.system() == "Windows":
         os.system("shutdown /r /t %s" % (args[0]))
@@ -86,6 +134,7 @@ def reboot_time(bot, update, args):
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def logout(bot, update):
+    db.update_user(update.message.from_user)
     import platform;platform.system()
     if platform.system() == "Windows":
         os.system('shutdown /l')
@@ -96,6 +145,7 @@ def logout(bot, update):
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def logout_time(bot, update, args):
+    db.update_user(update.message.from_user)
     import platform;platform.system()
     if platform.system() == "Windows":
         os.system("shutdown /l /t %s" % (args[0]))
@@ -106,6 +156,7 @@ def logout_time(bot, update, args):
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def hibernate(bot, update):
+    db.update_user(update.message.from_user)
     import platform;platform.system()
     if platform.system() == "Windows":
         os.system('shutdown /h')
@@ -117,6 +168,7 @@ def hibernate(bot, update):
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def hibernate_time(bot, update, args):
+    db.update_user(update.message.from_user)
     import platform;platform.system()
     if platform.system() == "Windows":
         os.system("shutdown /h /t %s" % (args[0]))
@@ -128,6 +180,7 @@ def hibernate_time(bot, update, args):
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def cancel(bot, update):
+    db.update_user(update.message.from_user)
     import platform;platform.system()
     if platform.system() == "Windows":
         os.system('shutdown /a')
@@ -139,6 +192,7 @@ def cancel(bot, update):
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def check(bot, update):
+    db.update_user(update.message.from_user)
     print(socket.gethostname())
     print platform.platform()
     text = ""
@@ -149,6 +203,7 @@ def check(bot, update):
     bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def launch(bot, update, args):
+    db.update_user(update.message.from_user)
     import platform;platform.system()
     if platform.system() == "Windows":
         ret = os.system("start %s" % (args[0]))
@@ -163,6 +218,7 @@ def launch(bot, update, args):
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def link(bot, update, args):
+    db.update_user(update.message.from_user)
     import platform;platform.system()
     if platform.system() == "Windows":
         ret = os.system("start %s" % (args[0]))
@@ -177,6 +233,7 @@ def link(bot, update, args):
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def memo(bot, update, args):
+    db.update_user(update.message.from_user)
     popup = tk.Tk()
     popup.wm_title("Memo")
     label = ttk.Label(popup, text=update.message.text[6:] + "\nsent by " + update.message.from_user.name +
@@ -189,6 +246,7 @@ def memo(bot, update, args):
     popup.mainloop()
 
 def task(bot, update, args):
+    db.update_user(update.message.from_user)
     import platform;platform.system()
     if platform.system() == "Windows":
         try:
@@ -204,6 +262,7 @@ def task(bot, update, args):
             bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
 
 def imgur(bot, update):
+    db.update_user(update.message.from_user)
     import platform;platform.system()
     if platform.system() == "Windows":
         SaveDirectory = r''
@@ -237,6 +296,9 @@ def main():
     updater = Updater('INSERT YOUR TOKEN HERE')
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
+
+    # Set Database Handler as global class
+    setGlobals()
 
     # Start
     dp.add_handler(CommandHandler("start", start))
