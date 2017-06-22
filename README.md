@@ -20,7 +20,7 @@ Now you're ready!
 
 ```python bot.py```
 
-## Setup the bot
+## Set the permissions
 
 Set ```privs -2 ``` in the db (that will be created after the /start command) for the trusted people, only who have privs -2 can
 use the bot.
