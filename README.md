@@ -1,3 +1,4 @@
+![logo](http://i.imgur.com/294uZ8G.png)
 # PC Control bot
 
 Through this bot you can execute actions on your PC directly from Telegram!
@@ -44,3 +45,6 @@ Now you're ready!
 /task - To check if a process is currently running | Example: /task chrome
 /screen - To take a screenshot and receive it through Imgur
 ```
+
+## Contributors
+Thanks to [Jasoc](https://github.com/jasoc) for the awesome [logo](http://i.imgur.com/V6B5ZEf.png)!
