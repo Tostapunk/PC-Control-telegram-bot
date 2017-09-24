@@ -57,11 +57,13 @@ def start(bot, update):
     handle.commit()
     db.update_user(update.message.from_user)
 
-    text = """Welcome to PC-Control bot.
+    text = """Welcome to <a href='https://github.com/Tostapunk/PC-Control-telegram-bot'>PC-Control bot</a>, \
+you can get the bot profile picture <a href='http://i.imgur.com/294uZ8G.png'>here</a>
 Use /help to see all the commands!
 
 Made by <a href='http://www.t.me/Tostapunk'>Tostapunk</a>
-<a href='https://twitter.com/Schiavon_Mattia'>Twitter</a> | <a href='https://plus.google.com/+MattiaSchiavon'>Google+</a>"""
+<a href='https://twitter.com/Schiavon_Mattia'>Twitter</a> | \
+<a href='https://plus.google.com/+MattiaSchiavon'>Google+</a>"""
     bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.HTML
                     , disable_web_page_preview="true")
 
