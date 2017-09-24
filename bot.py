@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging, os, platform, socket, pyimgur, sqlite3, pytz
+import logging, os, platform, socket, pyimgur, sqlite3, pytz, getpass
 from telegram.ext import Updater, CommandHandler
 from telegram import ParseMode
 import tkinter as tk
@@ -282,6 +282,7 @@ def check(bot, update):
         text = ""
         text += "Your PC is online.\n\n"
         text += "PC name: " + (socket.gethostname())
+        text += "\nLogged user: " + getpass.getuser()
         text += "\nOS: " + platform.platform()
         text += "\nHw: " + platform.processor()
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
