@@ -402,7 +402,9 @@ def imgur(bot, update):
         else:
             os.system("import -window root screenshot.png")
 
-        CLIENT_ID = "INSERT YOUR CLIENT ID HERE"
+        f = open('imgur.txt')
+        text = f.read()
+        CLIENT_ID = text
         PATH = "screenshot.png"
 
         im = pyimgur.Imgur(CLIENT_ID)
@@ -421,8 +423,11 @@ def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
 
 def main():
+    # Get your token from the previous created file
+    f = open('botfather.txt')
+    text = f.read()
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater('INSERT YOUR TOKEN HERE')
+    updater = Updater(text)
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
