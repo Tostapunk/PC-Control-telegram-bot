@@ -10,25 +10,26 @@ Through this bot you can execute actions on your PC directly from Telegram!
 Python 2.7, an [Imgur client ID](http://api.imgur.com/)
 and a [BotFather](www.t.me/BotFather) token
 
+GNU/Linux users: you need to install the python-tk package 
+
 ## Setup the bot
 
-Add your Imgur client ID here:![alt tag](http://i.imgur.com/8lCDcR6.png)
-And your token here:![alt tag](http://i.imgur.com/ufcz8ic.png)
+Launch the setup with ```python bot_setup.py``` and add your tokens.
 
-Now you're ready!
+Now start it!
 
-### Start it
-
-```python bot.py```
+![setup](https://i.imgur.com/EAxl9xS.png)
 
 ## Set the permissions
 
 Set ```privs -2 ``` in the db (that will be created after the /start command) for the trusted people, only who have privs -2 can
 use the bot.
-Example:
-![alt tag](http://i.imgur.com/ObTJRJ0.png)
 
-Now you're ready!
+Example:
+
+![privs](http://i.imgur.com/ObTJRJ0.png)
+
+You're ready!
 
 ### Available commands
 
