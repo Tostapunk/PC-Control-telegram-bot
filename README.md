@@ -1,4 +1,4 @@
-![logo](http://i.imgur.com/294uZ8G.png)
+![logo](https://i.imgur.com/294uZ8G.png)
 # PC Control bot
 
 Through this bot you can execute actions on your PC directly from Telegram!
@@ -7,14 +7,16 @@ Through this bot you can execute actions on your PC directly from Telegram!
 
 ### Prerequisites
 
-Python 2.7, an [Imgur client ID](http://api.imgur.com/)
-and a [BotFather](www.t.me/BotFather) token
+Python 2.7, an [Imgur client ID](https://api.imgur.com/)
+and a [BotFather](https://t.me/BotFather) token
 
 GNU/Linux users: you need to install the python-tk package 
 
 ## Setup the bot
 
 Launch the setup with ```python bot_setup.py``` and add your tokens.
+
+Install requirements.
 
 Now start it!
 
@@ -27,7 +29,7 @@ use the bot.
 
 Example:
 
-![privs](http://i.imgur.com/ObTJRJ0.png)
+![privs](https://i.imgur.com/ObTJRJ0.png)
 
 You're ready!
 
@@ -45,7 +47,9 @@ You're ready!
 /memo - To show a memo on your pc
 /task - To check if a process is currently running | Example: /task chrome
 /screen - To take a screenshot and receive it through Imgur
+/menu - Shows the inline menù
+/kb or /keyboard - Brings the normal keyboard up
 ```
 
 ## Contributors
-Thanks to [Jasoc](https://github.com/jasoc) for the awesome [logo](http://i.imgur.com/V6B5ZEf.png)!
+Thanks to [Jasoc](https://github.com/jasoc) for the awesome [logo](https://i.imgur.com/V6B5ZEf.png)!
