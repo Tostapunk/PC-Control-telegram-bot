@@ -63,11 +63,11 @@ def start(bot, update):
 
     text = """Welcome to <a href='https://github.com/Tostapunk/PC-Control-telegram-bot'>PC-Control bot</a>, \
 you can get the bot profile picture <a href='http://i.imgur.com/294uZ8G.png'>here</a>
-Use /help to see all the commands!
 
 Made by <a href='http://www.t.me/Tostapunk'>Tostapunk</a>
 <a href='https://twitter.com/Schiavon_Mattia'>Twitter</a> | \
-<a href='https://plus.google.com/+MattiaSchiavon'>Google+</a>"""
+<a href='https://plus.google.com/+MattiaSchiavon'>Google+</a> | \
+<a href='https://github.com/Tostapunk'>GitHub</a>"""
 
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.HTML
@@ -92,6 +92,8 @@ def help(bot, update):
     /memo - To show a memo on your pc
     /task - To check if a process is currently running | Example: /task chrome
     /screen - To take a screenshot and receive it through Imgur
+    /menu - Shows the inline menù
+    /kb or /keyboard - Brings the normal keyboard up
 
 You can set a delay time for the execution of the first four commands by using _t + time in seconds after a command.
     Example: /shutdown_t 20"""
