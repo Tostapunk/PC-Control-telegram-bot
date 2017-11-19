@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import logging, os, platform, socket, pyimgur, sqlite3, pytz, getpass
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
-from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Filters, MessageHandler
+from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 import tkinter as tk
 from tkinter import ttk
 import pyscreenshot as ImageGrab
@@ -45,6 +45,10 @@ def setGlobals():
     global db
     db = DBHandler("pccontrol.sqlite")
 
+    global keyboard
+    keyboard = [['Help', 'Menu'],
+                ['Close Keyboard']]
+
 def start(bot, update):
     handle = sqlite3.connect('pccontrol.sqlite')
     handle.row_factory = sqlite3.Row
@@ -64,8 +68,10 @@ Use /help to see all the commands!
 Made by <a href='http://www.t.me/Tostapunk'>Tostapunk</a>
 <a href='https://twitter.com/Schiavon_Mattia'>Twitter</a> | \
 <a href='https://plus.google.com/+MattiaSchiavon'>Google+</a>"""
+
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.HTML
-                    , disable_web_page_preview="true")
+                    , disable_web_page_preview="true", reply_markup=reply_markup)
 
 def help(bot, update):
     db.update_user(update.message.from_user)
@@ -92,7 +98,7 @@ You can set a delay time for the execution of the first four commands by using _
     else:
         text = "Unauthorized."
     bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.HTML
-                        , disable_web_page_preview="true")
+                    , disable_web_page_preview="true")
 
 def menu(bot, update):
     db.update_user(update.message.from_user)
@@ -130,6 +136,21 @@ def button(bot, update):
     elif query.data == 'screen': imgur(bot, update)
     elif query.data == 'cancel': cancel(bot, update)
     bot.answer_callback_query(callback_query_id=query.id)
+
+def keyboard_up(bot, update):
+    db.update_user(update.message.from_user)
+    text = "Keyboard is up."
+    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    update.message.reply_text(reply_markup=reply_markup, text=text)
+
+def message_handler(bot, update):
+    db.update_user(update.message.from_user)
+    if update.message.text == "Help": help(bot, update)
+    elif update.message.text == "Menu": menu(bot, update)
+    elif update.message.text == "Close Keyboard":
+        text = "Keyboard is down."
+        reply_markup = ReplyKeyboardRemove()
+        update.message.reply_text(text=text, reply_markup=reply_markup)
 
 def shutdown(bot, update):
     if update.message:
@@ -585,6 +606,10 @@ def main():
     updater.dispatcher.add_handler(CallbackQueryHandler(button))
     dp.add_handler(CommandHandler("menu", menu))
 
+    # Send keyboard up
+    dp.add_handler(CommandHandler("keyboard", keyboard_up))
+    dp.add_handler(CommandHandler("kb", keyboard_up))
+
     # Shutdown
     dp.add_handler(CommandHandler("shutdown", shutdown))
 
@@ -629,6 +654,10 @@ def main():
 
     # Send a full screen screenshot through Imgur
     dp.add_handler(CommandHandler("screen", imgur))
+
+    # Keyboard Button Reply
+    dp.add_handler(MessageHandler(Filters.text |
+                                  Filters.status_update, message_handler))
 
     # Log all errors
     dp.add_error_handler(error)
