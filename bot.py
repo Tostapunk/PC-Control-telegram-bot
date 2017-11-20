@@ -46,7 +46,10 @@ def setGlobals():
     db = DBHandler("pccontrol.sqlite")
 
     global keyboard
-    keyboard = [['Help', 'Menu'],
+    keyboard = [['Shutdown', 'Reboot'],
+                ['Logout', 'Hibernate'],
+                ['PC status', 'Screenshot'],
+                ['Cancel'],
                 ['Close Keyboard']]
 
 def start(bot, update):
@@ -147,8 +150,13 @@ def keyboard_up(bot, update):
 
 def message_handler(bot, update):
     db.update_user(update.message.from_user)
-    if update.message.text == "Help": help(bot, update)
-    elif update.message.text == "Menu": menu(bot, update)
+    if update.message.text == "Shutdown": shutdown(bot, update)
+    elif update.message.text == "Reboot": reboot(bot, update)
+    elif update.message.text == "Logout": logout(bot, update)
+    elif update.message.text == "Hibernate": hibernate(bot, update)
+    elif update.message.text == "PC status": check(bot,update)
+    elif update.message.text == "Screenshot": imgur(bot, update)
+    elif update.message.text == "Cancel": cancel(bot, update)
     elif update.message.text == "Close Keyboard":
         text = "Keyboard is down."
         reply_markup = ReplyKeyboardRemove()
