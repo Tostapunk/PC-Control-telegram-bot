@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging, os, platform, socket, pyimgur, sqlite3, pytz, getpass
+import logging, os, platform, socket, pyimgur, sqlite3, pytz, getpass, threading
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Filters, MessageHandler
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 import tkinter as tk
@@ -501,23 +501,26 @@ def link(bot, update, args):
         text = "Unauthorized."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
-def memo(bot, update, args):
+def memo_thread(bot, update, args):
     db.update_user(update.message.from_user)
     handle = sqlite3.connect('pccontrol.sqlite')
     handle.row_factory = sqlite3.Row
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-        popup = tk.Tk()
-        popup.wm_title("Memo")
-        label = ttk.Label(popup, text=update.message.text[6:] + "\nsent by " + update.message.from_user.name +
-        " through PC-Control", font=("Helvetica", 10))
-        label.pack(side="top", fill="x", pady=10)
-        global delete
-        delete = popup.destroy
-        B1 = ttk.Button(popup, text="Okay", command=delete)
-        B1.pack()
-        popup.mainloop()
+        def memo():
+            popup = tk.Tk()
+            popup.wm_title("Memo")
+            label = ttk.Label(popup, text=update.message.text[6:] + "\nsent by " + update.message.from_user.name +
+            " through PC-Control", font=("Helvetica", 10))
+            label.pack(side="top", fill="x", pady=10)
+            global delete
+            delete = popup.destroy
+            B1 = ttk.Button(popup, text="Okay", command=delete)
+            B1.pack()
+            popup.mainloop()
+        t = threading.Thread(target=memo)
+        t.start()
     else:
         text = "Unauthorized."
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -660,7 +663,7 @@ def main():
     dp.add_handler(CommandHandler("link", link, pass_args=True))
 
     # Show a popup with the memo
-    dp.add_handler(CommandHandler("memo", memo, pass_args=True))
+    dp.add_handler(CommandHandler("memo", memo_thread, pass_args=True))
 
     # Check if a program is currently active
     dp.add_handler(CommandHandler("task", task, pass_args=True))
