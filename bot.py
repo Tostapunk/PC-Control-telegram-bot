@@ -164,6 +164,8 @@ def message_handler(bot, update):
         text = "Keyboard is down."
         reply_markup = ReplyKeyboardRemove()
         update.message.reply_text(text=text, reply_markup=reply_markup)
+    elif update.message.text == "Kill " + update.message.text[5:]: task_kill(bot, update)
+    elif update.message.text == "Exit": keyboard_up(bot, update)
 
 def shutdown(bot, update):
     if update.message:
@@ -536,13 +538,46 @@ def task(bot, update, args):
         if platform.system() == "Windows":
             try:
                 out = os.popen("tasklist | findstr %s" % (args[0])).read()
-                bot.sendMessage(chat_id=update.message.chat.id, text=out)
+                kill_kb = [['Kill %s'% (args[0])],
+                           ['Exit']]
+                reply_markup = ReplyKeyboardMarkup(kill_kb, resize_keyboard=True)
+                bot.sendMessage(chat_id=update.message.chat.id, text=out, reply_markup=reply_markup)
             except:
-                bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
+                kill_kb = [['Kill %s' % (args[0])],
+                           ['Exit']]
+                reply_markup = ReplyKeyboardMarkup(kill_kb, resize_keyboard=True)
+                bot.sendMessage(chat_id=update.message.chat.id, text=out, reply_markup=reply_markup)
         else:
             try:
                 out = os.popen("ps -A | grep %s" % (args[0])).read()
                 bot.sendMessage(chat_id=update.message.chat.id, text=out)
+            except:
+                bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
+    else:
+        text = "Unauthorized."
+        bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
+def task_kill(bot, update):
+    db.update_user(update.message.from_user)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        import platform;
+        platform.system()
+        if platform.system() == "Windows":
+            try:
+                os.system("tskill " + update.message.text[5:])
+                bot.sendMessage(chat_id=update.message.chat.id, text="I've killed "+ update.message.text[5:])
+                keyboard_up(bot, update)
+            except:
+                bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
+        else:
+            try:
+                os.system("pkill -f " + update.message.text[5:])
+                bot.sendMessage(chat_id=update.message.chat.id, text="I've killed " + update.message.text[5:])
+                keyboard_up(bot, update)
             except:
                 bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
     else:
@@ -667,6 +702,9 @@ def main():
 
     # Check if a program is currently active
     dp.add_handler(CommandHandler("task", task, pass_args=True))
+
+    # Kill the selected process
+    dp.add_handler(CommandHandler("task_kill", task_kill))
 
     # Send a full screen screenshot through Imgur
     dp.add_handler(CommandHandler("screen", imgur))
