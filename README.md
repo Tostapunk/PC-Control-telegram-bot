@@ -45,7 +45,7 @@ You're ready!
 /launch - To launch a program | Example: /launch notepad
 /link - To open a link | Example: /link http://google.com (don't use "www")
 /memo - To show a memo on your pc
-/task - To check if a process is currently running | Example: /task chrome
+/task - To check if a process is currently running or to kill it| Example: /task chrome
 /screen - To take a screenshot and receive it through Imgur
 /menu - Shows the inline menù
 /kb or /keyboard - Brings the normal keyboard up
