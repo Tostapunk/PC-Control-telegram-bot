@@ -1,0 +1,311 @@
+# Translations template for PROJECT.
+# Copyright (C) 2018 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2018-01-05 01:06+0100\n"
+"PO-Revision-Date: 2018-01-05 01:08+0100\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.5.1\n"
+"X-Generator: Poedit 2.0.5\n"
+"Last-Translator: Tostapunk\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: en\n"
+
+#: bot.py:61
+msgid ""
+"Welcome to <a href='https://github.com/Tostapunk/PC-Control-telegram-bot'>PC-"
+"Control bot</a>, you can get the bot profile picture <a href='http://i.imgur."
+"com/294uZ8G.png'>here</a>\n"
+"\n"
+"Use /help to see all the commands!\n"
+"\n"
+"\n"
+"Made by <a href='http://www.t.me/Tostapunk'>Tostapunk</a>\n"
+"<a href='https://twitter.com/Schiavon_Mattia'>Twitter</a> | <a href='https://"
+"plus.google.com/+MattiaSchiavon'>Google+</a> | <a href='https://github.com/"
+"Tostapunk'>GitHub</a>"
+msgstr ""
+
+#: bot.py:85
+msgid "<b>Available commands:</b>\n"
+msgstr ""
+
+#: bot.py:86
+msgid "/shutdown - To shutdown your PC\n"
+msgstr ""
+
+#: bot.py:87
+msgid "/reboot - To reboot your PC\n"
+msgstr ""
+
+#: bot.py:88
+msgid "/logout - To log out from your current account\n"
+msgstr ""
+
+#: bot.py:89
+msgid "/hibernate - To hibernate your PC\n"
+msgstr ""
+
+#: bot.py:90
+msgid "/cancel - To annul the previous command\n"
+msgstr ""
+
+#: bot.py:91
+msgid "/check - To check the PC status\n"
+msgstr ""
+
+#: bot.py:92
+msgid "/launch - To launch a program | Example: /launch notepad\n"
+msgstr ""
+
+#: bot.py:93
+msgid ""
+"/link - To open a link | Example: /link http://google.com (don't use \"www"
+"\")\n"
+msgstr ""
+
+#: bot.py:94
+msgid "/memo - To show a memo on your pc\n"
+msgstr ""
+
+#: bot.py:95
+msgid ""
+"/task - To check if a process is currently running or to kill it | Example: /"
+"task chrome\n"
+msgstr ""
+
+#: bot.py:96
+msgid "/screen - To take a screenshot and receive it through Imgur\n"
+msgstr ""
+
+#: bot.py:97
+msgid "/menu - Shows the inline menu\n"
+msgstr ""
+
+#: bot.py:98
+msgid ""
+"/kb or /keyboard - Brings the normal keyboard up\n"
+"\n"
+msgstr ""
+
+#: bot.py:99
+msgid ""
+"You can set a delay time for the execution of the first four commands by "
+"using _t + time in seconds after a command.\n"
+msgstr ""
+
+#: bot.py:101
+msgid "Example: /shutdown_t 20"
+msgstr ""
+
+#: bot.py:103 bot.py:126 bot.py:239 bot.py:263 bot.py:295 bot.py:319 bot.py:350
+#: bot.py:373 bot.py:405 bot.py:429 bot.py:461 bot.py:491 bot.py:518 bot.py:541
+#: bot.py:565 bot.py:595 bot.py:622 bot.py:666
+msgid "Unauthorized."
+msgstr ""
+
+#: bot.py:115 bot.py:149 bot.py:159
+msgid "Shutdown"
+msgstr ""
+
+#: bot.py:116 bot.py:149 bot.py:160
+msgid "Reboot"
+msgstr ""
+
+#: bot.py:117 bot.py:150 bot.py:161
+msgid "Logout"
+msgstr ""
+
+#: bot.py:118 bot.py:150 bot.py:162
+msgid "Hibernate"
+msgstr ""
+
+#: bot.py:119 bot.py:151 bot.py:163
+msgid "PC status"
+msgstr ""
+
+#: bot.py:120
+msgid "Screenshoot"
+msgstr ""
+
+#: bot.py:121 bot.py:152 bot.py:165
+msgid "Cancel"
+msgstr ""
+
+#: bot.py:124
+msgid "Please choose:"
+msgstr ""
+
+#: bot.py:136
+msgid "shutdown"
+msgstr ""
+
+#: bot.py:137
+msgid "reboot"
+msgstr ""
+
+#: bot.py:138
+msgid "logout"
+msgstr ""
+
+#: bot.py:139
+msgid "hibernate"
+msgstr ""
+
+#: bot.py:140
+msgid "check"
+msgstr ""
+
+#: bot.py:141
+msgid "screen"
+msgstr ""
+
+#: bot.py:142
+msgid "cancel"
+msgstr ""
+
+#: bot.py:148
+msgid "Keyboard is up."
+msgstr ""
+
+#: bot.py:151 bot.py:164
+msgid "Screenshot"
+msgstr ""
+
+#: bot.py:153 bot.py:166
+msgid "Close Keyboard"
+msgstr ""
+
+#: bot.py:167
+msgid "Keyboard is down."
+msgstr ""
+
+#: bot.py:170
+msgid "Kill "
+msgstr ""
+
+#: bot.py:171
+msgid "Exit"
+msgstr ""
+
+#: bot.py:172
+msgid "English"
+msgstr ""
+
+#: bot.py:173
+msgid "Italian"
+msgstr ""
+
+#: bot.py:224 bot.py:232
+msgid "Shutted down."
+msgstr ""
+
+#: bot.py:256 bot.py:260
+msgid "Shutting down..."
+msgstr ""
+
+#: bot.py:280 bot.py:288
+msgid "Rebooted."
+msgstr ""
+
+#: bot.py:312 bot.py:316
+msgid "Rebooting..."
+msgstr ""
+
+#: bot.py:336
+msgid "Logged out."
+msgstr ""
+
+#: bot.py:343 bot.py:370
+msgid "Currently not supported."
+msgstr ""
+
+#: bot.py:367
+msgid "Logging out..."
+msgstr ""
+
+#: bot.py:390 bot.py:398
+msgid "Hibernated."
+msgstr ""
+
+#: bot.py:422 bot.py:426
+msgid "Hibernating..."
+msgstr ""
+
+#: bot.py:446 bot.py:454
+msgid "Annulled."
+msgstr ""
+
+#: bot.py:480
+msgid ""
+"Your PC is online.\n"
+"\n"
+msgstr ""
+
+#: bot.py:481
+msgid "PC name: "
+msgstr ""
+
+#: bot.py:482
+msgid ""
+"\n"
+"Logged user: "
+msgstr ""
+
+#: bot.py:483
+msgid ""
+"\n"
+"OS: "
+msgstr ""
+
+#: bot.py:484
+msgid ""
+"\n"
+"Hw: "
+msgstr ""
+
+#: bot.py:508 bot.py:515
+msgid "Launching "
+msgstr ""
+
+#: bot.py:511
+msgid "Cannot launch "
+msgstr ""
+
+#: bot.py:531 bot.py:538
+msgid "Opening "
+msgstr ""
+
+#: bot.py:534
+msgid "Cannot open "
+msgstr ""
+
+#: bot.py:554
+msgid ""
+"\n"
+"sent by "
+msgstr ""
+
+#: bot.py:555
+msgid " through PC-Control"
+msgstr ""
+
+#: bot.py:593 bot.py:613 bot.py:620
+msgid "The program is not running"
+msgstr ""
+
+#: bot.py:610 bot.py:617
+msgid "I've killed "
+msgstr ""
+
+#: bot.py:654
+msgid "Uploaded with PC-Control"
+msgstr ""

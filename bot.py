@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging, os, platform, socket, pyimgur, sqlite3, pytz, getpass, threading
+import logging, os, platform, socket, pyimgur, sqlite3, pytz, getpass, threading, gettext
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Filters, MessageHandler
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove
 import tkinter as tk
@@ -44,13 +44,8 @@ class DBHandler:
 def setGlobals():
     global db
     db = DBHandler("pccontrol.sqlite")
-
-    global keyboard
-    keyboard = [['Shutdown', 'Reboot'],
-                ['Logout', 'Hibernate'],
-                ['PC status', 'Screenshot'],
-                ['Cancel'],
-                ['Close Keyboard']]
+    default_lang = gettext.translation("pccontrol", localedir="locale", languages=["en"])
+    default_lang.install()
 
 def start(bot, update):
     handle = sqlite3.connect('pccontrol.sqlite')
@@ -59,12 +54,11 @@ def start(bot, update):
     # The bot will automatically create the right db if it not exist
     cursor.execute(
         "CREATE TABLE IF NOT EXISTS `users` ( `id` INTEGER UNIQUE, `name_first` TEXT, `name_last` TEXT, `username` TEXT,"
-        " `privs` INTEGER, `last_use` INTEGER, `time_used` INTEGER, `notifications` INTEGER DEFAULT 1"
-        ", PRIMARY KEY(`id`))")
+        " `privs` INTEGER, `last_use` INTEGER, `time_used` INTEGER, `language` TEXT DEFAULT 'en', PRIMARY KEY(`id`))")
     handle.commit()
     db.update_user(update.message.from_user)
 
-    text = """Welcome to <a href='https://github.com/Tostapunk/PC-Control-telegram-bot'>PC-Control bot</a>, \
+    text = _("""Welcome to <a href='https://github.com/Tostapunk/PC-Control-telegram-bot'>PC-Control bot</a>, \
 you can get the bot profile picture <a href='http://i.imgur.com/294uZ8G.png'>here</a>
 
 Use /help to see all the commands!
@@ -73,60 +67,63 @@ Use /help to see all the commands!
 Made by <a href='http://www.t.me/Tostapunk'>Tostapunk</a>
 <a href='https://twitter.com/Schiavon_Mattia'>Twitter</a> | \
 <a href='https://plus.google.com/+MattiaSchiavon'>Google+</a> | \
-<a href='https://github.com/Tostapunk'>GitHub</a>"""
+<a href='https://github.com/Tostapunk'>GitHub</a>""")
 
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    language_kb = [[('English'), ('Italian')]]
+    reply_markup = ReplyKeyboardMarkup(language_kb, resize_keyboard=True)
     bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.HTML
                     , disable_web_page_preview="true", reply_markup=reply_markup)
 
 def help(bot, update):
+    lang_check(update)
     db.update_user(update.message.from_user)
     handle = sqlite3.connect('pccontrol.sqlite')
     handle.row_factory = sqlite3.Row
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-        text = """<b>Available commands:</b>
-    /shutdown - To shutdown your PC
-    /reboot - To reboot your PC
-    /logout - To log out from your current account
-    /hibernate - To hibernate your PC
-    /cancel - To annul the previous command
-    /check - To check the PC status
-    /launch - To launch a program | Example: /launch notepad
-    /link - To open a link | Example: /link http://google.com (don't use "www")
-    /memo - To show a memo on your pc
-    /task - To check if a process is currently running or to kill it | Example: /task chrome
-    /screen - To take a screenshot and receive it through Imgur
-    /menu - Shows the inline menù
-    /kb or /keyboard - Brings the normal keyboard up
-
-You can set a delay time for the execution of the first four commands by using _t + time in seconds after a command.
-    Example: /shutdown_t 20"""
+        text = _("<b>Available commands:</b>\n")
+        text += _("/shutdown - To shutdown your PC\n")
+        text += _("/reboot - To reboot your PC\n")
+        text += _("/logout - To log out from your current account\n")
+        text += _("/hibernate - To hibernate your PC\n")
+        text += _("/cancel - To annul the previous command\n")
+        text += _("/check - To check the PC status\n")
+        text += _("/launch - To launch a program | Example: /launch notepad\n")
+        text += _("/link - To open a link | Example: /link http://google.com (don't use \"www\")\n")
+        text += _("/memo - To show a memo on your pc\n")
+        text += _("/task - To check if a process is currently running or to kill it | Example: /task chrome\n")
+        text += _("/screen - To take a screenshot and receive it through Imgur\n")
+        text += _("/menu - Shows the inline menu\n")
+        text += _("/kb or /keyboard - Brings the normal keyboard up\n\n")
+        text += _("You can set a delay time for the execution of the first four commands by using _t + time in seconds"
+                  " after a command.\n")
+        text += _("Example: /shutdown_t 20")
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
     bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.HTML
                     , disable_web_page_preview="true")
 
 def menu(bot, update):
+    lang_check(update)
     db.update_user(update.message.from_user)
     handle = sqlite3.connect('pccontrol.sqlite')
     handle.row_factory = sqlite3.Row
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-                            keyboard = [[InlineKeyboardButton("Shutdown", callback_data='shutdown'),
-                            InlineKeyboardButton("Reboot", callback_data='reboot')],
-                            [InlineKeyboardButton("Logout", callback_data='logout'),
-                             InlineKeyboardButton("Hibernate", callback_data='hibernate')],
-                            [InlineKeyboardButton("PC status", callback_data='check'),
-                            InlineKeyboardButton("Screenshoot", callback_data='screen')],
-                            [InlineKeyboardButton("Cancel", callback_data='cancel')]]
+                            keyboard = [[InlineKeyboardButton(_("Shutdown"), callback_data='shutdown'),
+                            InlineKeyboardButton(_("Reboot"), callback_data='reboot')],
+                            [InlineKeyboardButton(_("Logout"), callback_data='logout'),
+                             InlineKeyboardButton(_("Hibernate"), callback_data='hibernate')],
+                            [InlineKeyboardButton(_("PC status"), callback_data='check'),
+                            InlineKeyboardButton(_("Screenshoot"), callback_data='screen')],
+                            [InlineKeyboardButton(_("Cancel"), callback_data='cancel')]]
 
                             reply_markup = InlineKeyboardMarkup(keyboard)
-                            update.message.reply_text('Please choose:', reply_markup=reply_markup)
+                            update.message.reply_text(_('Please choose:'), reply_markup=reply_markup)
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         if update.message:
             chat_id = update.message.chat.id
         elif update.callback_query:
@@ -136,36 +133,79 @@ def menu(bot, update):
 
 def button(bot, update):
     query = update.callback_query
-    if query.data == 'shutdown': shutdown(bot, update)
-    elif query.data == 'reboot': reboot(bot, update)
-    elif query.data == 'logout': logout(bot, update)
-    elif query.data == 'hibernate': hibernate(bot, update)
-    elif query.data == 'check': check(bot, update)
-    elif query.data == 'screen': imgur(bot, update)
-    elif query.data == 'cancel': cancel(bot, update)
+    if query.data == _('shutdown'): shutdown(bot, update)
+    elif query.data == _('reboot'): reboot(bot, update)
+    elif query.data == _('logout'): logout(bot, update)
+    elif query.data == _('hibernate'): hibernate(bot, update)
+    elif query.data == _('check'): check(bot, update)
+    elif query.data == _('screen'): imgur(bot, update)
+    elif query.data == _('cancel'): cancel(bot, update)
     bot.answer_callback_query(callback_query_id=query.id)
 
 def keyboard_up(bot, update):
+    lang_check(update)
     db.update_user(update.message.from_user)
-    text = "Keyboard is up."
+    text = _("Keyboard is up.")
+    keyboard = [[_('Shutdown'), _('Reboot')],
+                [_('Logout'), _('Hibernate')],
+                [_('PC status'), _('Screenshot')],
+                [_('Cancel')],
+                [_('Close Keyboard')]]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     update.message.reply_text(reply_markup=reply_markup, text=text)
 
 def message_handler(bot, update):
     db.update_user(update.message.from_user)
-    if update.message.text == "Shutdown": shutdown(bot, update)
-    elif update.message.text == "Reboot": reboot(bot, update)
-    elif update.message.text == "Logout": logout(bot, update)
-    elif update.message.text == "Hibernate": hibernate(bot, update)
-    elif update.message.text == "PC status": check(bot,update)
-    elif update.message.text == "Screenshot": imgur(bot, update)
-    elif update.message.text == "Cancel": cancel(bot, update)
-    elif update.message.text == "Close Keyboard":
-        text = "Keyboard is down."
+    if update.message.text == _("Shutdown"): shutdown(bot, update)
+    elif update.message.text == _("Reboot"): reboot(bot, update)
+    elif update.message.text == _("Logout"): logout(bot, update)
+    elif update.message.text == _("Hibernate"): hibernate(bot, update)
+    elif update.message.text == _("PC status"): check(bot,update)
+    elif update.message.text == _("Screenshot"): imgur(bot, update)
+    elif update.message.text == _("Cancel"): cancel(bot, update)
+    elif update.message.text == _("Close Keyboard"):
+        text = _("Keyboard is down.")
         reply_markup = ReplyKeyboardRemove()
         update.message.reply_text(text=text, reply_markup=reply_markup)
-    elif update.message.text == "Kill " + update.message.text[5:]: task_kill(bot, update)
-    elif update.message.text == "Exit": keyboard_up(bot, update)
+    elif update.message.text == _("Kill ") + update.message.text[5:]: task_kill(bot, update)
+    elif update.message.text == _("Exit"): keyboard_up(bot, update)
+    elif update.message.text == _("English"): en_lang(bot, update)
+    elif update.message.text == _("Italian"): it_lang(bot, update)
+
+def lang_check(update):
+    db.update_user(update.message.from_user)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT language FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
+    lang = "en"
+    if query:
+        lang = query["language"]
+    translate = gettext.translation("pccontrol", localedir="locale", languages=[lang])
+    translate.install()
+    return lang
+
+def en_lang(bot, update):
+    db.update_user(update.message.from_user)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    cursor.execute("UPDATE users SET language='en' WHERE id=?", (update.message.from_user.id,))
+    handle.commit()
+    text = "Language set to english"
+    update.message.reply_text(text=text)
+    keyboard_up(bot, update)
+
+def it_lang(bot, update):
+    db.update_user(update.message.from_user)
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    cursor.execute("UPDATE users SET language='it' WHERE id=?", (update.message.from_user.id,))
+    handle.commit()
+    text = "Lingua impostata su italiano"
+    update.message.reply_text(text=text)
+    keyboard_up(bot, update)
 
 def shutdown(bot, update):
     if update.message:
@@ -181,7 +221,7 @@ def shutdown(bot, update):
         import platform;platform.system()
         if platform.system() == "Windows":
             os.system('shutdown /s')
-            text = "Shutted down."
+            text = _("Shutted down.")
             if update.message:
                 chat_id = update.message.chat.id
             elif update.callback_query:
@@ -189,14 +229,14 @@ def shutdown(bot, update):
             bot.sendMessage(chat_id=chat_id, text=text)
         else:
             os.system('shutdown -h now')
-            text = "Shutted down."
+            text = _("Shutted down.")
             if update.message:
                 chat_id = update.message.chat.id
             elif update.callback_query:
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         if update.message:
             chat_id = update.message.chat.id
         elif update.callback_query:
@@ -213,14 +253,14 @@ def shutdown_time(bot, update, args):
         import platform;platform.system()
         if platform.system() == "Windows":
             os.system("shutdown /s /t %s" % (args[0]))
-            text = "Shutting down..."
+            text = _("Shutting down...")
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             os.system("shutdown -t %s" % (args[0]/60))
-            text = "Shutting down..."
+            text = _("Shutting down...")
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def reboot(bot, update):
@@ -237,7 +277,7 @@ def reboot(bot, update):
         import platform;platform.system()
         if platform.system() == "Windows":
             os.system('shutdown /r')
-            text = "Rebooted."
+            text = _("Rebooted.")
             if update.message:
                 chat_id = update.message.chat.id
             elif update.callback_query:
@@ -245,14 +285,14 @@ def reboot(bot, update):
             bot.sendMessage(chat_id=chat_id, text=text)
         else:
             os.system('reboot')
-            text = "Rebooted."
+            text = _("Rebooted.")
             if update.message:
                 chat_id = update.message.chat.id
             elif update.callback_query:
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         if update.message:
             chat_id = update.message.chat.id
         elif update.callback_query:
@@ -269,14 +309,14 @@ def reboot_time(bot, update, args):
         import platform;platform.system()
         if platform.system() == "Windows":
             os.system("shutdown /r /t %s" % (args[0]))
-            text = "Rebooting..."
+            text = _("Rebooting...")
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             os.system("reboot -t %s" % (args[0]/60))
-            text = "Rebooting..."
+            text = _("Rebooting...")
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def logout(bot, update):
@@ -293,21 +333,21 @@ def logout(bot, update):
         import platform;platform.system()
         if platform.system() == "Windows":
             os.system('shutdown /l')
-            text = "Logged out."
+            text = _("Logged out.")
             if update.message:
                 chat_id = update.message.chat.id
             elif update.callback_query:
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
         else:
-            text = "Currently not supported."
+            text = _("Currently not supported.")
             if update.message:
                 chat_id = update.message.chat.id
             elif update.callback_query:
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         if update.message:
             chat_id = update.message.chat.id
         elif update.callback_query:
@@ -324,13 +364,13 @@ def logout_time(bot, update, args):
         import platform;platform.system()
         if platform.system() == "Windows":
             os.system("shutdown /l /t %s" % (args[0]))
-            text = "Logging out..."
+            text = _("Logging out...")
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            text = "Currently not supported."
+            text = _("Currently not supported.")
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def hibernate(bot, update):
@@ -347,7 +387,7 @@ def hibernate(bot, update):
         import platform;platform.system()
         if platform.system() == "Windows":
             os.system('shutdown /h')
-            text = "Hibernated."
+            text = _("Hibernated.")
             if update.message:
                 chat_id = update.message.chat.id
             elif update.callback_query:
@@ -355,14 +395,14 @@ def hibernate(bot, update):
             bot.sendMessage(chat_id=chat_id, text=text)
         else:
             os.system('systemctl suspend')
-            text = "Hibernated."
+            text = _("Hibernated.")
             if update.message:
                 chat_id = update.message.chat.id
             elif update.callback_query:
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         if update.message:
             chat_id = update.message.chat.id
         elif update.callback_query:
@@ -379,14 +419,14 @@ def hibernate_time(bot, update, args):
         import platform;platform.system()
         if platform.system() == "Windows":
             os.system("shutdown /h /t %s" % (args[0]))
-            text = "Hibernating..."
+            text = _("Hibernating...")
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             os.system("sleep %s" % (args[0]) + "s; systemctl suspend")
-            text = "Hibernating..."
+            text = _("Hibernating...")
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def cancel(bot, update):
@@ -403,7 +443,7 @@ def cancel(bot, update):
         import platform;platform.system()
         if platform.system() == "Windows":
             os.system('shutdown /a')
-            text = "Annulled."
+            text = _("Annulled.")
             if update.message:
                 chat_id = update.message.chat.id
             elif update.callback_query:
@@ -411,14 +451,14 @@ def cancel(bot, update):
             bot.sendMessage(chat_id=chat_id, text=text)
         else:
             os.system('shutdown -c')
-            text = "Annulled."
+            text = _("Annulled.")
             if update.message:
                 chat_id = update.message.chat.id
             elif update.callback_query:
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         if update.message:
             chat_id = update.message.chat.id
         elif update.callback_query:
@@ -436,21 +476,19 @@ def check(bot, update):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
     if query["privs"] == -2:
-        print(socket.gethostname())
-        print platform.platform()
         text = ""
-        text += "Your PC is online.\n\n"
-        text += "PC name: " + (socket.gethostname())
-        text += "\nLogged user: " + getpass.getuser()
-        text += "\nOS: " + platform.platform()
-        text += "\nHw: " + platform.processor()
+        text += _("Your PC is online.\n\n")
+        text += _("PC name: ") + (socket.gethostname())
+        text += _("\nLogged user: ") + getpass.getuser()
+        text += _("\nOS: ") + platform.platform()
+        text += _("\nHw: ") + platform.processor()
         if update.message:
             chat_id = update.message.chat.id
         elif update.callback_query:
             chat_id = update.callback_query.message.chat.id
         bot.sendMessage(chat_id=chat_id, text=text)
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         if update.message:
             chat_id = update.message.chat.id
         elif update.callback_query:
@@ -467,17 +505,17 @@ def launch(bot, update, args):
         import platform;platform.system()
         if platform.system() == "Windows":
             ret = os.system("start %s" % (args[0]))
-            text = "Launching " + (args[0]) + "..."
+            text = _("Launching ") + (args[0]) + "..."
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
             if ret == 1:
-                text = "Cannot launch " + (args[0])
+                text = _("Cannot launch ") + (args[0])
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             os.system("%s" % (args[0]))
-            text = "Launching " + (args[0]) + "..."
+            text = _("Launching ") + (args[0]) + "..."
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def link(bot, update, args):
@@ -490,17 +528,17 @@ def link(bot, update, args):
         import platform;platform.system()
         if platform.system() == "Windows":
             ret = os.system("start %s" % (args[0]))
-            text = "Opening " + (args[0]) + "..."
+            text = _("Opening ") + (args[0]) + "..."
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
             if ret == 1:
-                text = "Cannot open " + (args[0])
+                text = _("Cannot open ") + (args[0])
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             os.system("xdg-open %s" % (args[0]))
-            text = "Opening " + (args[0]) + "..."
+            text = _("Opening ") + (args[0]) + "..."
             bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def memo_thread(bot, update, args):
@@ -513,8 +551,8 @@ def memo_thread(bot, update, args):
         def memo():
             popup = tk.Tk()
             popup.wm_title("Memo")
-            label = ttk.Label(popup, text=update.message.text[6:] + "\nsent by " + update.message.from_user.name +
-            " through PC-Control", font=("Helvetica", 10))
+            label = ttk.Label(popup, text=update.message.text[6:] + _("\nsent by ") + update.message.from_user.name +
+            _(" through PC-Control"), font=("Helvetica", 10))
             label.pack(side="top", fill="x", pady=10)
             global delete
             delete = popup.destroy
@@ -524,7 +562,7 @@ def memo_thread(bot, update, args):
         t = threading.Thread(target=memo)
         t.start()
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def task(bot, update, args):
@@ -552,9 +590,9 @@ def task(bot, update, args):
                 out = os.popen("ps -A | grep %s" % (args[0])).read()
                 bot.sendMessage(chat_id=update.message.chat.id, text=out)
             except:
-                bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
+                bot.sendMessage(chat_id=update.message.chat.id, text=_("The program is not running"))
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def task_kill(bot, update):
@@ -569,19 +607,19 @@ def task_kill(bot, update):
         if platform.system() == "Windows":
             try:
                 os.system("tskill " + update.message.text[5:])
-                bot.sendMessage(chat_id=update.message.chat.id, text="I've killed "+ update.message.text[5:])
+                bot.sendMessage(chat_id=update.message.chat.id, text=_("I've killed ")+ update.message.text[5:])
                 keyboard_up(bot, update)
             except:
-                bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
+                bot.sendMessage(chat_id=update.message.chat.id, text=_("The program is not running"))
         else:
             try:
                 os.system("pkill -f " + update.message.text[5:])
-                bot.sendMessage(chat_id=update.message.chat.id, text="I've killed " + update.message.text[5:])
+                bot.sendMessage(chat_id=update.message.chat.id, text=_("I've killed ") + update.message.text[5:])
                 keyboard_up(bot, update)
             except:
-                bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
+                bot.sendMessage(chat_id=update.message.chat.id, text=_("The program is not running"))
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def imgur(bot, update):
@@ -613,7 +651,7 @@ def imgur(bot, update):
         PATH = "screenshot.png"
 
         im = pyimgur.Imgur(CLIENT_ID)
-        uploaded_image = im.upload_image(PATH, title="Uploaded with PC-Control")
+        uploaded_image = im.upload_image(PATH, title=_("Uploaded with PC-Control"))
         if update.message:
             chat_id = update.message.chat.id
         elif update.callback_query:
@@ -625,7 +663,7 @@ def imgur(bot, update):
         else:
             os.system("rm -rf screenshot.png")
     else:
-        text = "Unauthorized."
+        text = _("Unauthorized.")
         if update.message:
             chat_id = update.message.chat.id
         elif update.callback_query:
@@ -648,66 +686,78 @@ def main():
     setGlobals()
 
     # Start
-    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("start", start)) #en & it
 
     # Help
-    dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("help", help)) #en
+    dp.add_handler(CommandHandler("aiuto", help)) #it
 
     # Menu
     updater.dispatcher.add_handler(CallbackQueryHandler(button))
-    dp.add_handler(CommandHandler("menu", menu))
+    dp.add_handler(CommandHandler("menu", menu)) #en & it
 
     # Send keyboard up
-    dp.add_handler(CommandHandler("keyboard", keyboard_up))
-    dp.add_handler(CommandHandler("kb", keyboard_up))
+    dp.add_handler(CommandHandler("keyboard", keyboard_up)) #en
+    dp.add_handler(CommandHandler("kb", keyboard_up)) #en
+    dp.add_handler(CommandHandler("tastiera", keyboard_up)) #it
 
     # Shutdown
-    dp.add_handler(CommandHandler("shutdown", shutdown))
+    dp.add_handler(CommandHandler("shutdown", shutdown)) #en
+    dp.add_handler(CommandHandler("spegni", shutdown)) #it
 
     # Shutdown time
-    dp.add_handler(CommandHandler("shutdown_t", shutdown_time, pass_args=True))
+    dp.add_handler(CommandHandler("shutdown_t", shutdown_time, pass_args=True)) #en
+    dp.add_handler(CommandHandler("spegni_t", shutdown_time, pass_args=True)) #it
 
     # Reboot
-    dp.add_handler(CommandHandler("reboot", reboot))
+    dp.add_handler(CommandHandler("reboot", reboot)) #en
+    dp.add_handler(CommandHandler("riavvia", reboot)) #it
 
     # Reboot time
-    dp.add_handler(CommandHandler("reboot_t", reboot_time, pass_args=True))
+    dp.add_handler(CommandHandler("reboot_t", reboot_time, pass_args=True)) #en
+    dp.add_handler(CommandHandler("riavvia_t", reboot_time, pass_args=True)) #it
 
     # Log out
-    dp.add_handler(CommandHandler("logout", logout))
+    dp.add_handler(CommandHandler("logout", logout)) #en & it
 
     # Log out time
-    dp.add_handler(CommandHandler("logout_t", logout_time, pass_args=True))
+    dp.add_handler(CommandHandler("logout_t", logout_time, pass_args=True)) #en & it
 
     # Hibernate
-    dp.add_handler(CommandHandler("hibernate", hibernate))
+    dp.add_handler(CommandHandler("hibernate", hibernate)) #en
+    dp.add_handler(CommandHandler("iberna", hibernate)) #it
 
     # Hibernate time
-    dp.add_handler(CommandHandler("hibernate_t", hibernate_time, pass_args=True))
+    dp.add_handler(CommandHandler("hibernate_t", hibernate_time, pass_args=True)) #en
+    dp.add_handler(CommandHandler("iberna_t", hibernate_time, pass_args=True)) #it
 
     # Annul the previous command
-    dp.add_handler(CommandHandler("cancel", cancel))
+    dp.add_handler(CommandHandler("cancel", cancel)) #en
+    dp.add_handler(CommandHandler("annulla", cancel)) #it
 
     # Check the PC status
-    dp.add_handler(CommandHandler("check", check))
+    dp.add_handler(CommandHandler("check", check)) #en
+    dp.add_handler(CommandHandler("PC", check)) #it
 
     # Launch a program
-    dp.add_handler(CommandHandler("launch", launch, pass_args=True))
+    dp.add_handler(CommandHandler("launch", launch, pass_args=True)) #en
+    dp.add_handler(CommandHandler("avvia", launch, pass_args=True)) #it
 
     # Open a link with the default browser
-    dp.add_handler(CommandHandler("link", link, pass_args=True))
+    dp.add_handler(CommandHandler("link", link, pass_args=True)) #en & it
 
     # Show a popup with the memo
-    dp.add_handler(CommandHandler("memo", memo_thread, pass_args=True))
+    dp.add_handler(CommandHandler("memo", memo_thread, pass_args=True)) #en & it
 
     # Check if a program is currently active
-    dp.add_handler(CommandHandler("task", task, pass_args=True))
+    dp.add_handler(CommandHandler("task", task, pass_args=True)) #en
+    dp.add_handler(CommandHandler("processo", task, pass_args=True)) #it
 
     # Kill the selected process
-    dp.add_handler(CommandHandler("task_kill", task_kill))
+    dp.add_handler(CommandHandler("task_kill", task_kill)) #en & it
 
     # Send a full screen screenshot through Imgur
-    dp.add_handler(CommandHandler("screen", imgur))
+    dp.add_handler(CommandHandler("screen", imgur)) #en & it
 
     # Keyboard Button Reply
     dp.add_handler(MessageHandler(Filters.text |
