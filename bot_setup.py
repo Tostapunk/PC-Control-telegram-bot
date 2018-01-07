@@ -24,8 +24,14 @@ def imgurGET(val2):
 def requirements():
     os.system("pip install -r requirements.txt > requirements_log.txt")
 
+def create_mo_files():
+    if os.path.isfile('locale/en/LC_MESSAGES/pccontrol.mo') is False:
+        os.system('pybabel compile -D pccontrol -d locale -l en -i locale/en/LC_MESSAGES/pccontrol.po')
+        os.system('pybabel compile -D pccontrol -d locale -l it -i locale/it/LC_MESSAGES/pccontrol.po')
+
 def bot_start():
     root.withdraw()
+    create_mo_files()
     os.system("python bot.py")
 
 L1 = Label(root, text="BotFather token", justify=LEFT)

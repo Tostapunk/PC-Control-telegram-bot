@@ -3,3 +3,4 @@ pyscreenshot
 python_telegram_bot
 Pillow
 pytz
+Babel
