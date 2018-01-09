@@ -26,6 +26,7 @@ def requirements():
 
 def create_mo_files():
     if os.path.isfile('locale/en/LC_MESSAGES/pccontrol.mo') is False:
+        os.system("pip install Babel")
         os.system('pybabel compile -D pccontrol -d locale -l en -i locale/en/LC_MESSAGES/pccontrol.po')
         os.system('pybabel compile -D pccontrol -d locale -l it -i locale/it/LC_MESSAGES/pccontrol.po')
 
@@ -54,4 +55,5 @@ B3.pack(pady=5)
 B4 = Tkinter.Button(root, text ="Start it!", command=bot_start)
 B4.pack(pady=5)
 
+create_mo_files()
 root.mainloop()
