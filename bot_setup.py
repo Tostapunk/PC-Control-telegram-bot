@@ -10,14 +10,14 @@ root.geometry("290x400")
 root.resizable(width=False, height=False)
 
 def botfatherGET(val1):
-    if (len(val1) >= 45 and len(token1.get()) <= 50):
+    if (len(val1) >= 45 and len(val1) <= 50):
         file = open('botfather.txt', 'w')
         file.write(val1)
         file.close()
         token1.destroy()
         B1.destroy()
         L1_done.configure(text="Token saved!", font="TImes 11", fg="green", justify=LEFT)
-    elif len(token1.get()) == 0:
+    elif len(val1) == 0:
         L1_done.configure(text="Your entry is empty", font="TImes 11", fg="red", justify=LEFT)
     else:
         L1_done.configure(text="The inserted token is wrong", font="TImes 11", fg="red", justify=LEFT)
