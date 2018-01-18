@@ -3,6 +3,8 @@
 
 Through this bot you can execute actions on your PC directly from Telegram!
 
+This bot is available in English and Italian.
+
 ## Getting Started
 
 ### Prerequisites
@@ -20,16 +22,17 @@ Install requirements.
 
 Now start it!
 
-![setup](https://i.imgur.com/EAxl9xS.png)
+![setup](https://i.imgur.com/akOPnxz.png)
 
 ## Set the permissions
 
-Set ```privs -2 ``` in the db (that will be created after the /start command) for the trusted people, only who have privs -2 can
-use the bot.
+Click the "Change user permissions" button to add or remove someone from the allowed users.\
+Just insert the wanted Telegram username (write it without @) and select if you want to add the permissions or
+remove them
 
 Example:
 
-![privs](https://i.imgur.com/ObTJRJ0.png)
+![privs](https://i.imgur.com/DyL2F8w.png)
 
 You're ready!
 
