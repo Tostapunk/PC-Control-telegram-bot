@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import Tkinter, os, platform
+import Tkinter, os, platform, sqlite3
 from Tkinter import *
 
 root = Tkinter.Tk()
@@ -70,6 +70,42 @@ def bot_start():
     create_mo_files()
     os.system("python bot.py")
 
+def privs_window():
+    privs = Tkinter.Toplevel(root)
+    privs.wm_title("Permissions")
+    usr_l = Label(privs, text="Username", font="Times 11 bold", justify=LEFT)
+    usr_l.pack()
+    usr_e = Entry(privs, bd=5)
+    usr_e.pack()
+    add_b = Tkinter.Button(privs, text="Add permissions", command=lambda: add_privs(usr_e.get()))
+    add_b.pack()
+    rm_b = Tkinter.Button(privs, text="Remove permissions", command=lambda: remove_privs(usr_e.get()))
+    rm_b.pack()
+    usr_done = Label(privs, text="")
+    usr_done.pack()
+
+    def add_privs(usr):
+        handle = sqlite3.connect('pccontrol.sqlite')
+        handle.row_factory = sqlite3.Row
+        cursor = handle.cursor()
+        cursor.execute("UPDATE users SET privs='-2' WHERE username=?", (usr,))
+        handle.commit()
+        usr_e.destroy()
+        add_b.destroy()
+        rm_b.destroy()
+        usr_done.configure(text="Permissions for " + usr + " changed!", font="TImes 11", fg="green", justify=LEFT)
+
+    def remove_privs(usr):
+        handle = sqlite3.connect('pccontrol.sqlite')
+        handle.row_factory = sqlite3.Row
+        cursor = handle.cursor()
+        cursor.execute("UPDATE users SET privs='' WHERE username=?", (usr,))
+        handle.commit()
+        usr_e.destroy()
+        add_b.destroy()
+        rm_b.destroy()
+        usr_done.configure(text="Permissions for " + usr + " changed!", font="TImes 11", fg="red", justify=LEFT)
+
 L1 = Label(root, text="BotFather token", font="TImes 11 bold", justify=LEFT)
 L1.pack()
 token1 = Entry(root, bd =5)
@@ -93,6 +129,9 @@ B3.pack(pady=5)
 
 B4 = Tkinter.Button(root, text="Start it!", command=bot_start)
 B4.pack(pady=5)
+
+B5 = Tkinter.Button(root, text="Change user permissions", command=privs_window)
+B5.pack(pady=5)
 
 botfather_token_check()
 imgur_token_check()
