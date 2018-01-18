@@ -9,6 +9,18 @@ root.wm_title("Setup")
 root.geometry("290x400")
 root.resizable(width=False, height=False)
 
+def botfather_token_check():
+    if os.path.isfile('botfather.txt') is False:
+        B1.configure(text="Confirm")
+    else:
+        B1.configure(text="Change token")
+
+def imgur_token_check():
+    if os.path.isfile('imgur.txt') is False:
+        B2.configure(text="Confirm")
+    else:
+        B2.configure(text="Change token")
+
 def botfatherGET(val1):
     if (len(val1) >= 45 and len(val1) <= 50):
         file = open('botfather.txt', 'w')
@@ -62,7 +74,7 @@ L1 = Label(root, text="BotFather token", font="TImes 11 bold", justify=LEFT)
 L1.pack()
 token1 = Entry(root, bd =5)
 token1.pack()
-B1 = Tkinter.Button(root, text="Confirm", command=lambda: botfatherGET(token1.get()))
+B1 = Tkinter.Button(root, text="", command=lambda: botfatherGET(token1.get()))
 B1.pack(pady=5)
 L1_done = Label(root, text="")
 L1_done.pack()
@@ -71,7 +83,7 @@ L2 = Label(root, text="Imgur token", font="TImes 11 bold", justify=LEFT)
 L2.pack()
 token2 = Entry(root, bd =5)
 token2.pack()
-B2 = Tkinter.Button(root, text="Confirm", command=lambda: imgurGET(token2.get()))
+B2 = Tkinter.Button(root, text="", command=lambda: imgurGET(token2.get()))
 B2.pack(pady=5)
 L2_done = Label(root, text="")
 L2_done.pack()
@@ -82,5 +94,7 @@ B3.pack(pady=5)
 B4 = Tkinter.Button(root, text="Start it!", command=bot_start)
 B4.pack(pady=5)
 
+botfather_token_check()
+imgur_token_check()
 create_mo_files()
 root.mainloop()
