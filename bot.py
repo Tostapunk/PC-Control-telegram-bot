@@ -48,16 +48,6 @@ def setGlobals():
     default_lang.install()
 
 def start(bot, update):
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    # The bot will automatically create the right db if it not exist
-    cursor.execute(
-        "CREATE TABLE IF NOT EXISTS `users` ( `id` INTEGER UNIQUE, `name_first` TEXT, `name_last` TEXT, `username` TEXT,"
-        " `privs` INTEGER, `last_use` INTEGER, `time_used` INTEGER, `language` TEXT DEFAULT 'en', PRIMARY KEY(`id`))")
-    handle.commit()
-    db.update_user(update.message.from_user)
-
     text = _("""Welcome to <a href='https://github.com/Tostapunk/PC-Control-telegram-bot'>PC-Control bot</a>, \
 you can get the bot profile picture <a href='http://i.imgur.com/294uZ8G.png'>here</a>
 
@@ -645,12 +635,14 @@ def imgur(bot, update):
         else:
             os.system("import -window root screenshot.png")
 
-        f = open('imgur.txt')
-        text = f.read()
-        CLIENT_ID = text
+        handle = sqlite3.connect('pccontrol.sqlite')
+        handle.row_factory = sqlite3.Row
+        cursor = handle.cursor()
+        cursor.execute("SELECT value FROM config WHERE name='Imgur_token'")
+        CLIENT_ID = cursor.fetchone()
         PATH = "screenshot.png"
 
-        im = pyimgur.Imgur(CLIENT_ID)
+        im = pyimgur.Imgur(CLIENT_ID["value"])
         uploaded_image = im.upload_image(PATH, title=_("Uploaded with PC-Control"))
         if update.message:
             chat_id = update.message.chat.id
@@ -674,11 +666,13 @@ def error(bot, update, error):
     logger.warn('Update "%s" caused error "%s"' % (update, error))
 
 def main():
-    # Get your token from the previous created file
-    f = open('botfather.txt')
-    text = f.read()
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    cursor.execute("SELECT value FROM config WHERE name='BotFather_token'")
+    token = cursor.fetchone()
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater(text)
+    updater = Updater(token["value"])
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
