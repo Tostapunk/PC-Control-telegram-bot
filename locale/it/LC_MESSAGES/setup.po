@@ -1,0 +1,117 @@
+# Translations template for PROJECT.
+# Copyright (C) 2018 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2018-01-23 22:38+0100\n"
+"PO-Revision-Date: 2018-01-23 22:40+0100\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.5.1\n"
+"X-Generator: Poedit 2.0.6\n"
+"Last-Translator: Tostapunk\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: it\n"
+
+#: bot_setup.py:88 bot_setup.py:99
+msgid "Confirm"
+msgstr "Conferma"
+
+#: bot_setup.py:90 bot_setup.py:101
+msgid "Change token"
+msgstr "Cambia token"
+
+#: bot_setup.py:118 bot_setup.py:132 bot_setup.py:153 bot_setup.py:165
+msgid "Token saved!"
+msgstr "Token salvato!"
+
+#: bot_setup.py:120 bot_setup.py:134 bot_setup.py:155 bot_setup.py:167
+msgid "Your entry is empty"
+msgstr "Nessun token inserito"
+
+#: bot_setup.py:122 bot_setup.py:136
+msgid "The inserted token is wrong"
+msgstr "Il token inserito non è corretto"
+
+#: bot_setup.py:171
+msgid ""
+"The requirements install process is done.\n"
+"Do you want to take a look to the log?"
+msgstr ""
+"Il processo di installazione dei requisiti è terminato.\n"
+"Vuoi vedere il log?"
+
+#: bot_setup.py:174
+msgid "Yes"
+msgstr "Si"
+
+#: bot_setup.py:204
+msgid "Permissions"
+msgstr "Permessi"
+
+#: bot_setup.py:205
+msgid "Username"
+msgstr "Username"
+
+#: bot_setup.py:209
+msgid "Add permissions"
+msgstr "Aggiungi permessi"
+
+#: bot_setup.py:211
+msgid "Remove permissions"
+msgstr "Rimuovi permessi"
+
+#: bot_setup.py:225 bot_setup.py:236
+#, python-format
+msgid "Permissions for %s changed!"
+msgstr "Permessi per %s cambiati!"
+
+#: bot_setup.py:240 bot_setup.py:243
+msgid "Restart"
+msgstr "Riavvia"
+
+#: bot_setup.py:241
+msgid "Please restart bot_setup to change language"
+msgstr "Riavvia bot_setup per cambiare lingua"
+
+#: bot_setup.py:251
+msgid "BotFather token"
+msgstr "Token di BotFather"
+
+#: bot_setup.py:260
+msgid "Imgur token"
+msgstr "Token di Imgur"
+
+#: bot_setup.py:269
+msgid "Install requirements"
+msgstr "Installa i requisiti"
+
+#: bot_setup.py:272
+msgid "Start it!"
+msgstr "Avvialo!"
+
+#: bot_setup.py:275
+msgid "Change user permissions"
+msgstr "Cambia i permessi di un utente"
+
+#: bot_setup.py:282
+msgid "Options"
+msgstr "Opzioni"
+
+#: bot_setup.py:285
+msgid "English"
+msgstr "Inglese"
+
+#: bot_setup.py:286
+msgid "Italian"
+msgstr "Italiano"
+
+#: bot_setup.py:287
+msgid "Language"
+msgstr "Lingua"
