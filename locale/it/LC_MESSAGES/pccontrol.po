@@ -7,19 +7,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-01-05 01:06+0100\n"
-"PO-Revision-Date: 2018-01-05 01:10+0100\n"
+"POT-Creation-Date: 2018-01-24 22:14+0100\n"
+"PO-Revision-Date: 2018-01-24 22:17+0100\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.5.1\n"
-"X-Generator: Poedit 2.0.5\n"
+"X-Generator: Poedit 2.0.6\n"
 "Last-Translator: Tostapunk\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Language: it\n"
 
-#: bot.py:61
+#: bot.py:51
 msgid ""
 "Welcome to <a href='https://github.com/Tostapunk/PC-Control-telegram-bot'>PC-"
 "Control bot</a>, you can get the bot profile picture <a href='http://i.imgur."
@@ -45,39 +45,39 @@ msgstr ""
 "plus.google.com/+MattiaSchiavon'>Google+</a> | <a href='https://github.com/"
 "Tostapunk'>GitHub</a>"
 
-#: bot.py:85
+#: bot.py:75
 msgid "<b>Available commands:</b>\n"
 msgstr "<b>Comandi disponibili:</b>\n"
 
-#: bot.py:86
+#: bot.py:76
 msgid "/shutdown - To shutdown your PC\n"
 msgstr "/spegni - Per spegnere il tuo PC\n"
 
-#: bot.py:87
+#: bot.py:77
 msgid "/reboot - To reboot your PC\n"
 msgstr "/riavvia - Per riavviare il tuo PC\n"
 
-#: bot.py:88
+#: bot.py:78
 msgid "/logout - To log out from your current account\n"
 msgstr "/logout - Per effettuare il logout dall'account attuale\n"
 
-#: bot.py:89
+#: bot.py:79
 msgid "/hibernate - To hibernate your PC\n"
 msgstr "/iberna - Per ibernare il tuo PC\n"
 
-#: bot.py:90
+#: bot.py:80
 msgid "/cancel - To annul the previous command\n"
 msgstr "/annulla - Per annullare il comando precedente\n"
 
-#: bot.py:91
+#: bot.py:81
 msgid "/check - To check the PC status\n"
 msgstr "/pc - Per controllare lo stato del PC\n"
 
-#: bot.py:92
+#: bot.py:82
 msgid "/launch - To launch a program | Example: /launch notepad\n"
 msgstr "/avvia - Per avviare un programma | Esempio: /avvia notepad\n"
 
-#: bot.py:93
+#: bot.py:83
 msgid ""
 "/link - To open a link | Example: /link http://google.com (don't use \"www"
 "\")\n"
@@ -85,11 +85,11 @@ msgstr ""
 "/link - Per aprire un link | Esempio: /link http://google.it (non usare \"www"
 "\")\n"
 
-#: bot.py:94
+#: bot.py:84
 msgid "/memo - To show a memo on your pc\n"
 msgstr "/memo - Per mostrare un memo sul tuo PC\n"
 
-#: bot.py:95
+#: bot.py:85
 msgid ""
 "/task - To check if a process is currently running or to kill it | Example: /"
 "task chrome\n"
@@ -97,15 +97,15 @@ msgstr ""
 "/processo - Per controllare se un processo è in esecuzione o per terminarlo "
 "| Esempio: /processo chrome\n"
 
-#: bot.py:96
+#: bot.py:86
 msgid "/screen - To take a screenshot and receive it through Imgur\n"
 msgstr "/screen - Per fare uno screenshot e riceverlo tramite Imgur\n"
 
-#: bot.py:97
+#: bot.py:87
 msgid "/menu - Shows the inline menu\n"
 msgstr "/menu - Mostra il menu inline\n"
 
-#: bot.py:98
+#: bot.py:88
 msgid ""
 "/kb or /keyboard - Brings the normal keyboard up\n"
 "\n"
@@ -113,7 +113,7 @@ msgstr ""
 "/kb or /tastiera- Rende visibile la tastiera principale\n"
 "\n"
 
-#: bot.py:99
+#: bot.py:89
 msgid ""
 "You can set a delay time for the execution of the first four commands by "
 "using _t + time in seconds after a command.\n"
@@ -121,149 +121,149 @@ msgstr ""
 "Puoi impostare un lasso di tempo per l'esecuzione dei primi quattro comandi "
 "usando _t + il tempo in secondi dopo un comando.\n"
 
-#: bot.py:101
+#: bot.py:91
 msgid "Example: /shutdown_t 20"
 msgstr "Esempio: /spegni_t 20"
 
-#: bot.py:103 bot.py:126 bot.py:239 bot.py:263 bot.py:295 bot.py:319 bot.py:350
-#: bot.py:373 bot.py:405 bot.py:429 bot.py:461 bot.py:491 bot.py:518 bot.py:541
-#: bot.py:565 bot.py:595 bot.py:622 bot.py:666
+#: bot.py:93 bot.py:116 bot.py:229 bot.py:253 bot.py:285 bot.py:309 bot.py:340
+#: bot.py:363 bot.py:395 bot.py:419 bot.py:451 bot.py:481 bot.py:508 bot.py:531
+#: bot.py:555 bot.py:585 bot.py:612 bot.py:666
 msgid "Unauthorized."
 msgstr "Non autorizzato."
 
-#: bot.py:115 bot.py:149 bot.py:159
+#: bot.py:105 bot.py:139 bot.py:149
 msgid "Shutdown"
 msgstr "Spegni"
 
-#: bot.py:116 bot.py:149 bot.py:160
+#: bot.py:106 bot.py:139 bot.py:150
 msgid "Reboot"
 msgstr "Riavvia"
 
-#: bot.py:117 bot.py:150 bot.py:161
+#: bot.py:107 bot.py:140 bot.py:151
 msgid "Logout"
 msgstr "Logout"
 
-#: bot.py:118 bot.py:150 bot.py:162
+#: bot.py:108 bot.py:140 bot.py:152
 msgid "Hibernate"
 msgstr "Iberna"
 
-#: bot.py:119 bot.py:151 bot.py:163
+#: bot.py:109 bot.py:141 bot.py:153
 msgid "PC status"
 msgstr "Stato del PC"
 
-#: bot.py:120
+#: bot.py:110
 msgid "Screenshoot"
 msgstr "Screenshoot"
 
-#: bot.py:121 bot.py:152 bot.py:165
+#: bot.py:111 bot.py:142 bot.py:155
 msgid "Cancel"
 msgstr "Annulla"
 
-#: bot.py:124
+#: bot.py:114
 msgid "Please choose:"
 msgstr "Scegli:"
 
-#: bot.py:136
+#: bot.py:126
 msgid "shutdown"
 msgstr "spegni"
 
-#: bot.py:137
+#: bot.py:127
 msgid "reboot"
 msgstr "riavvia"
 
-#: bot.py:138
+#: bot.py:128
 msgid "logout"
 msgstr "logout"
 
-#: bot.py:139
+#: bot.py:129
 msgid "hibernate"
 msgstr "iberna"
 
-#: bot.py:140
+#: bot.py:130
 msgid "check"
 msgstr "pc"
 
-#: bot.py:141
+#: bot.py:131
 msgid "screen"
 msgstr "screen"
 
-#: bot.py:142
+#: bot.py:132
 msgid "cancel"
 msgstr "annulla"
 
-#: bot.py:148
+#: bot.py:138
 msgid "Keyboard is up."
 msgstr "Tastiera attivata."
 
-#: bot.py:151 bot.py:164
+#: bot.py:141 bot.py:154
 msgid "Screenshot"
 msgstr "Screenshot"
 
-#: bot.py:153 bot.py:166
+#: bot.py:143 bot.py:156
 msgid "Close Keyboard"
 msgstr "Disattiva tastiera"
 
-#: bot.py:167
+#: bot.py:157
 msgid "Keyboard is down."
 msgstr "Tastiera disattivata."
 
-#: bot.py:170
+#: bot.py:160
 msgid "Kill "
 msgstr "Termina "
 
-#: bot.py:171
+#: bot.py:161
 msgid "Exit"
 msgstr "Esci"
 
-#: bot.py:172
+#: bot.py:162
 msgid "English"
 msgstr "Inglese"
 
-#: bot.py:173
+#: bot.py:163
 msgid "Italian"
 msgstr "Italiano"
 
-#: bot.py:224 bot.py:232
+#: bot.py:214 bot.py:222
 msgid "Shutted down."
 msgstr "Spento."
 
-#: bot.py:256 bot.py:260
+#: bot.py:246 bot.py:250
 msgid "Shutting down..."
 msgstr "Lo sto spegnendo..."
 
-#: bot.py:280 bot.py:288
+#: bot.py:270 bot.py:278
 msgid "Rebooted."
 msgstr "Riavviato."
 
-#: bot.py:312 bot.py:316
+#: bot.py:302 bot.py:306
 msgid "Rebooting..."
 msgstr "Lo sto riavviando..."
 
-#: bot.py:336
+#: bot.py:326
 msgid "Logged out."
 msgstr "Logout effettuato."
 
-#: bot.py:343 bot.py:370
+#: bot.py:333 bot.py:360
 msgid "Currently not supported."
 msgstr "Attualmente non supportato."
 
-#: bot.py:367
+#: bot.py:357
 msgid "Logging out..."
 msgstr "Sto effettuando il logout..."
 
-#: bot.py:390 bot.py:398
+#: bot.py:380 bot.py:388
 msgid "Hibernated."
 msgstr "Ibernato."
 
-#: bot.py:422 bot.py:426
+#: bot.py:412 bot.py:416
 msgid "Hibernating..."
 msgstr "Lo sto ibernando..."
 
-#: bot.py:446 bot.py:454
+#: bot.py:436 bot.py:444
 msgid "Annulled."
 msgstr "Annullato."
 
-#: bot.py:480
+#: bot.py:470
 msgid ""
 "Your PC is online.\n"
 "\n"
@@ -271,11 +271,11 @@ msgstr ""
 "Il tuo PC è online.\n"
 "\n"
 
-#: bot.py:481
+#: bot.py:471
 msgid "PC name: "
 msgstr "Nome del PC: "
 
-#: bot.py:482
+#: bot.py:472
 msgid ""
 "\n"
 "Logged user: "
@@ -283,7 +283,7 @@ msgstr ""
 "\n"
 "Utente che ha effettuato l'accesso: "
 
-#: bot.py:483
+#: bot.py:473
 msgid ""
 "\n"
 "OS: "
@@ -291,7 +291,7 @@ msgstr ""
 "\n"
 "Sistema operativo: "
 
-#: bot.py:484
+#: bot.py:474
 msgid ""
 "\n"
 "Hw: "
@@ -299,23 +299,23 @@ msgstr ""
 "\n"
 "Hardware: "
 
-#: bot.py:508 bot.py:515
+#: bot.py:498 bot.py:505
 msgid "Launching "
 msgstr "Avviando "
 
-#: bot.py:511
+#: bot.py:501
 msgid "Cannot launch "
 msgstr "Non posso avviare "
 
-#: bot.py:531 bot.py:538
+#: bot.py:521 bot.py:528
 msgid "Opening "
 msgstr "Aprendo "
 
-#: bot.py:534
+#: bot.py:524
 msgid "Cannot open "
 msgstr "Non posso aprire "
 
-#: bot.py:554
+#: bot.py:544
 msgid ""
 "\n"
 "sent by "
@@ -323,17 +323,21 @@ msgstr ""
 "\n"
 "inviato da "
 
-#: bot.py:555
+#: bot.py:545
 msgid " through PC-Control"
 msgstr " tramite PC-Control"
 
-#: bot.py:593 bot.py:613 bot.py:620
+#: bot.py:583 bot.py:603 bot.py:610
 msgid "The program is not running"
 msgstr "Il programma non è in esecuzione"
 
-#: bot.py:610 bot.py:617
+#: bot.py:600 bot.py:607
 msgid "I've killed "
 msgstr "L'ho terminato "
+
+#: bot.py:644
+msgid "Cannot find an Imgur token"
+msgstr "Non trovo un token di Imgur"
 
 #: bot.py:654
 msgid "Uploaded with PC-Control"

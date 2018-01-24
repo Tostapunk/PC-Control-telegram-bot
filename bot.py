@@ -639,21 +639,29 @@ def imgur(bot, update):
         handle.row_factory = sqlite3.Row
         cursor = handle.cursor()
         cursor.execute("SELECT value FROM config WHERE name='Imgur_token'")
-        CLIENT_ID = cursor.fetchone()
-        PATH = "screenshot.png"
-
-        im = pyimgur.Imgur(CLIENT_ID["value"])
-        uploaded_image = im.upload_image(PATH, title=_("Uploaded with PC-Control"))
-        if update.message:
-            chat_id = update.message.chat.id
-        elif update.callback_query:
-            chat_id = update.callback_query.message.chat.id
-        bot.sendMessage(chat_id=chat_id, text=uploaded_image.link)
-
-        if platform.system() == "Windows":
-            os.system('del screenshot.png')
+        check = cursor.fetchall()
+        if len(check) == 0:
+            bot.sendMessage(chat_id=update.message.chat.id, text=_("Cannot find an Imgur token"))
         else:
-            os.system("rm -rf screenshot.png")
+            handle = sqlite3.connect('pccontrol.sqlite')
+            handle.row_factory = sqlite3.Row
+            cursor = handle.cursor()
+            cursor.execute("SELECT value FROM config WHERE name='Imgur_token'")
+            CLIENT_ID = cursor.fetchone()
+            PATH = "screenshot.png"
+
+            im = pyimgur.Imgur(CLIENT_ID["value"])
+            uploaded_image = im.upload_image(PATH, title=_("Uploaded with PC-Control"))
+            if update.message:
+                chat_id = update.message.chat.id
+            elif update.callback_query:
+                chat_id = update.callback_query.message.chat.id
+            bot.sendMessage(chat_id=chat_id, text=uploaded_image.link)
+
+            if platform.system() == "Windows":
+                os.system('del screenshot.png')
+            else:
+                os.system("rm -rf screenshot.png")
     else:
         text = _("Unauthorized.")
         if update.message:
