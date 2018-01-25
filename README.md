@@ -16,13 +16,15 @@ GNU/Linux users: you need to install the python-tk package
 
 ## Setup the bot
 
-Launch the setup with ```python bot_setup.py``` and add your tokens.
+Launch the setup with ```python bot_setup.py```
+
+Select your language from the options menu and add your tokens.
 
 Install requirements.
 
 Now start it!
 
-![setup](https://i.imgur.com/akOPnxz.png)
+![setup](https://i.imgur.com/JJBVG9I.png)
 
 ## Set the permissions
 
@@ -38,21 +40,22 @@ You're ready!
 
 ### Available commands
 
-```
-/shutdown - To shutdown your PC
-/reboot - To reboot your PC
-/logout - To log out from your current account | Currently not working on Linux
-/hibernate - To hibernate your PC
-/cancel - To annul the previous command | It work with the first four commands
-/check - To check the PC status
-/launch - To launch a program | Example: /launch notepad
-/link - To open a link | Example: /link http://google.com (don't use "www")
-/memo - To show a memo on your pc
-/task - To check if a process is currently running or to kill it| Example: /task chrome
-/screen - To take a screenshot and receive it through Imgur
-/menu - Shows the inline menù
-/kb or /keyboard - Brings the normal keyboard up
-```
+| Command | Description | Note
+| --- | --- | --- |
+| /shutdown | Shutdown your PC |
+| /reboot | Reboot your PC |
+| /logout | Log out from your current account | Currently not working on Linux |
+| /hibernate | Hibernate your PC |
+| /cancel | Annul the previous command | It work with the first four commands |
+| /check | Check the PC status |
+| /launch | Launch a program | Example: /launch notepad |
+| /link | Open a web link | Example: /link http://google.com (don't use "www") |
+| /memo | Show a memo on your pc |
+| /task | Check if a process is currently running or kill it| Example: /task chrome |
+| /screen | Take a screenshot and receive it through Imgur |
+| /menu | Shows the inline menù |
+| /kb or /keyboard | Brings the normal keyboard up |
+
 
 ## Contributors
 Thanks to [Jasoc](https://github.com/jasoc) for the awesome [logo](https://i.imgur.com/V6B5ZEf.png)!
