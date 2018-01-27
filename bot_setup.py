@@ -9,10 +9,7 @@ root.wm_title("Setup")
 root.geometry("290x400")
 root.resizable(width=False, height=False)
 
-default_lang = gettext.translation("setup", localedir="locale", languages=["en"])
-default_lang.install()
-
-def db():
+def db_and_co():
     handle = sqlite3.connect('pccontrol.sqlite')
     handle.row_factory = sqlite3.Row
     cursor = handle.cursor()
@@ -27,6 +24,7 @@ def db():
     cursor.execute(users_table)
     handle.commit()
 
+    create_mo_files()
     cursor.execute("SELECT value FROM config WHERE name='language'")
     query = cursor.fetchone()
     lang = "en"
@@ -247,7 +245,7 @@ def restart_popup():
         python = sys.executable
         os.execl(python, python, *sys.argv)
 
-db()
+db_and_co()
 L1 = Label(root, text=_("BotFather token"), font="TImes 11 bold", justify=LEFT)
 L1.pack()
 token1 = Entry(root, bd =5)
@@ -275,7 +273,7 @@ B4.pack(pady=5)
 B5 = Tkinter.Button(root, text=_("Change user permissions"), command=privs_window)
 B5.pack(pady=5)
 
-db()
+db_and_co()
 menubar = Menu(root)
 root.config(menu=menubar)
 filemenu = Menu(menubar, tearoff=0)
@@ -286,7 +284,7 @@ lang_menu.add_command(label=_("English"), command=lambda: en_lang())
 lang_menu.add_command(label=_("Italian"), command=lambda: it_lang())
 filemenu.add_cascade(label=_("Language"), menu=lang_menu, underline=0)
 
-db()
+db_and_co()
 botfather_token_check()
 imgur_token_check()
 create_mo_files()
