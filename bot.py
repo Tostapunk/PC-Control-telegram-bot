@@ -240,15 +240,19 @@ def shutdown_time(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-        import platform;platform.system()
-        if platform.system() == "Windows":
-            os.system("shutdown /s /t %s" % (args[0]))
-            text = _("Shutting down...")
-            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        if len(args) != 0:
+            import platform;platform.system()
+            if platform.system() == "Windows":
+                os.system("shutdown /s /t %s" % (args[0]))
+                text = _("Shutting down...")
+                bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            else:
+                os.system("shutdown -t %s" % (args[0]/60))
+                text = _("Shutting down...")
+                bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            os.system("shutdown -t %s" % (args[0]/60))
-            text = _("Shutting down...")
-            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            text = _("No time inserted\n``` Usage: /shutdown_t + time in seconds```")
+            bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.MARKDOWN)
     else:
         text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -296,15 +300,19 @@ def reboot_time(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-        import platform;platform.system()
-        if platform.system() == "Windows":
-            os.system("shutdown /r /t %s" % (args[0]))
-            text = _("Rebooting...")
-            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        if len(args) != 0:
+            import platform;platform.system()
+            if platform.system() == "Windows":
+                os.system("shutdown /r /t %s" % (args[0]))
+                text = _("Rebooting...")
+                bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            else:
+                os.system("reboot -t %s" % (args[0]/60))
+                text = _("Rebooting...")
+                bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            os.system("reboot -t %s" % (args[0]/60))
-            text = _("Rebooting...")
-            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            text = _("No time inserted\n``` Usage: /reboot_t + time in seconds```")
+            bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.MARKDOWN)
     else:
         text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -351,14 +359,18 @@ def logout_time(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-        import platform;platform.system()
-        if platform.system() == "Windows":
-            os.system("shutdown /l /t %s" % (args[0]))
-            text = _("Logging out...")
-            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        if len(args) != 0:
+            import platform;platform.system()
+            if platform.system() == "Windows":
+                os.system("shutdown /l /t %s" % (args[0]))
+                text = _("Logging out...")
+                bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            else:
+                text = _("Currently not supported.")
+                bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            text = _("Currently not supported.")
-            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            text = _("No time inserted\n``` Usage: /logout_t + time in seconds```")
+            bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.MARKDOWN)
     else:
         text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -406,15 +418,19 @@ def hibernate_time(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-        import platform;platform.system()
-        if platform.system() == "Windows":
-            os.system("shutdown /h /t %s" % (args[0]))
-            text = _("Hibernating...")
-            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        if len(args) != 0:
+            import platform;platform.system()
+            if platform.system() == "Windows":
+                os.system("shutdown /h /t %s" % (args[0]))
+                text = _("Hibernating...")
+                bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            else:
+                os.system("sleep %s" % (args[0]) + "s; systemctl suspend")
+                text = _("Hibernating...")
+                bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            os.system("sleep %s" % (args[0]) + "s; systemctl suspend")
-            text = _("Hibernating...")
-            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            text = _("No time inserted\n``` Usage: /hibernate_t + time in seconds```")
+            bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.MARKDOWN)
     else:
         text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -492,18 +508,22 @@ def launch(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-        import platform;platform.system()
-        if platform.system() == "Windows":
-            ret = os.system("start %s" % (args[0]))
-            text = _("Launching ") + (args[0]) + "..."
-            bot.sendMessage(chat_id=update.message.chat.id, text=text)
-            if ret == 1:
-                text = _("Cannot launch ") + (args[0])
+        if len(args) != 0:
+            import platform;platform.system()
+            if platform.system() == "Windows":
+                ret = os.system("start %s" % (args[0]))
+                text = _("Launching ") + (args[0]) + "..."
+                bot.sendMessage(chat_id=update.message.chat.id, text=text)
+                if ret == 1:
+                    text = _("Cannot launch ") + (args[0])
+                    bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            else:
+                os.system("%s" % (args[0]))
+                text = _("Launching ") + (args[0]) + "..."
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            os.system("%s" % (args[0]))
-            text = _("Launching ") + (args[0]) + "..."
-            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            text = _("No program name inserted\n``` Usage: /launch + program name```")
+            bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.MARKDOWN)
     else:
         text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -515,18 +535,22 @@ def link(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-        import platform;platform.system()
-        if platform.system() == "Windows":
-            ret = os.system("start %s" % (args[0]))
-            text = _("Opening ") + (args[0]) + "..."
-            bot.sendMessage(chat_id=update.message.chat.id, text=text)
-            if ret == 1:
-                text = _("Cannot open ") + (args[0])
+        if len(args) != 0:
+            import platform;platform.system()
+            if platform.system() == "Windows":
+                ret = os.system("start %s" % (args[0]))
+                text = _("Opening ") + (args[0]) + "..."
+                bot.sendMessage(chat_id=update.message.chat.id, text=text)
+                if ret == 1:
+                    text = _("Cannot open ") + (args[0])
+                    bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            else:
+                os.system("xdg-open %s" % (args[0]))
+                text = _("Opening ") + (args[0]) + "..."
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            os.system("xdg-open %s" % (args[0]))
-            text = _("Opening ") + (args[0]) + "..."
-            bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            text = _("No link inserted\n``` Usage: /link + web link```")
+            bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.MARKDOWN)
     else:
         text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -562,25 +586,29 @@ def task(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-        import platform;platform.system()
-        if platform.system() == "Windows":
-            try:
-                out = os.popen("tasklist | findstr %s" % (args[0])).read()
-                kill_kb = [['Kill %s'% (args[0])],
-                           ['Exit']]
-                reply_markup = ReplyKeyboardMarkup(kill_kb, resize_keyboard=True)
-                bot.sendMessage(chat_id=update.message.chat.id, text=out, reply_markup=reply_markup)
-            except:
-                kill_kb = [['Kill %s' % (args[0])],
-                           ['Exit']]
-                reply_markup = ReplyKeyboardMarkup(kill_kb, resize_keyboard=True)
-                bot.sendMessage(chat_id=update.message.chat.id, text=out, reply_markup=reply_markup)
+        if len(args) != 0:
+            import platform;platform.system()
+            if platform.system() == "Windows":
+                try:
+                    out = os.popen("tasklist | findstr %s" % (args[0])).read()
+                    kill_kb = [[_('Kill %s')% (args[0])],
+                               [_('Exit')]]
+                    reply_markup = ReplyKeyboardMarkup(kill_kb, resize_keyboard=True)
+                    bot.sendMessage(chat_id=update.message.chat.id, text=out, reply_markup=reply_markup)
+                except:
+                    kill_kb = [[_('Kill %s') % (args[0])],
+                               [_('Exit')]]
+                    reply_markup = ReplyKeyboardMarkup(kill_kb, resize_keyboard=True)
+                    bot.sendMessage(chat_id=update.message.chat.id, text=out, reply_markup=reply_markup)
+            else:
+                try:
+                    out = os.popen("ps -A | grep %s" % (args[0])).read()
+                    bot.sendMessage(chat_id=update.message.chat.id, text=out)
+                except:
+                    bot.sendMessage(chat_id=update.message.chat.id, text=_("The program is not running"))
         else:
-            try:
-                out = os.popen("ps -A | grep %s" % (args[0])).read()
-                bot.sendMessage(chat_id=update.message.chat.id, text=out)
-            except:
-                bot.sendMessage(chat_id=update.message.chat.id, text=_("The program is not running"))
+            text = _("No task inserted\n``` Usage: /task + process name```")
+            bot.sendMessage(chat_id=update.message.chat.id, text=text, parse_mode=ParseMode.MARKDOWN)
     else:
         text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
