@@ -146,6 +146,10 @@ def keyboard_up(bot, update):
 
 def message_handler(bot, update):
     db.update_user(update.message.from_user)
+    if lang_check(update) == "it":
+        args = update.message.text[8:]
+    else:
+        args = update.message.text[5:]
     if update.message.text == _("Shutdown"): shutdown(bot, update)
     elif update.message.text == _("Reboot"): reboot(bot, update)
     elif update.message.text == _("Logout"): logout(bot, update)
@@ -157,7 +161,7 @@ def message_handler(bot, update):
         text = _("Keyboard is down.")
         reply_markup = ReplyKeyboardRemove()
         update.message.reply_text(text=text, reply_markup=reply_markup)
-    elif update.message.text == _("Kill ") + update.message.text[5:]: task_kill(bot, update)
+    elif update.message.text == _("Kill ") + args: task_kill(bot, update)
     elif update.message.text == _("Exit"): keyboard_up(bot, update)
     elif update.message.text == _("English"): en_lang(bot, update)
     elif update.message.text == _("Italian"): it_lang(bot, update)
@@ -624,19 +628,22 @@ def task_kill(bot, update):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-        import platform;
-        platform.system()
+        if lang_check(update) == 'it':
+            args = update.message.text[8:]
+        else:
+            args = update.message.text[5:]
+        import platform;platform.system()
         if platform.system() == "Windows":
             try:
-                os.system("tskill " + update.message.text[5:])
-                bot.sendMessage(chat_id=update.message.chat.id, text=_("I've killed ")+ update.message.text[5:])
+                os.system("tskill " + args)
+                bot.sendMessage(chat_id=update.message.chat.id, text=_("I've killed ") + args)
                 keyboard_up(bot, update)
             except:
                 bot.sendMessage(chat_id=update.message.chat.id, text=_("The program is not running"))
         else:
             try:
-                os.system("pkill -f " + update.message.text[5:])
-                bot.sendMessage(chat_id=update.message.chat.id, text=_("I've killed ") + update.message.text[5:])
+                os.system("pkill -f " + args)
+                bot.sendMessage(chat_id=update.message.chat.id, text=_("I've killed ") + args)
                 keyboard_up(bot, update)
             except:
                 bot.sendMessage(chat_id=update.message.chat.id, text=_("The program is not running"))
