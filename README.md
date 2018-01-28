@@ -46,7 +46,7 @@ You're ready!
 | /reboot | Reboot your PC |
 | /logout | Log out from your current account | Currently not working on Linux |
 | /hibernate | Hibernate your PC |
-| /cancel | Annul the previous command | It work with the first four commands |
+| /cancel | Annul the previous command | It work with the first two commands_t |
 | /check | Check the PC status |
 | /launch | Launch a program | Example: /launch notepad |
 | /link | Open a web link | Example: /link http://google.com (don't use "www") |
@@ -56,6 +56,8 @@ You're ready!
 | /menu | Shows the inline menù |
 | /kb or /keyboard | Brings the normal keyboard up |
 
+You can set a delay time for the execution of the first four commands by using _t + time in seconds after a command.\
+Example: ```/shutdown_t 20```
 
 ## Contributors
 Thanks to [Jasoc](https://github.com/jasoc) for the awesome [logo](https://i.imgur.com/V6B5ZEf.png)!
