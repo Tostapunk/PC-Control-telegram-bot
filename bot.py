@@ -423,9 +423,11 @@ def hibernate_time(bot, update, args):
         if len(args) != 0:
             import platform;platform.system()
             if platform.system() == "Windows":
-                os.system("shutdown /h /t %s" % (args[0]))
                 text = _("Hibernating...")
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
+                import time
+                time.sleep(float(args[0]))
+                os.system("shutdown /h")
             else:
                 os.system("sleep %s" % (args[0]) + "s; systemctl suspend")
                 text = _("Hibernating...")
