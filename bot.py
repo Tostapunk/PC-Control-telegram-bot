@@ -362,9 +362,11 @@ def logout_time(bot, update, args):
         if len(args) != 0:
             import platform;platform.system()
             if platform.system() == "Windows":
-                os.system("shutdown /l /t %s" % (args[0]))
                 text = _("Logging out...")
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
+                import time
+                time.sleep(float(args[0]))
+                os.system("shutdown /l")
             else:
                 text = _("Currently not supported.")
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
