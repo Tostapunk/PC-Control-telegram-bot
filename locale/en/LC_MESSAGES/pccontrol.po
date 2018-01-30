@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-01-27 13:11+0100\n"
-"PO-Revision-Date: 2018-01-27 13:12+0100\n"
+"POT-Creation-Date: 2018-01-30 22:18+0100\n"
+"PO-Revision-Date: 2018-01-30 22:18+0100\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -106,29 +106,29 @@ msgstr ""
 msgid "Example: /shutdown_t 20"
 msgstr ""
 
-#: bot.py:93 bot.py:116 bot.py:229 bot.py:257 bot.py:289 bot.py:317 bot.py:348
-#: bot.py:375 bot.py:407 bot.py:435 bot.py:467 bot.py:497 bot.py:528 bot.py:555
-#: bot.py:579 bot.py:613 bot.py:640 bot.py:694
+#: bot.py:93 bot.py:116 bot.py:233 bot.py:261 bot.py:293 bot.py:321 bot.py:352
+#: bot.py:381 bot.py:413 bot.py:443 bot.py:475 bot.py:505 bot.py:536 bot.py:563
+#: bot.py:593 bot.py:627 bot.py:657 bot.py:711
 msgid "Unauthorized."
 msgstr ""
 
-#: bot.py:105 bot.py:139 bot.py:149
+#: bot.py:105 bot.py:139 bot.py:153
 msgid "Shutdown"
 msgstr ""
 
-#: bot.py:106 bot.py:139 bot.py:150
+#: bot.py:106 bot.py:139 bot.py:154
 msgid "Reboot"
 msgstr ""
 
-#: bot.py:107 bot.py:140 bot.py:151
+#: bot.py:107 bot.py:140 bot.py:155
 msgid "Logout"
 msgstr ""
 
-#: bot.py:108 bot.py:140 bot.py:152
+#: bot.py:108 bot.py:140 bot.py:156
 msgid "Hibernate"
 msgstr ""
 
-#: bot.py:109 bot.py:141 bot.py:153
+#: bot.py:109 bot.py:141 bot.py:157
 msgid "PC status"
 msgstr ""
 
@@ -136,7 +136,7 @@ msgstr ""
 msgid "Screenshoot"
 msgstr ""
 
-#: bot.py:111 bot.py:142 bot.py:155
+#: bot.py:111 bot.py:142 bot.py:159
 msgid "Cancel"
 msgstr ""
 
@@ -176,187 +176,191 @@ msgstr ""
 msgid "Keyboard is up."
 msgstr ""
 
-#: bot.py:141 bot.py:154
+#: bot.py:141 bot.py:158
 msgid "Screenshot"
 msgstr ""
 
-#: bot.py:143 bot.py:156
+#: bot.py:143 bot.py:160
 msgid "Close Keyboard"
 msgstr ""
 
-#: bot.py:157
+#: bot.py:161
 msgid "Keyboard is down."
 msgstr ""
 
-#: bot.py:160
+#: bot.py:164
 msgid "Kill "
 msgstr ""
 
-#: bot.py:161 bot.py:595 bot.py:600
+#: bot.py:165 bot.py:609 bot.py:614
 msgid "Exit"
 msgstr ""
 
-#: bot.py:162
+#: bot.py:166
 msgid "English"
 msgstr ""
 
-#: bot.py:163
+#: bot.py:167
 msgid "Italian"
 msgstr ""
 
-#: bot.py:214 bot.py:222
+#: bot.py:218 bot.py:226
 msgid "Shutted down."
 msgstr ""
 
-#: bot.py:247 bot.py:251
+#: bot.py:251 bot.py:255
 msgid "Shutting down..."
 msgstr ""
 
-#: bot.py:254
+#: bot.py:258
 msgid ""
 "No time inserted\n"
 "``` Usage: /shutdown_t + time in seconds```"
 msgstr ""
 
-#: bot.py:274 bot.py:282
+#: bot.py:278 bot.py:286
 msgid "Rebooted."
 msgstr ""
 
-#: bot.py:307 bot.py:311
+#: bot.py:311 bot.py:315
 msgid "Rebooting..."
 msgstr ""
 
-#: bot.py:314
+#: bot.py:318
 msgid ""
 "No time inserted\n"
 "``` Usage: /reboot_t + time in seconds```"
 msgstr ""
 
-#: bot.py:334
+#: bot.py:338
 msgid "Logged out."
 msgstr ""
 
-#: bot.py:341 bot.py:369
+#: bot.py:345 bot.py:375
 msgid "Currently not supported."
 msgstr ""
 
-#: bot.py:366
+#: bot.py:369
 msgid "Logging out..."
 msgstr ""
 
-#: bot.py:372
+#: bot.py:378
 msgid ""
 "No time inserted\n"
 "``` Usage: /logout_t + time in seconds```"
 msgstr ""
 
-#: bot.py:392 bot.py:400
+#: bot.py:398 bot.py:406
 msgid "Hibernated."
 msgstr ""
 
-#: bot.py:425 bot.py:429
+#: bot.py:430 bot.py:437
 msgid "Hibernating..."
 msgstr ""
 
-#: bot.py:432
+#: bot.py:440
 msgid ""
 "No time inserted\n"
 "``` Usage: /hibernate_t + time in seconds```"
 msgstr ""
 
-#: bot.py:452 bot.py:460
+#: bot.py:460 bot.py:468
 msgid "Annulled."
 msgstr ""
 
-#: bot.py:486
+#: bot.py:494
 msgid ""
 "Your PC is online.\n"
 "\n"
 msgstr ""
 
-#: bot.py:487
+#: bot.py:495
 msgid "PC name: "
 msgstr ""
 
-#: bot.py:488
+#: bot.py:496
 msgid ""
 "\n"
 "Logged user: "
 msgstr ""
 
-#: bot.py:489
+#: bot.py:497
 msgid ""
 "\n"
 "OS: "
 msgstr ""
 
-#: bot.py:490
+#: bot.py:498
 msgid ""
 "\n"
 "Hw: "
 msgstr ""
 
-#: bot.py:515 bot.py:522
+#: bot.py:523 bot.py:530
 msgid "Launching "
 msgstr ""
 
-#: bot.py:518
+#: bot.py:526
 msgid "Cannot launch "
 msgstr ""
 
-#: bot.py:525
+#: bot.py:533
 msgid ""
 "No program name inserted\n"
 "``` Usage: /launch + program name```"
 msgstr ""
 
-#: bot.py:542 bot.py:549
+#: bot.py:550 bot.py:557
 msgid "Opening "
 msgstr ""
 
-#: bot.py:545
+#: bot.py:553
 msgid "Cannot open "
 msgstr ""
 
-#: bot.py:552
+#: bot.py:560
 msgid ""
 "No link inserted\n"
 "``` Usage: /link + web link```"
 msgstr ""
 
-#: bot.py:568
+#: bot.py:579
 msgid ""
 "\n"
 "sent by "
 msgstr ""
 
-#: bot.py:569
+#: bot.py:580
 msgid " through PC-Control"
 msgstr ""
 
-#: bot.py:594 bot.py:599
+#: bot.py:590
+msgid "No text inserted"
+msgstr ""
+
+#: bot.py:608 bot.py:613
 #, python-format
 msgid "Kill %s"
 msgstr ""
 
-#: bot.py:608 bot.py:631 bot.py:638
+#: bot.py:622 bot.py:648 bot.py:655
 msgid "The program is not running"
 msgstr ""
 
-#: bot.py:610
+#: bot.py:624
 msgid ""
 "No task inserted\n"
 "``` Usage: /task + process name```"
 msgstr ""
 
-#: bot.py:628 bot.py:635
+#: bot.py:645 bot.py:652
 msgid "I've killed "
 msgstr ""
 
-#: bot.py:672
+#: bot.py:689
 msgid "Cannot find an Imgur token"
 msgstr ""
 
-#: bot.py:682
+#: bot.py:699
 msgid "Uploaded with PC-Control"
 msgstr ""

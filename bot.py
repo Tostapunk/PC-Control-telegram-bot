@@ -564,26 +564,31 @@ def link(bot, update, args):
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 def memo_thread(bot, update, args):
+    lang_check(update)
     db.update_user(update.message.from_user)
     handle = sqlite3.connect('pccontrol.sqlite')
     handle.row_factory = sqlite3.Row
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-        def memo():
-            lang_check(update)
-            popup = tk.Tk()
-            popup.wm_title("Memo")
-            label = ttk.Label(popup, text=update.message.text[6:] + _("\nsent by ") + update.message.from_user.name +
-            _(" through PC-Control"), font=("Helvetica", 10))
-            label.pack(side="top", fill="x", pady=10)
-            global delete
-            delete = popup.destroy
-            B1 = ttk.Button(popup, text="Okay", command=delete)
-            B1.pack()
-            popup.mainloop()
-        t = threading.Thread(target=memo)
-        t.start()
+        args = update.message.text[6:]
+        if len(args) != 0:
+            def memo():
+                popup = tk.Tk()
+                popup.wm_title("Memo")
+                label = ttk.Label(popup, text=args + _("\nsent by ") + update.message.from_user.name +
+                _(" through PC-Control"), font=("Helvetica", 10))
+                label.pack(side="top", fill="x", pady=10)
+                global delete
+                delete = popup.destroy
+                B1 = ttk.Button(popup, text="Okay", command=delete)
+                B1.pack()
+                popup.mainloop()
+            t = threading.Thread(target=memo)
+            t.start()
+        else:
+            text = _("No text inserted")
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
