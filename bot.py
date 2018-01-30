@@ -571,6 +571,7 @@ def memo_thread(bot, update, args):
     query = cursor.execute("SELECT privs FROM users WHERE id=?", (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
         def memo():
+            lang_check(update)
             popup = tk.Tk()
             popup.wm_title("Memo")
             label = ttk.Label(popup, text=update.message.text[6:] + _("\nsent by ") + update.message.from_user.name +
