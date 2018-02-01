@@ -5,6 +5,8 @@ Through this bot you can execute actions on your PC directly from Telegram!
 
 This bot is available in English and Italian.
 
+Use [this channel](https://t.me/tostabots) to get notified when there's a new commit
+
 ## Getting Started
 
 ### Prerequisites
