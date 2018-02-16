@@ -6,17 +6,20 @@ import gettext
 import logging
 import os
 import platform
-import pyimgur
-import pyscreenshot as imggrab
-import pytz
 import socket
 import sqlite3
 import threading
+from datetime import datetime
+
+import pyimgur
+import pyscreenshot as imggrab
+import pytz
+from tzlocal import get_localzone
+
 try:
     import Tkinter as tk  # py2
 except ImportError:
     import tkinter as tk  # py3
-from datetime import datetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode,\
     ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import CallbackQueryHandler, CommandHandler, Filters,\
@@ -48,7 +51,7 @@ class DBHandler:
         query = (from_user.first_name,
                  from_user.last_name,
                  from_user.username,
-                 datetime.now(pytz.timezone('Europe/Rome')),
+                 datetime.now(pytz.timezone(str(get_localzone()))).strftime('%Y-%m-%d %H:%M'),
                  used + 1,
                  from_user.id)
         if check:
