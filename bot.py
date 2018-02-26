@@ -8,6 +8,7 @@ import os
 import platform
 import socket
 import sqlite3
+import subprocess
 import threading
 from datetime import datetime
 
@@ -51,7 +52,8 @@ class DBHandler:
         query = (from_user.first_name,
                  from_user.last_name,
                  from_user.username,
-                 datetime.now(pytz.timezone(str(get_localzone()))).strftime('%Y-%m-%d %H:%M'),
+                 datetime.now(pytz.timezone(str(get_localzone()))
+                              ).strftime('%Y-%m-%d %H:%M'),
                  used + 1,
                  from_user.id)
         if check:
@@ -73,6 +75,15 @@ def set_globals():
     default_lang = gettext.translation(
         "pccontrol", localedir="locale", languages=["en"])
     default_lang.install()
+
+
+def startupinfo():
+    if platform.system() == "Windows":
+        value = subprocess.STARTUPINFO()
+        value.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    else:
+        value = None
+    return value
 
 
 def start(bot, update):
@@ -297,7 +308,7 @@ def shutdown(bot, update):
         "SELECT privs FROM users WHERE id=?", (from_user.id, )).fetchone()
     if query["privs"] == -2:
         if platform.system() == "Windows":
-            os.system('shutdown /s')
+            subprocess.call('shutdown /s', startupinfo=startupinfo())
             text = _("Shutted down.")
             if update.message:
                 chat_id = update.message.chat.id
@@ -305,7 +316,7 @@ def shutdown(bot, update):
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
         else:
-            os.system('shutdown -h now')
+            subprocess.call('shutdown -h now', startupinfo=startupinfo())
             text = _("Shutted down.")
             if update.message:
                 chat_id = update.message.chat.id
@@ -331,11 +342,13 @@ def shutdown_time(bot, update, args):
     if query["privs"] == -2:
         if len(args) != 0:
             if platform.system() == "Windows":
-                os.system("shutdown /s /t %s" % (args[0]))
+                subprocess.call("shutdown /s /t %s" % (args[0]),
+                                startupinfo=startupinfo())
                 text = _("Shutting down...")
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
-                os.system("shutdown -t %s" % (args[0] / 60))
+                subprocess.call("shutdown -t %s" % (args[0] / 60),
+                                startupinfo=startupinfo())
                 text = _("Shutting down...")
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
@@ -361,7 +374,7 @@ def reboot(bot, update):
         "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
     if query["privs"] == -2:
         if platform.system() == "Windows":
-            os.system('shutdown /r')
+            subprocess.call('shutdown /r', startupinfo=startupinfo())
             text = _("Rebooted.")
             if update.message:
                 chat_id = update.message.chat.id
@@ -369,7 +382,7 @@ def reboot(bot, update):
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
         else:
-            os.system('reboot')
+            subprocess.call('reboot', startupinfo=startupinfo())
             text = _("Rebooted.")
             if update.message:
                 chat_id = update.message.chat.id
@@ -395,11 +408,13 @@ def reboot_time(bot, update, args):
     if query["privs"] == -2:
         if len(args) != 0:
             if platform.system() == "Windows":
-                os.system("shutdown /r /t %s" % (args[0]))
+                subprocess.call("shutdown /r /t %s" % (args[0]),
+                                startupinfo=startupinfo())
                 text = _("Rebooting...")
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
-                os.system("reboot -t %s" % (args[0] / 60))
+                subprocess.call("reboot -t %s" % (args[0] / 60),
+                                startupinfo=startupinfo())
                 text = _("Rebooting...")
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
@@ -425,7 +440,7 @@ def logout(bot, update):
         "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
     if query["privs"] == -2:
         if platform.system() == "Windows":
-            os.system('shutdown /l')
+            subprocess.call('shutdown /l', startupinfo=startupinfo())
             text = _("Logged out.")
             if update.message:
                 chat_id = update.message.chat.id
@@ -462,7 +477,7 @@ def logout_time(bot, update, args):
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
                 import time
                 time.sleep(float(args[0]))
-                os.system("shutdown /l")
+                subprocess.call("shutdown /l", startupinfo=startupinfo())
             else:
                 text = _("Currently not supported.")
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -489,7 +504,7 @@ def hibernate(bot, update):
         "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
     if query["privs"] == -2:
         if platform.system() == "Windows":
-            os.system('shutdown /h')
+            subprocess.call('shutdown /h', startupinfo=startupinfo())
             text = _("Hibernated.")
             if update.message:
                 chat_id = update.message.chat.id
@@ -497,7 +512,7 @@ def hibernate(bot, update):
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
         else:
-            os.system('systemctl suspend')
+            subprocess.call('systemctl suspend', startupinfo=startupinfo())
             text = _("Hibernated.")
             if update.message:
                 chat_id = update.message.chat.id
@@ -527,9 +542,11 @@ def hibernate_time(bot, update, args):
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
                 import time
                 time.sleep(float(args[0]))
-                os.system("shutdown /h")
+                subprocess.call("shutdown /h", startupinfo=startupinfo())
             else:
-                os.system("sleep %s" % (args[0]) + "s; systemctl suspend")
+                subprocess.call("sleep %s" % (args[0]) +
+                                "s; systemctl suspend",
+                                startupinfo=startupinfo())
                 text = _("Hibernating...")
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
@@ -555,7 +572,7 @@ def cancel(bot, update):
         "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
     if query["privs"] == -2:
         if platform.system() == "Windows":
-            os.system('shutdown /a')
+            subprocess.call('shutdown /a', startupinfo=startupinfo())
             text = _("Annulled.")
             if update.message:
                 chat_id = update.message.chat.id
@@ -563,7 +580,7 @@ def cancel(bot, update):
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
         else:
-            os.system('shutdown -c')
+            subprocess.call('shutdown -c', startupinfo=startupinfo())
             text = _("Annulled.")
             if update.message:
                 chat_id = update.message.chat.id
@@ -593,7 +610,7 @@ def check(bot, update):
     if query["privs"] == -2:
         text = ""
         text += _("Your PC is online.\n\n")
-        text += _("PC name: ") + (socket.gethostname())
+        text += _("PC name: ") + socket.gethostname()
         text += _("\nLogged user: ") + getpass.getuser()
         text += _("\nOS: ") + platform.platform()
         text += _("\nHw: ") + platform.processor()
@@ -621,14 +638,16 @@ def launch(bot, update, args):
     if query["privs"] == -2:
         if len(args) != 0:
             if platform.system() == "Windows":
-                ret = os.system("start %s" % (args[0]))
+                ret = subprocess.call("start %s" % (args[0]),
+                                      startupinfo=startupinfo(), shell=True)
                 text = _("Launching ") + (args[0]) + "..."
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
                 if ret == 1:
                     text = _("Cannot launch ") + (args[0])
                     bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
-                os.system("%s" % (args[0]))
+                subprocess.call("%s" % (args[0]),
+                                startupinfo=startupinfo())
                 text = _("Launching ") + (args[0]) + "..."
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
@@ -651,14 +670,16 @@ def link(bot, update, args):
     if query["privs"] == -2:
         if len(args) != 0:
             if platform.system() == "Windows":
-                ret = os.system("start %s" % (args[0]))
+                ret = subprocess.call("start %s" % (args[0]),
+                                      startupinfo=startupinfo(), shell=True)
                 text = _("Opening ") + (args[0]) + "..."
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
                 if ret == 1:
                     text = _("Cannot open ") + (args[0])
                     bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
-                os.system("xdg-open %s" % (args[0]))
+                subprocess.call("xdg-open %s" % (args[0]),
+                                startupinfo=startupinfo())
                 text = _("Opening ") + (args[0]) + "..."
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
@@ -729,12 +750,8 @@ def task(bot, update, args):
                     bot.sendMessage(chat_id=update.message.chat.id,
                                     text=out, reply_markup=reply_markup)
                 except BaseException:
-                    kill_kb = [[_('Kill %s') % (args[0])],
-                               [_('Exit')]]
-                    reply_markup = ReplyKeyboardMarkup(
-                        kill_kb, resize_keyboard=True)
-                    bot.sendMessage(chat_id=update.message.chat.id,
-                                    text=out, reply_markup=reply_markup)
+                    bot.sendMessage(chat_id=update.message.chat.id, text=_(
+                        "The program is not running"))
             else:
                 try:
                     out = os.popen("ps -A | grep %s" % (args[0])).read()
@@ -765,8 +782,7 @@ def task_kill(bot, update):
             args = update.message.text[5:]
         if platform.system() == "Windows":
             try:
-                os.system("tskill " + args)
-                print("tskill " + args)
+                subprocess.call("tskill " + args, startupinfo=startupinfo())
                 bot.sendMessage(chat_id=update.message.chat.id,
                                 text=_("I've killed ") + args)
                 keyboard_up(update)
@@ -775,7 +791,7 @@ def task_kill(bot, update):
                                 text=_("The program is not running"))
         else:
             try:
-                os.system("pkill -f " + args)
+                subprocess.call("pkill -f " + args, startupinfo=startupinfo())
                 bot.sendMessage(chat_id=update.message.chat.id,
                                 text=_("I've killed ") + args)
                 keyboard_up(update)
@@ -806,9 +822,11 @@ def imgur(bot, update):
             saveas = os.path.join(SaveDirectory, 'screenshot' + '.png')
             img.save(saveas)
             editorstring = '"start"%s" "%s"' % (ImageEditorPath, saveas)
-            os.system(editorstring)
+            subprocess.call(editorstring, startupinfo=startupinfo(),
+                            shell=True)
         else:
-            os.system("import -window root screenshot.png")
+            subprocess.call("import -window root screenshot.png",
+                            startupinfo=startupinfo())
 
         handle = sqlite3.connect('pccontrol.sqlite')
         handle.row_factory = sqlite3.Row
@@ -836,9 +854,12 @@ def imgur(bot, update):
             bot.sendMessage(chat_id=chat_id, text=uploaded_image.link)
 
             if platform.system() == "Windows":
-                os.system('del screenshot.png')
+                subprocess.call(
+                    'del screenshot.png', startupinfo=startupinfo(),
+                    shell=True)
             else:
-                os.system("rm -rf screenshot.png")
+                subprocess.call("rm -rf screenshot.png",
+                                startupinfo=startupinfo())
     else:
         text = _("Unauthorized.")
         if update.message:

@@ -5,6 +5,7 @@ import gettext
 import os
 import platform
 import sqlite3
+import subprocess
 try:
     import Tkinter as tk  # py2
 except ImportError:
@@ -18,6 +19,15 @@ root = tk.Tk()
 root.wm_title("Setup")
 root.geometry("290x400")
 root.resizable(width=False, height=False)
+
+
+def startupinfo():
+    if platform.system() == "Windows":
+        value = subprocess.STARTUPINFO()
+        value.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    else:
+        value = None
+    return value
 
 
 def db_and_co():
@@ -36,6 +46,11 @@ def db_and_co():
                   " `language` TEXT DEFAULT 'en', PRIMARY KEY(`id`))"
     cursor.execute(config_table)
     cursor.execute(users_table)
+    cursor.execute("SELECT value FROM config WHERE name='debug'")
+    query = cursor.fetchone()
+    if len(query) == 0:
+        cursor.execute("INSERT INTO config(name, value) VALUES "
+                       "('debug', 'off')")
     handle.commit()
 
     create_mo_files()
@@ -206,7 +221,8 @@ def imgur_token_set(val2):
 
 
 def requirements():
-    os.system("pip install -r requirements.txt > requirements_log.txt")
+    subprocess.call("pip install -r requirements.txt > requirements_log.txt",
+                    startupinfo=startupinfo(), shell=True)
     L3 = Label(root, text=_("The requirements install process is done.\n"
                             "Do you want to take a look to the log?"),
                justify=LEFT)
@@ -217,40 +233,57 @@ def requirements():
 
 def log_link():
     if platform.system() == "Windows":
-        os.system("requirements_log.txt")
+        subprocess.call(
+            "requirements_log.txt", startupinfo=startupinfo(), shell=True)
     else:
-        os.system("xdg-open requirements_log.txt")
+        subprocess.call("xdg-open requirements_log.txt",
+                        startupinfo=startupinfo(), shell=True)
 
 
 def create_mo_files():
     if os.path.isfile('locale/en/LC_MESSAGES/setup.mo') is False:
-        os.system("pip install Babel")
-        os.system('pybabel compile -D setup '
-                  '-d locale -l en -i locale/en/LC_MESSAGES/setup.po')
-        os.system('pybabel compile -D setup '
-                  '-d locale -l it -i locale/it/LC_MESSAGES/setup.po')
+        subprocess.call(
+            "pip install Babel", startupinfo=startupinfo(), shell=True)
+        subprocess.call('pybabel compile -D setup '
+                        '-d locale -l en -i locale/en/LC_MESSAGES/setup.po',
+                        startupinfo=startupinfo(), shell=True)
+        subprocess.call('pybabel compile -D setup '
+                        '-d locale -l it -i locale/it/LC_MESSAGES/setup.po',
+                        startupinfo=startupinfo(), shell=True)
         if os.path.isfile('locale/en/LC_MESSAGES/pccontrol.mo') is False:
-            os.system("pip install Babel")
-            os.system(
+            subprocess.call(
+                "pip install Babel", startupinfo=startupinfo(), shell=True)
+            subprocess.call(
                 'pybabel compile -D pccontrol '
-                '-d locale -l en -i locale/en/LC_MESSAGES/pccontrol.po')
-            os.system(
+                '-d locale -l en -i locale/en/LC_MESSAGES/pccontrol.po',
+                startupinfo=startupinfo(), shell=True)
+            subprocess.call(
                 'pybabel compile -D pccontrol '
-                '-d locale -l it -i locale/it/LC_MESSAGES/pccontrol.po')
+                '-d locale -l it -i locale/it/LC_MESSAGES/pccontrol.po',
+                startupinfo=startupinfo(), shell=True)
     elif os.path.isfile('locale/en/LC_MESSAGES/pccontrol.mo') is False:
-        os.system("pip install Babel")
-        os.system(
+        subprocess.call(
+            "pip install Babel", startupinfo=startupinfo(), shell=True)
+        subprocess.call(
             'pybabel compile -D pccontrol '
-            '-d locale -l en -i locale/en/LC_MESSAGES/pccontrol.po')
-        os.system(
+            '-d locale -l en -i locale/en/LC_MESSAGES/pccontrol.po',
+            startupinfo=startupinfo(), shell=True)
+        subprocess.call(
             'pybabel compile -D pccontrol '
-            '-d locale -l it -i locale/it/LC_MESSAGES/pccontrol.po')
+            '-d locale -l it -i locale/it/LC_MESSAGES/pccontrol.po',
+            startupinfo=startupinfo(), shell=True)
 
 
 def bot_start():
     root.withdraw()
     create_mo_files()
-    os.system("python bot.py")
+    if platform.system() == "Windows":
+        subprocess.call("python bot.py", creationflags=0x08000000, shell=True)
+    else:
+        if sys.version_info[0] < 3:
+            subprocess.call("python bot.py", shell=True)
+        else:
+            subprocess.call("python3 bot.py", shell=True)
 
 
 def privs_window():
@@ -262,10 +295,10 @@ def privs_window():
     usr_e = Entry(privs, bd=5)
     usr_e.pack()
     add_b = tk.Button(privs, text=_("Add permissions"),
-                           command=lambda: add_privs(usr_e.get()))
+                      command=lambda: add_privs(usr_e.get()))
     add_b.pack()
     rm_b = tk.Button(privs, text=_("Remove permissions"),
-                          command=lambda: remove_privs(usr_e.get()))
+                     command=lambda: remove_privs(usr_e.get()))
     rm_b.pack()
     usr_done = Label(privs, text="")
     usr_done.pack()
