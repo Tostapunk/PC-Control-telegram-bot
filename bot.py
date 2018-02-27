@@ -189,19 +189,19 @@ def menu(bot, update):
 
 def button(bot, update):
     query = update.callback_query
-    if query.data == _('shutdown'):
+    if query.data == 'shutdown':
         shutdown(bot, update)
-    elif query.data == _('reboot'):
+    elif query.data == 'reboot':
         reboot(bot, update)
-    elif query.data == _('logout'):
+    elif query.data == 'logout':
         logout(bot, update)
-    elif query.data == _('hibernate'):
+    elif query.data == 'hibernate':
         hibernate(bot, update)
-    elif query.data == _('check'):
+    elif query.data == 'check':
         check(bot, update)
-    elif query.data == _('screen'):
+    elif query.data == 'screen':
         imgur(bot, update)
-    elif query.data == _('cancel'):
+    elif query.data == 'cancel':
         cancel(bot, update)
     bot.answer_callback_query(callback_query_id=query.id)
 
