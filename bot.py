@@ -206,7 +206,7 @@ def button(bot, update):
     bot.answer_callback_query(callback_query_id=query.id)
 
 
-def keyboard_up(update):
+def keyboard_up(bot, update):
     lang_check(update)
     db.update_user(update.message.from_user)
     text = _("Keyboard is up.")
@@ -246,11 +246,11 @@ def message_handler(bot, update):
     elif update.message.text == _("Kill ") + args:
         task_kill(bot, update)
     elif update.message.text == _("Exit"):
-        keyboard_up(update)
+        keyboard_up(bot, update)
     elif update.message.text == "English":
-        en_lang(update)
+        en_lang(bot, update)
     elif update.message.text == "Italian":
-        it_lang(update)
+        it_lang(bot, update)
 
 
 def lang_check(update):
@@ -269,7 +269,7 @@ def lang_check(update):
     return lang
 
 
-def en_lang(update):
+def en_lang(bot, update):
     db.update_user(update.message.from_user)
     handle = sqlite3.connect('pccontrol.sqlite')
     handle.row_factory = sqlite3.Row
@@ -279,10 +279,10 @@ def en_lang(update):
     handle.commit()
     text = "Language set to english"
     update.message.reply_text(text=text)
-    keyboard_up(update)
+    keyboard_up(bot, update)
 
 
-def it_lang(update):
+def it_lang(bot, update):
     db.update_user(update.message.from_user)
     handle = sqlite3.connect('pccontrol.sqlite')
     handle.row_factory = sqlite3.Row
@@ -292,7 +292,7 @@ def it_lang(update):
     handle.commit()
     text = "Lingua impostata su italiano"
     update.message.reply_text(text=text)
-    keyboard_up(update)
+    keyboard_up(bot, update)
 
 
 def shutdown(bot, update):
@@ -791,7 +791,7 @@ def task_kill(bot, update):
                 subprocess.call("tskill " + args, startupinfo=startupinfo())
                 bot.sendMessage(chat_id=update.message.chat.id,
                                 text=_("I've killed ") + args)
-                keyboard_up(update)
+                keyboard_up(bot, update)
             except BaseException:
                 bot.sendMessage(chat_id=update.message.chat.id,
                                 text=_("The program is not running"))
@@ -800,7 +800,7 @@ def task_kill(bot, update):
                 subprocess.call("pkill -f " + args, startupinfo=startupinfo())
                 bot.sendMessage(chat_id=update.message.chat.id,
                                 text=_("I've killed ") + args)
-                keyboard_up(update)
+                keyboard_up(bot, update)
             except BaseException:
                 bot.sendMessage(chat_id=update.message.chat.id,
                                 text=_("The program is not running"))
