@@ -463,7 +463,7 @@ def logout(bot, update):
         bot.sendMessage(chat_id=chat_id, text=text)
 
 
-def logout_time(bot, update, args):
+def logout_time_thread(bot, update, args):
     db.update_user(update.message.from_user)
     handle = sqlite3.connect('pccontrol.sqlite')
     handle.row_factory = sqlite3.Row
@@ -471,21 +471,24 @@ def logout_time(bot, update, args):
     query = cursor.execute("SELECT privs FROM users WHERE id=?",
                            (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-        if len(args) != 0:
-            if platform.system() == "Windows":
-                text = _("Logging out...")
-                bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                import time
-                time.sleep(float(args[0]))
-                subprocess.call("shutdown /l", startupinfo=startupinfo())
+        def logout_time():
+            if len(args) != 0:
+                if platform.system() == "Windows":
+                    text = _("Logging out...")
+                    bot.sendMessage(chat_id=update.message.chat.id, text=text)
+                    import time
+                    time.sleep(float(args[0]))
+                    subprocess.call("shutdown /l", startupinfo=startupinfo())
+                else:
+                    text = _("Currently not supported.")
+                    bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
-                text = _("Currently not supported.")
-                bot.sendMessage(chat_id=update.message.chat.id, text=text)
-        else:
-            text = _("""No time inserted
-            ``` Usage: /logout_t + time in seconds```""")
-            bot.sendMessage(chat_id=update.message.chat.id,
-                            text=text, parse_mode=ParseMode.MARKDOWN)
+                text = _("""No time inserted
+                ``` Usage: /logout_t + time in seconds```""")
+                bot.sendMessage(chat_id=update.message.chat.id,
+                                text=text, parse_mode=ParseMode.MARKDOWN)
+        t = threading.Thread(target=logout_time)
+        t.start()
     else:
         text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -528,7 +531,7 @@ def hibernate(bot, update):
         bot.sendMessage(chat_id=chat_id, text=text)
 
 
-def hibernate_time(bot, update, args):
+def hibernate_time_thread(bot, update, args):
     db.update_user(update.message.from_user)
     handle = sqlite3.connect('pccontrol.sqlite')
     handle.row_factory = sqlite3.Row
@@ -536,24 +539,27 @@ def hibernate_time(bot, update, args):
     query = cursor.execute("SELECT privs FROM users WHERE id=?",
                            (update.message.from_user.id,)).fetchone()
     if query["privs"] == -2:
-        if len(args) != 0:
-            if platform.system() == "Windows":
-                text = _("Hibernating...")
-                bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                import time
-                time.sleep(float(args[0]))
-                subprocess.call("shutdown /h", startupinfo=startupinfo())
+        def hibernate_time():
+            if len(args) != 0:
+                if platform.system() == "Windows":
+                    text = _("Hibernating...")
+                    bot.sendMessage(chat_id=update.message.chat.id, text=text)
+                    import time
+                    time.sleep(float(args[0]))
+                    subprocess.call("shutdown /h", startupinfo=startupinfo())
+                else:
+                    subprocess.call("sleep %s" % (args[0]) +
+                                    "s; systemctl suspend",
+                                    startupinfo=startupinfo())
+                    text = _("Hibernating...")
+                    bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
-                subprocess.call("sleep %s" % (args[0]) +
-                                "s; systemctl suspend",
-                                startupinfo=startupinfo())
-                text = _("Hibernating...")
-                bot.sendMessage(chat_id=update.message.chat.id, text=text)
-        else:
-            text = _(""""No time inserted
-            ``` Usage: /hibernate_t + time in seconds```""")
-            bot.sendMessage(chat_id=update.message.chat.id,
-                            text=text, parse_mode=ParseMode.MARKDOWN)
+                text = _(""""No time inserted
+                ``` Usage: /hibernate_t + time in seconds```""")
+                bot.sendMessage(chat_id=update.message.chat.id,
+                                text=text, parse_mode=ParseMode.MARKDOWN)
+        t = threading.Thread(target=hibernate_time)
+        t.start()
     else:
         text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -928,7 +934,7 @@ def main():
 
     # Log out time
     dp.add_handler(CommandHandler(
-        "logout_t", logout_time, pass_args=True))  # en & it
+        "logout_t", logout_time_thread, pass_args=True))  # en & it
 
     # Hibernate
     dp.add_handler(CommandHandler("hibernate", hibernate))  # en
@@ -936,9 +942,9 @@ def main():
 
     # Hibernate time
     dp.add_handler(CommandHandler(
-        "hibernate_t", hibernate_time, pass_args=True))  # en
+        "hibernate_t", hibernate_time_thread, pass_args=True))  # en
     dp.add_handler(CommandHandler(
-        "iberna_t", hibernate_time, pass_args=True))  # it
+        "iberna_t", hibernate_time_thread, pass_args=True))  # it
 
     # Annul the previous command
     dp.add_handler(CommandHandler("cancel", cancel))  # en
