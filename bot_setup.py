@@ -22,9 +22,20 @@ root.resizable(width=False, height=False)
 
 
 def startupinfo():
-    if platform.system() == "Windows":
-        value = subprocess.STARTUPINFO()
-        value.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    cursor.execute("SELECT value FROM config WHERE name='console'")
+    query = cursor.fetchone()
+    console = "hide"
+    if query:
+        console = query["value"]
+    if console == "hide":
+        if platform.system() == "Windows":
+            value = subprocess.STARTUPINFO()
+            value.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        else:
+            value = None
     else:
         value = None
     return value
@@ -46,12 +57,6 @@ def db_and_co():
                   " `language` TEXT DEFAULT 'en', PRIMARY KEY(`id`))"
     cursor.execute(config_table)
     cursor.execute(users_table)
-    cursor.execute("SELECT value FROM config WHERE name='debug'")
-    query = cursor.fetchone()
-    if len(query) == 0:
-        cursor.execute("INSERT INTO config(name, value) VALUES "
-                       "('debug', 'off')")
-    handle.commit()
 
     create_mo_files()
     cursor.execute("SELECT value FROM config WHERE name='language'")
@@ -277,13 +282,23 @@ def create_mo_files():
 def bot_start():
     root.withdraw()
     create_mo_files()
-    if platform.system() == "Windows":
-        subprocess.call("python bot.py", creationflags=0x08000000, shell=True)
+    if startupinfo() is not None:
+        if platform.system() == "Windows":
+            subprocess.call("python bot.py", creationflags=0x08000000,
+                            shell=True)
+        else:
+            if sys.version_info[0] < 3:
+                subprocess.call("python bot.py", shell=True)
+            else:
+                subprocess.call("python3 bot.py", shell=True)
     else:
-        if sys.version_info[0] < 3:
+        if platform.system() == "Windows":
             subprocess.call("python bot.py", shell=True)
         else:
-            subprocess.call("python3 bot.py", shell=True)
+            if sys.version_info[0] < 3:
+                subprocess.call("python bot.py", shell=True)
+            else:
+                subprocess.call("python3 bot.py", shell=True)
 
 
 def privs_window():
@@ -332,7 +347,7 @@ def restart_popup():
     privs = tk.Toplevel(root)
     privs.wm_title(_("Restart"))
     lp = Label(privs, text=_(
-        "Please restart bot_setup to change language"),
+        "Please restart bot_setup to apply the change"),
                font="Times 11", justify=LEFT)
     lp.pack()
     add_b = tk.Button(privs, text=_("Restart"), command=lambda: restart())
@@ -341,6 +356,52 @@ def restart_popup():
     def restart():
         python = sys.executable
         os.execl(python, python, *sys.argv)
+
+
+def console_show():
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    cursor.execute("SELECT value FROM config WHERE name='console'")
+    data = cursor.fetchall()
+    if len(data) == 0:
+        handle = sqlite3.connect('pccontrol.sqlite')
+        handle.row_factory = sqlite3.Row
+        cursor = handle.cursor()
+        cursor.execute(
+            "INSERT INTO config(name, value) VALUES ('console', 'show')")
+        handle.commit()
+        restart_popup()
+    else:
+        handle = sqlite3.connect('pccontrol.sqlite')
+        handle.row_factory = sqlite3.Row
+        cursor = handle.cursor()
+        cursor.execute("UPDATE config SET value='show' WHERE name='console'")
+        handle.commit()
+        restart_popup()
+
+
+def console_hide():
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    cursor.execute("SELECT value FROM config WHERE name='console'")
+    data = cursor.fetchall()
+    if len(data) == 0:
+        handle = sqlite3.connect('pccontrol.sqlite')
+        handle.row_factory = sqlite3.Row
+        cursor = handle.cursor()
+        cursor.execute(
+            "INSERT INTO config(name, value) VALUES ('console', 'hide')")
+        handle.commit()
+        restart_popup()
+    else:
+        handle = sqlite3.connect('pccontrol.sqlite')
+        handle.row_factory = sqlite3.Row
+        cursor = handle.cursor()
+        cursor.execute("UPDATE config SET value='hide' WHERE name='console'")
+        handle.commit()
+        restart_popup()
 
 
 db_and_co()
@@ -384,6 +445,11 @@ lang_menu = Menu(root, tearoff=0)
 lang_menu.add_command(label=_("English"), command=lambda: en_lang())
 lang_menu.add_command(label=_("Italian"), command=lambda: it_lang())
 filemenu.add_cascade(label=_("Language"), menu=lang_menu, underline=0)
+
+console_menu = Menu(root, tearoff=0)
+console_menu.add_checkbutton(label=_("Show"), command=lambda: console_show())
+console_menu.add_checkbutton(label=_("Hide"), command=lambda: console_hide())
+filemenu.add_cascade(label=_("Console"), menu=console_menu, underline=0)
 
 db_and_co()
 botfather_token_check()

@@ -78,9 +78,20 @@ def set_globals():
 
 
 def startupinfo():
-    if platform.system() == "Windows":
-        value = subprocess.STARTUPINFO()
-        value.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    cursor.execute("SELECT value FROM config WHERE name='console'")
+    query = cursor.fetchone()
+    console = "hide"
+    if query:
+        console = query["value"]
+    if console == "hide":
+        if platform.system() == "Windows":
+            value = subprocess.STARTUPINFO()
+            value.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        else:
+            value = None
     else:
         value = None
     return value
