@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-03-07 10:52+0100\n"
-"PO-Revision-Date: 2018-03-07 10:54+0100\n"
+"POT-Creation-Date: 2018-03-15 16:45+0100\n"
+"PO-Revision-Date: 2018-03-15 16:48+0100\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -67,63 +67,68 @@ msgstr "Aggiungi permessi"
 msgid "Remove permissions"
 msgstr "Rimuovi permessi"
 
-#: bot_setup.py:330 bot_setup.py:342
+#: bot_setup.py:334 bot_setup.py:353
 #, python-format
 msgid "Permissions for %s changed!"
 msgstr "Permessi per %s cambiati!"
 
-#: bot_setup.py:348 bot_setup.py:353
+#: bot_setup.py:337 bot_setup.py:356
+#, python-format
+msgid "%s isn't in your database"
+msgstr "%s non è presente nel tuo database"
+
+#: bot_setup.py:362 bot_setup.py:367
 msgid "Restart"
 msgstr "Riavvia"
 
-#: bot_setup.py:349
+#: bot_setup.py:363
 msgid "Please restart bot_setup to apply the change"
 msgstr "Riavvia bot_setup per applicare la modifica"
 
-#: bot_setup.py:408
+#: bot_setup.py:422
 msgid "BotFather token"
 msgstr "Token di BotFather"
 
-#: bot_setup.py:418
+#: bot_setup.py:432
 msgid "Imgur token"
 msgstr "Token di Imgur"
 
-#: bot_setup.py:428
+#: bot_setup.py:442
 msgid "Install requirements"
 msgstr "Installa i requisiti"
 
-#: bot_setup.py:431
+#: bot_setup.py:445
 msgid "Start it!"
 msgstr "Avvialo!"
 
-#: bot_setup.py:434
+#: bot_setup.py:448
 msgid "Change user permissions"
 msgstr "Cambia i permessi di un utente"
 
-#: bot_setup.py:442
+#: bot_setup.py:456
 msgid "Options"
 msgstr "Opzioni"
 
-#: bot_setup.py:445
+#: bot_setup.py:459
 msgid "English"
 msgstr "Inglese"
 
-#: bot_setup.py:446
+#: bot_setup.py:460
 msgid "Italian"
 msgstr "Italiano"
 
-#: bot_setup.py:447
+#: bot_setup.py:461
 msgid "Language"
 msgstr "Lingua"
 
-#: bot_setup.py:450
+#: bot_setup.py:464
 msgid "Show"
 msgstr "Mostra"
 
-#: bot_setup.py:451
+#: bot_setup.py:465
 msgid "Hide"
 msgstr "Nascondi"
 
-#: bot_setup.py:452
+#: bot_setup.py:466
 msgid "Console"
 msgstr "Console"

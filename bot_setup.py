@@ -322,25 +322,39 @@ def privs_window():
         handle = sqlite3.connect('pccontrol.sqlite')
         handle.row_factory = sqlite3.Row
         cursor = handle.cursor()
-        cursor.execute("UPDATE users SET privs='-2' WHERE username=?", (usr,))
-        handle.commit()
-        usr_e.destroy()
-        add_b.destroy()
-        rm_b.destroy()
-        usr_done.configure(text=_("Permissions for %s changed!") % (
-            usr), font="TImes 11", fg="green", justify=LEFT)
+        cursor.execute("SELECT * FROM users WHERE username=?", (usr,))
+        data = cursor.fetchall()
+        if len(data) != 0:
+            cursor.execute("UPDATE users SET privs='-2' WHERE username=?",
+                           (usr,))
+            handle.commit()
+            usr_e.destroy()
+            add_b.destroy()
+            rm_b.destroy()
+            usr_done.configure(text=_("Permissions for %s changed!") % (
+                usr), font="TImes 11", fg="green", justify=LEFT)
+        else:
+            usr_done.configure(text=_("%s isn't in your database") % (
+                usr), font="TImes 11", fg="red", justify=LEFT)
 
     def remove_privs(usr):
         handle = sqlite3.connect('pccontrol.sqlite')
         handle.row_factory = sqlite3.Row
         cursor = handle.cursor()
-        cursor.execute("UPDATE users SET privs='' WHERE username=?", (usr,))
-        handle.commit()
-        usr_e.destroy()
-        add_b.destroy()
-        rm_b.destroy()
-        usr_done.configure(text=_("Permissions for %s changed!") % (
-            usr), font="TImes 11", fg="red", justify=LEFT)
+        cursor.execute("SELECT * FROM users WHERE username=?", (usr,))
+        data = cursor.fetchall()
+        if len(data) != 0:
+            cursor.execute("UPDATE users SET privs='' WHERE username=?",
+                           (usr,))
+            handle.commit()
+            usr_e.destroy()
+            add_b.destroy()
+            rm_b.destroy()
+            usr_done.configure(text=_("Permissions for %s changed!") % (
+                usr), font="TImes 11", fg="green", justify=LEFT)
+        else:
+            usr_done.configure(text=_("%s isn't in your database") % (
+                usr), font="TImes 11", fg="red", justify=LEFT)
 
 
 def restart_popup():
