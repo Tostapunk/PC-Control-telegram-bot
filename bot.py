@@ -843,7 +843,7 @@ def imgur(bot, update):
                             shell=True)
         else:
             subprocess.call("import -window root screenshot.png",
-                            startupinfo=startupinfo())
+                            startupinfo=startupinfo(), shell=True)
 
         handle = sqlite3.connect('pccontrol.sqlite')
         handle.row_factory = sqlite3.Row
@@ -876,7 +876,7 @@ def imgur(bot, update):
                     shell=True)
             else:
                 subprocess.call("rm -rf screenshot.png",
-                                startupinfo=startupinfo())
+                                startupinfo=startupinfo(), shell=True)
     else:
         text = _("Unauthorized.")
         if update.message:
