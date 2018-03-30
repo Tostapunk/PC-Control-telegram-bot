@@ -226,8 +226,20 @@ def imgur_token_set(val2):
 
 
 def requirements():
-    subprocess.call("pip install -r requirements.txt > requirements_log.txt",
-                    startupinfo=startupinfo(), shell=True)
+    if platform.system() == "Windows":
+        subprocess.call(
+            "pip install -r requirements.txt > requirements_log.txt",
+            startupinfo=startupinfo(), shell=True)
+    else:
+        if sys.version_info[0] < 3:
+            subprocess.call(
+                "pip install -r requirements.txt > requirements_log.txt",
+                startupinfo=startupinfo(), shell=True)
+        else:
+            subprocess.call(
+                "pip3 install -r requirements.txt > requirements_log.txt",
+                startupinfo=startupinfo(), shell=True)
+
     L3 = Label(root, text=_("The requirements install process is done.\n"
                             "Do you want to take a look to the log?"),
                justify=LEFT)
