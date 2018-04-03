@@ -1,11 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import fileinput
 import gettext
 import os
 import platform
 import sqlite3
 import subprocess
+
 try:
     import Tkinter as tk  # py2
 except ImportError:
@@ -14,6 +16,11 @@ try:
     from Tkinter import *  # py2
 except ImportError:
     from tkinter import *  # py3
+if platform.system() == "Windows":
+    try:
+        import _winreg as winreg  # py2
+    except ImportError:
+        import winreg as winreg  # py3
 
 root = tk.Tk()
 root.wm_title("Setup")
@@ -294,23 +301,65 @@ def create_mo_files():
 def bot_start():
     root.withdraw()
     create_mo_files()
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
     if startupinfo() is not None:
         if platform.system() == "Windows":
-            subprocess.call("python bot.py", creationflags=0x08000000,
-                            shell=True)
-        else:
-            if sys.version_info[0] < 3:
-                subprocess.call("python bot.py", shell=True)
+            cursor.execute("SELECT value FROM config WHERE name='startup'")
+            query = cursor.fetchone()
+            startup = "false"
+            if query:
+                startup = query["value"]
+            if startup == "true":
+                subprocess.call("python bot.pyw", creationflags=0x08000000,
+                                shell=True)
             else:
-                subprocess.call("python3 bot.py", shell=True)
+                subprocess.call("python bot.py", creationflags=0x08000000,
+                                shell=True)
+        else:
+            cursor.execute("SELECT value FROM config WHERE name='startup'")
+            query = cursor.fetchone()
+            startup = "false"
+            if query:
+                startup = query["value"]
+            if startup == "true":
+                if sys.version_info[0] < 3:
+                    subprocess.call("python bot.pyw", shell=True)
+                else:
+                    subprocess.call("python3 bot.pyw", shell=True)
+            else:
+                if sys.version_info[0] < 3:
+                    subprocess.call("python bot.py", shell=True)
+                else:
+                    subprocess.call("python3 bot.py", shell=True)
     else:
         if platform.system() == "Windows":
-            subprocess.call("python bot.py", shell=True)
-        else:
-            if sys.version_info[0] < 3:
-                subprocess.call("python bot.py", shell=True)
+            cursor.execute("SELECT value FROM config WHERE name='startup'")
+            query = cursor.fetchone()
+            startup = "false"
+            if query:
+                startup = query["value"]
+            if startup == "true":
+                subprocess.call("python bot.pyw", shell=True)
             else:
-                subprocess.call("python3 bot.py", shell=True)
+                subprocess.call("python bot.py", shell=True)
+        else:
+            cursor.execute("SELECT value FROM config WHERE name='startup'")
+            query = cursor.fetchone()
+            startup = "false"
+            if query:
+                startup = query["value"]
+            if startup == "true":
+                if sys.version_info[0] < 3:
+                    subprocess.call("python bot.pyw", shell=True)
+                else:
+                    subprocess.call("python3 bot.pyw", shell=True)
+            else:
+                if sys.version_info[0] < 3:
+                    subprocess.call("python bot.py", shell=True)
+                else:
+                    subprocess.call("python3 bot.py", shell=True)
 
 
 def privs_window():
@@ -430,6 +479,183 @@ def console_hide():
         restart_popup()
 
 
+def startup_popup():
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    cursor.execute("SELECT value FROM config WHERE name='startup'")
+    query = cursor.fetchone()
+    startup = "false"
+    if query:
+        startup = query["value"]
+    if startup == "false":
+        warning = tk.Toplevel(root)
+        warning.wm_title(_("Warning"))
+        warn_l = Label(warning, text=_(
+            "By enabling this you wont see the bot console"),
+                       font="Times 11 bold", justify=LEFT)
+        warn_l.pack()
+        ok_b = tk.Button(warning, text=_("Okay"),
+                         command=lambda: [startup_enable(), warning.destroy()])
+        ok_b.pack()
+    else:
+        error = tk.Toplevel(root)
+        error.wm_title(_("Error"))
+        warn_l = Label(error, text=_(
+            "Already enabled"), font="Times 11 bold", justify=LEFT)
+        warn_l.pack()
+        ok_b = tk.Button(error, text=_("Okay"),
+                         command=lambda: error.destroy())
+        ok_b.pack()
+
+
+def startup_enable():
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    curr_dir = os.path.dirname(os.path.abspath(__file__))
+    if platform.system() == "Windows":
+        if os.path.isfile(curr_dir + "\\bot.py") is True:
+            os.rename(curr_dir + "\\bot.py", curr_dir + "\\bot.pyw")
+        key = winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            'Software\Microsoft\Windows\CurrentVersion\Run', 0,
+            winreg.KEY_SET_VALUE)
+        winreg.SetValueEx(key, 'PC-Control', 0, winreg.REG_SZ,
+                          '"' + curr_dir + '\\bot.pyw"')
+        key.Close()
+        cursor.execute("SELECT value FROM config WHERE name='startup'")
+        data = cursor.fetchall()
+        if len(data) == 0:
+            cursor.execute(
+                "INSERT INTO config(name, value) "
+                "VALUES ('startup', 'true')")
+            handle.commit()
+            restart_popup()
+        else:
+            cursor.execute(
+                "UPDATE config SET value='true' WHERE name='startup'")
+            handle.commit()
+    else:
+        if os.path.isfile(curr_dir + "/bot.py") is True:
+            os.rename(curr_dir + "/bot.py", curr_dir + "/bot.pyw")
+        try:
+            with open('/etc/rc.local', 'r') as file:
+                data = file.readlines()
+            process = subprocess.Popen("ls -l `tty` | awk '{print $3}'",
+                                       startupinfo=startupinfo(),
+                                       shell=True,
+                                       stdout=subprocess.PIPE)
+            user = process.stdout.read().strip()
+            text = 'export PYTHONPATH="${PYTHONPATH}' + ':'.join(
+                sys.path) + '"' + "\n\nsudo -H -u " + user + " " \
+                          + sys.executable + " " + curr_dir \
+                          + "/bot.pyw &\n\nexit 0"
+            data[12] = text
+            with open('/etc/rc.local', 'w') as file:
+                file.writelines(data)
+            cursor.execute("SELECT value FROM config WHERE name='startup'")
+            data = cursor.fetchall()
+            if len(data) == 0:
+                cursor.execute(
+                    "INSERT INTO config(name, value) "
+                    "VALUES ('startup', 'true')")
+                handle.commit()
+            else:
+                cursor.execute(
+                    "UPDATE config SET value='true' WHERE name='startup'")
+                handle.commit()
+        except IOError as e:
+            error = tk.Toplevel(root)
+            error.wm_title(_("Error"))
+            warn_l = Label(error, text=_(
+                "You need to launch bot_setup.py with admin rights to use "
+                "this function.\n\n Error: ") + str(e),
+                           font="Times 11 bold", justify=LEFT)
+            warn_l.pack()
+            ok_b = tk.Button(error, text=_("Okay"),
+                             command=lambda: error.destroy())
+            ok_b.pack()
+
+
+def startup_disable():
+    handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    curr_dir = os.path.dirname(os.path.abspath(__file__))
+    cursor.execute("SELECT value FROM config WHERE name='startup'")
+    query = cursor.fetchone()
+    startup = "false"
+    if query:
+        startup = query["value"]
+    if startup == "true":
+        if platform.system() == "Windows":
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                'Software\Microsoft\Windows\CurrentVersion\Run', 0,
+                winreg.KEY_SET_VALUE)
+            winreg.DeleteValue(key, 'PC-Control')
+            key.Close()
+            os.rename(curr_dir + "\\bot.pyw", curr_dir + "\\bot.py")
+            cursor.execute("SELECT value FROM config "
+                           "WHERE name='startup'")
+            data = cursor.fetchall()
+            if len(data) == 0:
+                cursor.execute(
+                    "INSERT INTO config(name, value) "
+                    "VALUES ('startup', 'false')")
+                handle.commit()
+            else:
+                cursor.execute(
+                    "UPDATE config SET value='false' "
+                    "WHERE name='startup'")
+                handle.commit()
+        else:
+            try:
+                os.rename(curr_dir + "/bot.pyw", curr_dir + "/bot.py")
+                for line_number, line in enumerate(
+                        fileinput.input('/etc/rc.local', inplace=1)):
+                    if (line_number == 12 or
+                            line_number == 13 or
+                            line_number == 14 or
+                            line_number == 15):
+                        continue
+                    else:
+                        sys.stdout.write(line)
+                cursor.execute("SELECT value FROM config WHERE name='startup'")
+                data = cursor.fetchall()
+                if len(data) == 0:
+                    cursor.execute(
+                        "INSERT INTO config(name, value) "
+                        "VALUES ('startup', 'false')")
+                    handle.commit()
+                else:
+                    cursor.execute(
+                        "UPDATE config SET value='false' WHERE name='startup'")
+                    handle.commit()
+            except OSError as e:
+                os.rename(curr_dir + "/bot.py", curr_dir + "/bot.pyw")
+                error = tk.Toplevel(root)
+                error.wm_title(_("Error"))
+                warn_l = Label(error, text=_(
+                    "You need to launch bot_setup.py with admin rights to use "
+                    "this function.\n\n Error: ") + str(e),
+                               font="Times 11 bold", justify=LEFT)
+                warn_l.pack()
+                ok_b = tk.Button(error, text=_("Okay"),
+                                 command=lambda: error.destroy())
+                ok_b.pack()
+    else:
+        error = tk.Toplevel(root)
+        error.wm_title(_("Error"))
+        warn_l = Label(error, text=_(
+            "Already disabled"), font="Times 11 bold", justify=LEFT)
+        warn_l.pack()
+        ok_b = tk.Button(error, text=_("Okay"),
+                         command=lambda: error.destroy())
+        ok_b.pack()
+
+
 db_and_co()
 L1 = Label(root, text=_("BotFather token"), font="TImes 11 bold", justify=LEFT)
 L1.pack()
@@ -473,9 +699,14 @@ lang_menu.add_command(label=_("Italian"), command=lambda: it_lang())
 filemenu.add_cascade(label=_("Language"), menu=lang_menu, underline=0)
 
 console_menu = Menu(root, tearoff=0)
-console_menu.add_checkbutton(label=_("Show"), command=lambda: console_show())
-console_menu.add_checkbutton(label=_("Hide"), command=lambda: console_hide())
+console_menu.add_command(label=_("Show"), command=lambda: console_show())
+console_menu.add_command(label=_("Hide"), command=lambda: console_hide())
 filemenu.add_cascade(label=_("Console"), menu=console_menu, underline=0)
+
+startup_menu = Menu(root, tearoff=0)
+startup_menu.add_command(label=_("Enable"), command=lambda: startup_popup())
+startup_menu.add_command(label=_("Disable"), command=lambda: startup_disable())
+filemenu.add_cascade(label=_("Startup"), menu=startup_menu, underline=0)
 
 db_and_co()
 botfather_token_check()
