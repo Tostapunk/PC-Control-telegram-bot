@@ -232,6 +232,13 @@ def imgur_token_set(val2):
                               font="TImes 11", fg="red", justify=LEFT)
 
 
+def requirements_check():
+    if os.path.isfile("requirements_log.txt") is False:
+        B3.configure(text=_("Install the requirements"))
+    else:
+        B3.configure(text=_("Update the requirements"))
+
+
 def requirements():
     if platform.system() == "Windows":
         subprocess.call(
@@ -253,6 +260,7 @@ def requirements():
     L3.pack()
     B5 = tk.Button(root, text=_("Yes"), command=lambda: log_link())
     B5.pack(pady=5)
+    requirements_check()
 
 
 def log_link():
@@ -677,7 +685,7 @@ B2.pack(pady=5)
 L2_done = Label(root, text="")
 L2_done.pack()
 
-B3 = tk.Button(root, text=_("Install requirements"), command=requirements)
+B3 = tk.Button(root, text="", command=requirements)
 B3.pack(pady=5)
 
 B4 = tk.Button(root, text=_("Start it!"), command=bot_start)
@@ -711,5 +719,6 @@ filemenu.add_cascade(label=_("Startup"), menu=startup_menu, underline=0)
 db_and_co()
 botfather_token_check()
 imgur_token_check()
+requirements_check()
 create_mo_files()
 root.mainloop()

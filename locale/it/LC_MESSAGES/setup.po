@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-04-03 22:36+0200\n"
-"PO-Revision-Date: 2018-04-03 22:38+0200\n"
+"POT-Creation-Date: 2018-04-07 12:45+0200\n"
+"PO-Revision-Date: 2018-04-07 12:47+0200\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,27 +19,35 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Language: it\n"
 
-#: bot_setup.py:132 bot_setup.py:144
+#: bot_setup.py:133 bot_setup.py:145
 msgid "Confirm"
 msgstr "Conferma"
 
-#: bot_setup.py:134 bot_setup.py:146
+#: bot_setup.py:135 bot_setup.py:147
 msgid "Change token"
 msgstr "Cambia token"
 
-#: bot_setup.py:166 bot_setup.py:185 bot_setup.py:212 bot_setup.py:227
+#: bot_setup.py:167 bot_setup.py:186 bot_setup.py:213 bot_setup.py:228
 msgid "Token saved!"
 msgstr "Token salvato!"
 
-#: bot_setup.py:169 bot_setup.py:188 bot_setup.py:215 bot_setup.py:230
+#: bot_setup.py:170 bot_setup.py:189 bot_setup.py:216 bot_setup.py:231
 msgid "Your entry is empty"
 msgstr "Nessun token inserito"
 
-#: bot_setup.py:172 bot_setup.py:191
+#: bot_setup.py:173 bot_setup.py:192
 msgid "The inserted token is wrong"
 msgstr "Il token inserito non è corretto"
 
-#: bot_setup.py:249
+#: bot_setup.py:237
+msgid "Install the requirements"
+msgstr "Installa i requisiti"
+
+#: bot_setup.py:239
+msgid "Update the requirements"
+msgstr "Aggiorna i requisiti"
+
+#: bot_setup.py:257
 msgid ""
 "The requirements install process is done.\n"
 "Do you want to take a look to the log?"
@@ -47,67 +55,66 @@ msgstr ""
 "Il processo di installazione dei requisiti è terminato.\n"
 "Vuoi vedere il log?"
 
-#: bot_setup.py:253
+#: bot_setup.py:261
 msgid "Yes"
 msgstr "Si"
 
-#: bot_setup.py:366
+#: bot_setup.py:374
 msgid "Permissions"
 msgstr "Permessi"
 
-#: bot_setup.py:367
+#: bot_setup.py:375
 msgid "Username"
 msgstr "Username"
 
-#: bot_setup.py:372
+#: bot_setup.py:380
 msgid "Add permissions"
 msgstr "Aggiungi permessi"
 
-#: bot_setup.py:375
+#: bot_setup.py:383
 msgid "Remove permissions"
 msgstr "Rimuovi permessi"
 
-#: bot_setup.py:394 bot_setup.py:413
+#: bot_setup.py:402 bot_setup.py:421
 #, python-format
 msgid "Permissions for %s changed!"
 msgstr "Permessi per %s cambiati!"
 
-#: bot_setup.py:397 bot_setup.py:416
+#: bot_setup.py:405 bot_setup.py:424
 #, python-format
 msgid "%s isn't in your database"
 msgstr "%s non è presente nel tuo database"
 
-#: bot_setup.py:422 bot_setup.py:427
+#: bot_setup.py:430 bot_setup.py:435
 msgid "Restart"
 msgstr "Riavvia"
 
-#: bot_setup.py:423
+#: bot_setup.py:431
 msgid "Please restart bot_setup to apply the change"
 msgstr "Riavvia bot_setup per applicare la modifica"
 
-#: bot_setup.py:492
+#: bot_setup.py:500
 msgid "Warning"
 msgstr "Attenzione"
 
-#: bot_setup.py:493
+#: bot_setup.py:501
 msgid "By enabling this you wont see the bot console"
 msgstr "Abilitando questa funzione non vedrai piu' la console del bot"
 
-#: bot_setup.py:497 bot_setup.py:506 bot_setup.py:582 bot_setup.py:591
-#: bot_setup.py:661 bot_setup.py:670
+#: bot_setup.py:505 bot_setup.py:514 bot_setup.py:583 bot_setup.py:652
+#: bot_setup.py:661
 msgid "Okay"
 msgstr "Okay"
 
-#: bot_setup.py:502 bot_setup.py:576 bot_setup.py:587 bot_setup.py:655
-#: bot_setup.py:666
+#: bot_setup.py:510 bot_setup.py:577 bot_setup.py:646 bot_setup.py:657
 msgid "Error"
 msgstr "Errore"
 
-#: bot_setup.py:503
+#: bot_setup.py:511
 msgid "Already enabled"
 msgstr "La funzione e' gia' stata attivata"
 
-#: bot_setup.py:577 bot_setup.py:656
+#: bot_setup.py:578 bot_setup.py:647
 msgid ""
 "You need to launch bot_setup.py with admin rights to use this function.\n"
 "\n"
@@ -117,66 +124,62 @@ msgstr ""
 "\n"
 " Errore: "
 
-#: bot_setup.py:588 bot_setup.py:667
+#: bot_setup.py:658
 msgid "Already disabled"
 msgstr "La funzione e' gia' stata disattivata"
 
-#: bot_setup.py:676
+#: bot_setup.py:667
 msgid "BotFather token"
 msgstr "Token di BotFather"
 
-#: bot_setup.py:686
+#: bot_setup.py:677
 msgid "Imgur token"
 msgstr "Token di Imgur"
 
-#: bot_setup.py:696
-msgid "Install requirements"
-msgstr "Installa i requisiti"
-
-#: bot_setup.py:699
+#: bot_setup.py:690
 msgid "Start it!"
 msgstr "Avvialo!"
 
-#: bot_setup.py:702
+#: bot_setup.py:693
 msgid "Change user permissions"
 msgstr "Cambia i permessi di un utente"
 
-#: bot_setup.py:710
+#: bot_setup.py:701
 msgid "Options"
 msgstr "Opzioni"
 
-#: bot_setup.py:713
+#: bot_setup.py:704
 msgid "English"
 msgstr "Inglese"
 
-#: bot_setup.py:714
+#: bot_setup.py:705
 msgid "Italian"
 msgstr "Italiano"
 
-#: bot_setup.py:715
+#: bot_setup.py:706
 msgid "Language"
 msgstr "Lingua"
 
-#: bot_setup.py:718
+#: bot_setup.py:709
 msgid "Show"
 msgstr "Mostra"
 
-#: bot_setup.py:719
+#: bot_setup.py:710
 msgid "Hide"
 msgstr "Nascondi"
 
-#: bot_setup.py:720
+#: bot_setup.py:711
 msgid "Console"
 msgstr "Console"
 
-#: bot_setup.py:723
+#: bot_setup.py:714
 msgid "Enable"
 msgstr "Abilita"
 
-#: bot_setup.py:724
+#: bot_setup.py:715
 msgid "Disable"
 msgstr "Disabilita"
 
-#: bot_setup.py:725
+#: bot_setup.py:716
 msgid "Startup"
 msgstr "Esegui all'avvio"
