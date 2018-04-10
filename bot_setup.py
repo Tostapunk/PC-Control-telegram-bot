@@ -24,7 +24,7 @@ if platform.system() == "Windows":
 
 root = tk.Tk()
 root.wm_title("Setup")
-root.geometry("290x400")
+root.geometry("290x350")
 root.resizable(width=False, height=False)
 
 
@@ -253,14 +253,29 @@ def requirements():
             subprocess.call(
                 "pip3 install -r requirements.txt > requirements_log.txt",
                 startupinfo=startupinfo(), shell=True)
-
-    L3 = Label(root, text=_("The requirements install process is done.\n"
-                            "Do you want to take a look to the log?"),
-               justify=LEFT)
-    L3.pack()
-    B5 = tk.Button(root, text=_("Yes"), command=lambda: log_link())
-    B5.pack(pady=5)
+    requirements_popup()
     requirements_check()
+
+
+def requirements_popup():
+    req = tk.Toplevel(root)
+    l_frame = tk.Frame(req)
+    l_frame.pack(fill=tk.X, side=tk.TOP)
+    b_frame = tk.Frame(req)
+    b_frame.pack(fill=tk.X, side=tk.BOTTOM)
+    b_frame.columnconfigure(0, weight=1)
+    b_frame.columnconfigure(1, weight=1)
+
+    lr = Label(l_frame, text=_("The requirements install process is done.\n"
+                               "Do you want to take a look to the log?"),
+               font="Times 11", justify=LEFT)
+    lr.grid()
+    yes_b = tk.Button(b_frame, text=_("Yes"),
+                      command=lambda: [req.destroy(), log_link()])
+    yes_b.grid(row=0, column=0, sticky=tk.W+tk.E)
+    no_b = tk.Button(b_frame, text=_("No"),
+                     command=lambda: req.destroy())
+    no_b.grid(row=0, column=1, sticky=tk.W+tk.E)
 
 
 def log_link():
