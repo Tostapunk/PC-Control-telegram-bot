@@ -1,6 +1,7 @@
 pyimgur
 pyscreenshot
-python_telegram_bot
-Pillow
-pytz
 tzlocal
+python_telegram_bot
+pytz
+distro
+psutil

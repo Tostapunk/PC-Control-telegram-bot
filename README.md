@@ -50,7 +50,7 @@ You're ready!
 | /logout | Log out from your current account | Currently not working on Linux |
 | /hibernate | Hibernate your PC |
 | /cancel | Annul the previous command | It work with the first two commands_t |
-| /check | Check the PC status |
+| /check | Check the PC status | Windows: CPU, Memory and Battery are only available on Windows Vista or higher
 | /launch | Launch a program | Example: /launch notepad |
 | /link | Open a web link | Example: /link http://google.com (don't use "www") |
 | /memo | Show a memo on your pc |

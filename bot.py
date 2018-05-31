@@ -12,6 +12,7 @@ import subprocess
 import threading
 from datetime import datetime
 
+import distro
 import pyimgur
 import pyscreenshot as imggrab
 import pytz
@@ -26,6 +27,9 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, \
 from telegram.ext import CallbackQueryHandler, CommandHandler, Filters, \
     MessageHandler, Updater
 from tkinter import ttk
+
+if platform.win32_ver()[0] != "XP":
+    import psutil
 
 # Enable logging
 logging.basicConfig(
@@ -724,8 +728,24 @@ def check(bot, update):
         text += _("Your PC is online.\n\n")
         text += _("PC name: ") + socket.gethostname()
         text += _("\nLogged user: ") + getpass.getuser()
-        text += _("\nOS: ") + platform.platform()
-        text += _("\nHw: ") + platform.processor()
+        if platform.system() == "Windows":
+            text += _("\nOS: Windows ") + platform.win32_ver()[0]
+        else:
+            text += _("\nOS: ") + " ".join(
+                [x.decode("utf-8").encode("ascii")
+                 for x in distro.linux_distribution()[:2]])
+        if platform.win32_ver()[0] != "XP":
+            text += _("\nCPU: ") + str(psutil.cpu_percent()) + "%"
+            text += _("\nMemory: ") + str(
+                int(psutil.virtual_memory().percent)) + "%"
+            if psutil.sensors_battery():
+                if psutil.sensors_battery().power_plugged is True:
+                    text += _("\nBattery: ") + str(
+                        format(psutil.sensors_battery().percent, ".0f")) \
+                            + _("% | Charging")
+                else:
+                    text += _("\nBattery: ") + str(
+                        format(psutil.sensors_battery().percent, ".0f")) + "%"
         if update.message:
             chat_id = update.message.chat.id
         elif update.callback_query:
