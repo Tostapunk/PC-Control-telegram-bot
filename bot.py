@@ -43,7 +43,7 @@ class DBHandler:
         self._dbpath = path
 
     def update_user(self, from_user, bot):  # Update the user list (db)
-        if platform.system() != "WIndows":
+        if platform.system() != "Windows":
             curr_dir = os.path.dirname(os.path.abspath(__file__))
             handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
         else:
@@ -95,7 +95,7 @@ class DBHandler:
 def set_globals():
     global db
     db = DBHandler("pccontrol.sqlite")
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         locale = curr_dir + "/locale"
     else:
@@ -106,7 +106,7 @@ def set_globals():
 
 
 def startupinfo():
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -156,7 +156,7 @@ Made by <a href='http://www.t.me/Tostapunk'>Tostapunk</a>
 def bot_help(bot, update):
     lang_check(update)
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -199,7 +199,7 @@ def bot_help(bot, update):
 def menu(bot, update):
     lang_check(update)
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -306,7 +306,7 @@ def message_handler(bot, update):
 
 
 def lang_check(update):
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -318,7 +318,7 @@ def lang_check(update):
     lang = "en"
     if query:
         lang = query["language"]
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         locale = curr_dir + "/locale"
     else:
@@ -331,7 +331,7 @@ def lang_check(update):
 
 def en_lang(bot, update):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -348,7 +348,7 @@ def en_lang(bot, update):
 
 def it_lang(bot, update):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -369,7 +369,7 @@ def shutdown(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -406,7 +406,7 @@ def shutdown(bot, update):
 
 def shutdown_time(bot, update, args):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -443,7 +443,7 @@ def reboot(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -480,7 +480,7 @@ def reboot(bot, update):
 
 def reboot_time(bot, update, args):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -517,7 +517,7 @@ def logout(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -553,7 +553,7 @@ def logout(bot, update):
 
 def logout_time_thread(bot, update, args):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -593,7 +593,7 @@ def hibernate(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -630,7 +630,7 @@ def hibernate(bot, update):
 
 def hibernate_time_thread(bot, update, args):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -673,7 +673,7 @@ def cancel(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -714,7 +714,7 @@ def check(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -762,7 +762,7 @@ def check(bot, update):
 
 def launch(bot, update, args):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -798,7 +798,7 @@ def launch(bot, update, args):
 
 def link(bot, update, args):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -834,7 +834,7 @@ def link(bot, update, args):
 def memo_thread(bot, update, args):
     lang_check(update)
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -878,7 +878,7 @@ def memo_thread(bot, update, args):
 def task(bot, update, args):
     lang_check(update)
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -919,7 +919,7 @@ def task(bot, update, args):
 
 def task_kill(bot, update):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -962,7 +962,7 @@ def imgur(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
@@ -1031,7 +1031,7 @@ def error(bot, update, error):
 
 
 def main():
-    if platform.system() != "WIndows":
+    if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
     else:
