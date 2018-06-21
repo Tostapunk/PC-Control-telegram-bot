@@ -9,27 +9,25 @@ import platform
 import socket
 import sqlite3
 import subprocess
+import sys
 import threading
 from datetime import datetime
 
 import distro
+import psutil
 import pyimgur
 import pyscreenshot as imggrab
 import pytz
-from tzlocal import get_localzone
-
-try:
-    import Tkinter as tk  # py2
-except ImportError:
-    import tkinter as tk  # py3
+import tkinter as tk
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, \
     ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import CallbackQueryHandler, CommandHandler, Filters, \
     MessageHandler, Updater
 from tkinter import ttk
+from tzlocal import get_localzone
 
-if platform.win32_ver()[0] != "XP":
-    import psutil
+if sys.version_info[0] < 3:
+    raise Exception("This bot works only with Python 3.x")
 
 # Enable logging
 logging.basicConfig(

@@ -8,19 +8,14 @@ import platform
 import sqlite3
 import subprocess
 
-try:
-    import Tkinter as tk  # py2
-except ImportError:
-    import tkinter as tk  # py3
-try:
-    from Tkinter import *  # py2
-except ImportError:
-    from tkinter import *  # py3
+import tkinter as tk
+from tkinter import *
+
 if platform.system() == "Windows":
-    try:
-        import _winreg as winreg  # py2
-    except ImportError:
-        import winreg as winreg  # py3
+    import winreg
+
+if sys.version_info[0] < 3:
+    raise Exception("This bot works only with Python 3.x")
 
 root = tk.Tk()
 root.wm_title("Setup")
@@ -347,15 +342,9 @@ def bot_start():
             if query:
                 startup = query["value"]
             if startup == "true":
-                if sys.version_info[0] < 3:
-                    subprocess.call("python bot.pyw", shell=True)
-                else:
-                    subprocess.call("python3 bot.pyw", shell=True)
+                subprocess.call("python3 bot.pyw", shell=True)
             else:
-                if sys.version_info[0] < 3:
-                    subprocess.call("python bot.py", shell=True)
-                else:
-                    subprocess.call("python3 bot.py", shell=True)
+                subprocess.call("python3 bot.py", shell=True)
     else:
         if platform.system() == "Windows":
             cursor.execute("SELECT value FROM config WHERE name='startup'")
@@ -374,15 +363,9 @@ def bot_start():
             if query:
                 startup = query["value"]
             if startup == "true":
-                if sys.version_info[0] < 3:
-                    subprocess.call("python bot.pyw", shell=True)
-                else:
-                    subprocess.call("python3 bot.pyw", shell=True)
+                subprocess.call("python3 bot.pyw", shell=True)
             else:
-                if sys.version_info[0] < 3:
-                    subprocess.call("python bot.py", shell=True)
-                else:
-                    subprocess.call("python3 bot.py", shell=True)
+                subprocess.call("python3 bot.py", shell=True)
 
 
 def privs_window():
