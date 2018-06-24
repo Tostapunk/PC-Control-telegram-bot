@@ -330,10 +330,12 @@ def bot_start():
             if query:
                 startup = query["value"]
             if startup == "true":
-                subprocess.call("python bot.pyw", creationflags=0x08000000,
+                subprocess.call(sys.executable + " bot.pyw",
+                                creationflags=0x08000000,
                                 shell=True)
             else:
-                subprocess.call("python bot.py", creationflags=0x08000000,
+                subprocess.call(sys.executable + " bot.py",
+                                creationflags=0x08000000,
                                 shell=True)
         else:
             cursor.execute("SELECT value FROM config WHERE name='startup'")
@@ -342,30 +344,19 @@ def bot_start():
             if query:
                 startup = query["value"]
             if startup == "true":
-                subprocess.call("python3 bot.pyw", shell=True)
+                subprocess.call(sys.executable + " bot.pyw", shell=True)
             else:
-                subprocess.call("python3 bot.py", shell=True)
+                subprocess.call(sys.executable + " bot.py", shell=True)
     else:
-        if platform.system() == "Windows":
-            cursor.execute("SELECT value FROM config WHERE name='startup'")
-            query = cursor.fetchone()
-            startup = "false"
-            if query:
-                startup = query["value"]
-            if startup == "true":
-                subprocess.call("python bot.pyw", shell=True)
-            else:
-                subprocess.call("python bot.py", shell=True)
+        cursor.execute("SELECT value FROM config WHERE name='startup'")
+        query = cursor.fetchone()
+        startup = "false"
+        if query:
+            startup = query["value"]
+        if startup == "true":
+            subprocess.call(sys.executable + " bot.pyw", shell=True)
         else:
-            cursor.execute("SELECT value FROM config WHERE name='startup'")
-            query = cursor.fetchone()
-            startup = "false"
-            if query:
-                startup = query["value"]
-            if startup == "true":
-                subprocess.call("python3 bot.pyw", shell=True)
-            else:
-                subprocess.call("python3 bot.py", shell=True)
+            subprocess.call(sys.executable + " bot.py", shell=True)
 
 
 def privs_window():
