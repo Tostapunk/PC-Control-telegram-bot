@@ -729,9 +729,7 @@ def check(bot, update):
         if platform.system() == "Windows":
             text += _("\nOS: Windows ") + platform.win32_ver()[0]
         else:
-            text += _("\nOS: ") + " ".join(
-                [x.decode("utf-8").encode("ascii")
-                 for x in distro.linux_distribution()[:2]])
+            text += _("\nOS: ") + " ".join(distro.linux_distribution()[:2])
         if platform.win32_ver()[0] != "XP":
             text += _("\nCPU: ") + str(psutil.cpu_percent()) + "%"
             text += _("\nMemory: ") + str(
