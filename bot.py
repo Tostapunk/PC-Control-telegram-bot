@@ -730,18 +730,17 @@ def check(bot, update):
             text += _("\nOS: Windows ") + platform.win32_ver()[0]
         else:
             text += _("\nOS: ") + " ".join(distro.linux_distribution()[:2])
-        if platform.win32_ver()[0] != "XP":
-            text += _("\nCPU: ") + str(psutil.cpu_percent()) + "%"
-            text += _("\nMemory: ") + str(
-                int(psutil.virtual_memory().percent)) + "%"
-            if psutil.sensors_battery():
-                if psutil.sensors_battery().power_plugged is True:
-                    text += _("\nBattery: ") + str(
-                        format(psutil.sensors_battery().percent, ".0f")) \
-                            + _("% | Charging")
-                else:
-                    text += _("\nBattery: ") + str(
-                        format(psutil.sensors_battery().percent, ".0f")) + "%"
+        text += _("\nCPU: ") + str(psutil.cpu_percent()) + "%"
+        text += _("\nMemory: ") + str(
+            int(psutil.virtual_memory().percent)) + "%"
+        if psutil.sensors_battery():
+            if psutil.sensors_battery().power_plugged is True:
+                text += _("\nBattery: ") + str(
+                    format(psutil.sensors_battery().percent, ".0f")) \
+                        + _("% | Charging")
+            else:
+                text += _("\nBattery: ") + str(
+                    format(psutil.sensors_battery().percent, ".0f")) + "%"
         if update.message:
             chat_id = update.message.chat.id
         elif update.callback_query:
