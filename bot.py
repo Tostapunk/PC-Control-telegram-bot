@@ -270,7 +270,6 @@ def keyboard_up(bot, update):
 
 
 def message_handler(bot, update):
-    db.update_user(update.message.from_user, bot)
     if lang_check(update) == "it":
         args = update.message.text[8:]
     else:
