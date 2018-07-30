@@ -103,6 +103,78 @@ def set_globals():
     default_lang.install()
 
 
+def admin_check(update):
+    if platform.system() != "Windows":
+        curr_dir = os.path.dirname(os.path.abspath(__file__))
+        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
+    else:
+        handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT privs FROM users WHERE id=?",
+                           (update.message.from_user.id,)).fetchone()
+    if query["privs"] == -2:
+        return True
+
+
+def lang_check(update):
+    if platform.system() != "Windows":
+        curr_dir = os.path.dirname(os.path.abspath(__file__))
+        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
+    else:
+        handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    query = cursor.execute("SELECT language FROM users WHERE id=?",
+                           (update.message.from_user.id,)).fetchone()
+    lang = "en"
+    if query:
+        lang = query["language"]
+    if platform.system() != "Windows":
+        curr_dir = os.path.dirname(os.path.abspath(__file__))
+        locale = curr_dir + "/locale"
+    else:
+        locale = "locale"
+    translate = gettext.translation(
+        "pccontrol", localedir=locale, languages=[lang])
+    translate.install()
+    return lang
+
+
+def en_lang(bot, update):
+    db.update_user(update.message.from_user, bot)
+    if platform.system() != "Windows":
+        curr_dir = os.path.dirname(os.path.abspath(__file__))
+        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
+    else:
+        handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    cursor.execute("UPDATE users SET language='en' WHERE id=?",
+                   (update.message.from_user.id,))
+    handle.commit()
+    text = "Language set to english"
+    update.message.reply_text(text=text)
+    keyboard_up(bot, update)
+
+
+def it_lang(bot, update):
+    db.update_user(update.message.from_user, bot)
+    if platform.system() != "Windows":
+        curr_dir = os.path.dirname(os.path.abspath(__file__))
+        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
+    else:
+        handle = sqlite3.connect('pccontrol.sqlite')
+    handle.row_factory = sqlite3.Row
+    cursor = handle.cursor()
+    cursor.execute("UPDATE users SET language='it' WHERE id=?",
+                   (update.message.from_user.id,))
+    handle.commit()
+    text = "Lingua impostata su italiano"
+    update.message.reply_text(text=text)
+    keyboard_up(bot, update)
+
+
 def startupinfo():
     if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -154,16 +226,7 @@ Made by <a href='http://www.t.me/Tostapunk'>Tostapunk</a>
 def bot_help(bot, update):
     lang_check(update)
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         text = _("<b>Available commands:</b>\n")
         text += _("/shutdown - To shutdown your PC\n")
         text += _("/reboot - To reboot your PC\n")
@@ -206,7 +269,7 @@ def menu(bot, update):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?",
                            (update.message.from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         keyboard = [[InlineKeyboardButton(_("Shutdown"),
                                           callback_data='shutdown'),
                      InlineKeyboardButton(_("Reboot"),
@@ -302,64 +365,6 @@ def message_handler(bot, update):
         it_lang(bot, update)
 
 
-def lang_check(update):
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT language FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
-    lang = "en"
-    if query:
-        lang = query["language"]
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        locale = curr_dir + "/locale"
-    else:
-        locale = "locale"
-    translate = gettext.translation(
-        "pccontrol", localedir=locale, languages=[lang])
-    translate.install()
-    return lang
-
-
-def en_lang(bot, update):
-    db.update_user(update.message.from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("UPDATE users SET language='en' WHERE id=?",
-                   (update.message.from_user.id,))
-    handle.commit()
-    text = "Language set to english"
-    update.message.reply_text(text=text)
-    keyboard_up(bot, update)
-
-
-def it_lang(bot, update):
-    db.update_user(update.message.from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("UPDATE users SET language='it' WHERE id=?",
-                   (update.message.from_user.id,))
-    handle.commit()
-    text = "Lingua impostata su italiano"
-    update.message.reply_text(text=text)
-    keyboard_up(bot, update)
-
-
 def shutdown(bot, update):
     if update.message:
         from_user = update.message.from_user
@@ -375,7 +380,7 @@ def shutdown(bot, update):
     cursor = handle.cursor()
     query = cursor.execute(
         "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /s', startupinfo=startupinfo())
             text = _("Shutted down.")
@@ -412,7 +417,7 @@ def shutdown_time(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?",
                            (update.message.from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         if len(args) != 0:
             if platform.system() == "Windows":
                 subprocess.call("shutdown /s /t %s" % (args[0]),
@@ -449,7 +454,7 @@ def reboot(bot, update):
     cursor = handle.cursor()
     query = cursor.execute(
         "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /r', startupinfo=startupinfo())
             text = _("Rebooted.")
@@ -486,7 +491,7 @@ def reboot_time(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?",
                            (update.message.from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         if len(args) != 0:
             if platform.system() == "Windows":
                 subprocess.call("shutdown /r /t %s" % (args[0]),
@@ -523,7 +528,7 @@ def logout(bot, update):
     cursor = handle.cursor()
     query = cursor.execute(
         "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /l', startupinfo=startupinfo())
             text = _("Logged out.")
@@ -559,7 +564,7 @@ def logout_time_thread(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?",
                            (update.message.from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         def logout_time():
             if len(args) != 0:
                 if platform.system() == "Windows":
@@ -599,7 +604,7 @@ def hibernate(bot, update):
     cursor = handle.cursor()
     query = cursor.execute(
         "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /h', startupinfo=startupinfo())
             text = _("Hibernated.")
@@ -636,7 +641,7 @@ def hibernate_time_thread(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?",
                            (update.message.from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         def hibernate_time():
             if len(args) != 0:
                 if platform.system() == "Windows":
@@ -679,7 +684,7 @@ def cancel(bot, update):
     cursor = handle.cursor()
     query = cursor.execute(
         "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /a', startupinfo=startupinfo())
             text = _("Annulled.")
@@ -720,7 +725,7 @@ def check(bot, update):
     cursor = handle.cursor()
     query = cursor.execute(
         "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         text = ""
         text += _("Your PC is online.\n\n")
         text += _("PC name: ") + socket.gethostname()
@@ -765,7 +770,7 @@ def launch(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?",
                            (update.message.from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         if len(args) != 0:
             if platform.system() == "Windows":
                 ret = subprocess.call("start %s" % (args[0]),
@@ -801,7 +806,7 @@ def link(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?",
                            (update.message.from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         if len(args) != 0:
             if platform.system() == "Windows":
                 ret = subprocess.call("start %s" % (args[0]),
@@ -837,7 +842,7 @@ def memo_thread(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?",
                            (update.message.from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         args = update.message.text[6:]
         if len(args) != 0:
             def memo():
@@ -881,7 +886,7 @@ def task(bot, update, args):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?",
                            (update.message.from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         if len(args) != 0:
             if platform.system() == "Windows":
                 try:
@@ -922,7 +927,7 @@ def task_kill(bot, update):
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?",
                            (update.message.from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         if lang_check(update) == 'it':
             args = update.message.text[8:]
         else:
@@ -965,7 +970,7 @@ def imgur(bot, update):
     cursor = handle.cursor()
     query = cursor.execute(
         "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
-    if query["privs"] == -2:
+    if admin_check(update) is True:
         if platform.system() == "Windows":
             SaveDirectory = r''
             ImageEditorPath = r'C:\WINDOWS\system32\mspaint.exe'
