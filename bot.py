@@ -68,10 +68,25 @@ class DBHandler:
                 "last_use=?,time_used=? WHERE id=?",
                 query)
         else:
-            cursor.execute(
-                "INSERT INTO users(name_first,name_last,username,last_use,"
-                "time_used,id) VALUES(?,?,?,?,?,?)",
-                query)
+            data = cursor.execute("SELECT count(*) as tot FROM users").fetchone()
+            if data[0] == 0:
+                query = (from_user.first_name,
+                         from_user.last_name,
+                         from_user.username,
+                         datetime.now(pytz.timezone(str(get_localzone()))
+                                      ).strftime('%Y-%m-%d %H:%M'),
+                         used + 1,
+                         from_user.id,
+                         "-2")
+                cursor.execute(
+                    "INSERT INTO users(name_first,name_last,username,last_use,"
+                    "time_used,id,privs) VALUES(?,?,?,?,?,?,?)",
+                    query)
+            else:
+                cursor.execute(
+                    "INSERT INTO users(name_first,name_last,username,last_use,"
+                    "time_used,id) VALUES(?,?,?,?,?,?)",
+                    query)
             admins = cursor.execute(
                 "SELECT id, language FROM users WHERE privs='-2'").fetchall()
             localedir = os.path.dirname(os.path.abspath(__file__)) + "/locale"

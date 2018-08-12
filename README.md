@@ -31,6 +31,7 @@ Now start it!
 
 ## Set the permissions
 
+**The first user registered into the database will have admin permissions by default.**\
 Click the "Change user permissions" button to add or remove someone from the allowed users.\
 Just insert the wanted Telegram username (write it without @) and select if you want to add the permissions or
 remove them
@@ -38,8 +39,6 @@ remove them
 Example:
 
 ![privs](https://i.imgur.com/DyL2F8w.png)
-
-You're ready!
 
 ### Available commands
 
