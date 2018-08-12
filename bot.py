@@ -91,17 +91,18 @@ class DBHandler:
                 "SELECT id, language FROM users WHERE privs='-2'").fetchall()
             localedir = os.path.dirname(os.path.abspath(__file__)) + "/locale"
             for admin in admins:
-                gettext.translation(
-                    "pccontrol", localedir=localedir,
-                    languages=[admin["language"]]).install()
-                text = _("<b>New user registered into the database</b> \n\n")
-                text += _("Name: ") + from_user.first_name
-                if from_user.last_name:
-                    text += _("\nLast name: ") + from_user.last_name
-                if from_user.username:
-                    text += _("\nUsername: @") + from_user.username
-                bot.sendMessage(
-                    chat_id=admin["id"], text=text, parse_mode=ParseMode.HTML)
+                if admin["id"] != from_user.id:
+                    gettext.translation(
+                        "pccontrol", localedir=localedir,
+                        languages=[admin["language"]]).install()
+                    text = _("<b>New user registered into the database</b> \n\n")
+                    text += _("Name: ") + from_user.first_name
+                    if from_user.last_name:
+                        text += _("\nLast name: ") + from_user.last_name
+                    if from_user.username:
+                        text += _("\nUsername: @") + from_user.username
+                    bot.sendMessage(
+                        chat_id=admin["id"], text=text, parse_mode=ParseMode.HTML)
         handle.commit()
 
 
