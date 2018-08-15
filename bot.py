@@ -276,15 +276,6 @@ def bot_help(bot, update):
 def menu(bot, update):
     lang_check(update)
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
     if admin_check(update) is True:
         keyboard = [[InlineKeyboardButton(_("Shutdown"),
                                           callback_data='shutdown'),
@@ -387,15 +378,6 @@ def shutdown(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute(
-        "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
     if admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /s', startupinfo=startupinfo())
@@ -424,15 +406,6 @@ def shutdown(bot, update):
 
 def shutdown_time(bot, update, args):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
     if admin_check(update) is True:
         if len(args) != 0:
             if platform.system() == "Windows":
@@ -461,15 +434,6 @@ def reboot(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute(
-        "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
     if admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /r', startupinfo=startupinfo())
@@ -498,15 +462,6 @@ def reboot(bot, update):
 
 def reboot_time(bot, update, args):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
     if admin_check(update) is True:
         if len(args) != 0:
             if platform.system() == "Windows":
@@ -535,15 +490,6 @@ def logout(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute(
-        "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
     if admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /l', startupinfo=startupinfo())
@@ -571,15 +517,6 @@ def logout(bot, update):
 
 def logout_time_thread(bot, update, args):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
     if admin_check(update) is True:
         def logout_time():
             if len(args) != 0:
@@ -611,15 +548,6 @@ def hibernate(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute(
-        "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
     if admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /h', startupinfo=startupinfo())
@@ -648,15 +576,6 @@ def hibernate(bot, update):
 
 def hibernate_time_thread(bot, update, args):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
     if admin_check(update) is True:
         def hibernate_time():
             if len(args) != 0:
@@ -691,15 +610,6 @@ def cancel(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute(
-        "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
     if admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /a', startupinfo=startupinfo())
@@ -732,15 +642,6 @@ def check(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute(
-        "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
     if admin_check(update) is True:
         text = ""
         text += _("Your PC is online.\n\n")
@@ -777,15 +678,6 @@ def check(bot, update):
 
 def launch(bot, update, args):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
     if admin_check(update) is True:
         if len(args) != 0:
             if platform.system() == "Windows":
@@ -813,15 +705,6 @@ def launch(bot, update, args):
 
 def link(bot, update, args):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
     if admin_check(update) is True:
         if len(args) != 0:
             if platform.system() == "Windows":
@@ -849,15 +732,6 @@ def link(bot, update, args):
 def memo_thread(bot, update, args):
     lang_check(update)
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
     if admin_check(update) is True:
         args = update.message.text[6:]
         if len(args) != 0:
@@ -893,15 +767,6 @@ def memo_thread(bot, update, args):
 def task(bot, update, args):
     lang_check(update)
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
     if admin_check(update) is True:
         if len(args) != 0:
             if platform.system() == "Windows":
@@ -934,15 +799,6 @@ def task(bot, update, args):
 
 def task_kill(bot, update):
     db.update_user(update.message.from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
     if admin_check(update) is True:
         if lang_check(update) == 'it':
             args = update.message.text[8:]
@@ -977,15 +833,6 @@ def imgur(bot, update):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute(
-        "SELECT privs FROM users WHERE id=?", (from_user.id,)).fetchone()
     if admin_check(update) is True:
         if platform.system() == "Windows":
             SaveDirectory = r''
