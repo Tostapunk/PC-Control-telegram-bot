@@ -388,7 +388,7 @@ def shutdown(bot, update):
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
         else:
-            subprocess.call('shutdown -h now', startupinfo=startupinfo())
+            subprocess.call('shutdown -h now', startupinfo=startupinfo(), shell=True)
             text = _("Shutted down.")
             if update.message:
                 chat_id = update.message.chat.id
@@ -415,7 +415,7 @@ def shutdown_time(bot, update, args):
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
                 subprocess.call("shutdown -t %s" % (args[0] / 60),
-                                startupinfo=startupinfo())
+                                startupinfo=startupinfo(), shell=True)
                 text = _("Shutting down...")
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
@@ -471,7 +471,7 @@ def reboot_time(bot, update, args):
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
                 subprocess.call("reboot -t %s" % (args[0] / 60),
-                                startupinfo=startupinfo())
+                                startupinfo=startupinfo(), shell=True)
                 text = _("Rebooting...")
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
@@ -558,7 +558,7 @@ def hibernate(bot, update):
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
         else:
-            subprocess.call('systemctl suspend', startupinfo=startupinfo())
+            subprocess.call('systemctl suspend', startupinfo=startupinfo(), shell=True)
             text = _("Hibernated.")
             if update.message:
                 chat_id = update.message.chat.id
@@ -588,7 +588,7 @@ def hibernate_time_thread(bot, update, args):
                 else:
                     subprocess.call("sleep %s" % (args[0]) +
                                     "s; systemctl suspend",
-                                    startupinfo=startupinfo())
+                                    startupinfo=startupinfo(), shell=True)
                     text = _("Hibernating...")
                     bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
@@ -620,7 +620,7 @@ def cancel(bot, update):
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
         else:
-            subprocess.call('shutdown -c', startupinfo=startupinfo())
+            subprocess.call('shutdown -c', startupinfo=startupinfo(), shell=True)
             text = _("Annulled.")
             if update.message:
                 chat_id = update.message.chat.id
@@ -690,7 +690,7 @@ def launch(bot, update, args):
                     bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
                 subprocess.call("%s" % (args[0]),
-                                startupinfo=startupinfo())
+                                startupinfo=startupinfo(), shell=True)
                 text = _("Launching ") + (args[0]) + "..."
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
@@ -717,7 +717,7 @@ def link(bot, update, args):
                     bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
                 subprocess.call("xdg-open %s" % (args[0]),
-                                startupinfo=startupinfo())
+                                startupinfo=startupinfo(), shell=True)
                 text = _("Opening ") + (args[0]) + "..."
                 bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
