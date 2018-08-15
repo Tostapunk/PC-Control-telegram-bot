@@ -767,15 +767,15 @@ def memo_thread(bot, update, args):
 def task(bot, update, args):
     lang_check(update)
     db.update_user(update.message.from_user, bot)
+    kill_kb = [[_('Kill %s') % (args[0])],
+               [_('Exit')]]
+    reply_markup = ReplyKeyboardMarkup(
+        kill_kb, resize_keyboard=True)
     if admin_check(update) is True:
         if len(args) != 0:
             if platform.system() == "Windows":
                 try:
                     out = os.popen("tasklist | findstr %s" % (args[0])).read()
-                    kill_kb = [[_('Kill %s') % (args[0])],
-                               [_('Exit')]]
-                    reply_markup = ReplyKeyboardMarkup(
-                        kill_kb, resize_keyboard=True)
                     bot.sendMessage(chat_id=update.message.chat.id,
                                     text=out, reply_markup=reply_markup)
                 except BaseException:
@@ -784,7 +784,7 @@ def task(bot, update, args):
             else:
                 try:
                     out = os.popen("ps -A | grep %s" % (args[0])).read()
-                    bot.sendMessage(chat_id=update.message.chat.id, text=out)
+                    bot.sendMessage(chat_id=update.message.chat.id, text=out, reply_markup=reply_markup)
                 except BaseException:
                     bot.sendMessage(chat_id=update.message.chat.id, text=_(
                         "The program is not running"))
@@ -815,7 +815,7 @@ def task_kill(bot, update):
                                 text=_("The program is not running"))
         else:
             try:
-                subprocess.call("pkill -f " + args, startupinfo=startupinfo())
+                subprocess.call("pkill -f " + args, startupinfo=startupinfo(), shell=True)
                 bot.sendMessage(chat_id=update.message.chat.id,
                                 text=_("I've killed ") + args)
                 keyboard_up(bot, update)
