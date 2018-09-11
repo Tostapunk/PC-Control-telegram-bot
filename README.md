@@ -48,6 +48,7 @@ Example:
 | /reboot | Reboot your PC |
 | /logout | Log out from your current account | Currently not working on Linux |
 | /hibernate | Hibernate your PC |
+| /lock | Lock your PC | Currently not working on Linux |
 | /cancel | Annul the previous command | It work with the first two commands_t |
 | /check | Check the PC status | 
 | /launch | Launch a program | Example: /launch notepad |
@@ -55,7 +56,7 @@ Example:
 | /memo | Show a memo on your pc |
 | /task | Check if a process is currently running or kill it| Example: /task chrome |
 | /screen | Take a screenshot and receive it through Imgur |
-| /menu | Shows the inline menù |
+| /menu | Shows the inline menu |
 | /kb or /keyboard | Brings the normal keyboard up |
 
 You can set a delay time for the execution of the first four commands by using _t + time in seconds after a command.\

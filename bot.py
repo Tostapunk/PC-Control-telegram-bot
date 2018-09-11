@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import ctypes
 import getpass
 import gettext
 import logging
@@ -248,6 +249,7 @@ def bot_help(bot, update):
         text += _("/reboot - To reboot your PC\n")
         text += _("/logout - To log out from your current account\n")
         text += _("/hibernate - To hibernate your PC\n")
+        text += _("/lock - To lock your PC\n")
         text += _("/cancel - To annul the previous command\n")
         text += _("/check - To check the PC status\n")
         text += _("/launch - To launch a program | Example: /launch notepad\n")
@@ -285,10 +287,12 @@ def menu(bot, update):
                                           callback_data='logout'),
                      InlineKeyboardButton(_("Hibernate"),
                                           callback_data='hibernate')],
-                    [InlineKeyboardButton(_("PC status"),
-                                          callback_data='check'),
+                    [InlineKeyboardButton(_("Lock"),
+                                          callback_data='lock'),
                      InlineKeyboardButton(_("Screenshot"),
                                           callback_data='screen')],
+                    [InlineKeyboardButton(_("PC status"),
+                                          callback_data='check')],
                     [InlineKeyboardButton(_("Cancel"),
                                           callback_data='cancel')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -317,6 +321,8 @@ def button(bot, update):
         logout(bot, update)
     elif query.data == 'hibernate':
         hibernate(bot, update)
+    elif query.data == 'lock':
+        lock(bot, update)
     elif query.data == 'check':
         check(bot, update)
     elif query.data == 'screen':
@@ -332,7 +338,8 @@ def keyboard_up(bot, update):
     text = _("Keyboard is up.")
     keyboard = [[_('Shutdown'), _('Reboot')],
                 [_('Logout'), _('Hibernate')],
-                [_('PC status'), _('Screenshot')],
+                [_('Lock'), _('Screenshot')],
+                [_('PC status')],
                 [_('Cancel')],
                 [_('Close Keyboard')]]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
@@ -352,6 +359,8 @@ def message_handler(bot, update):
         logout(bot, update)
     elif update.message.text == _("Hibernate"):
         hibernate(bot, update)
+    elif update.message.text == _("Lock"):
+        lock(bot, update)
     elif update.message.text == _("PC status"):
         check(bot, update)
     elif update.message.text == _("Screenshot"):
@@ -598,6 +607,19 @@ def hibernate_time_thread(bot, update, args):
     else:
         text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
+
+def lock(bot, update):
+    db.update_user(update.message.from_user, bot)
+    if admin_check(update) is True:
+        if platform.system() == "Windows":
+            ctypes.windll.user32.LockWorkStation()
+            text = _("PC locked.")
+        else:
+            text = _("Currently not working on Linux.")
+    else:
+        text = _("Unauthorized.")
+    bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
 def cancel(bot, update):
@@ -959,6 +981,10 @@ def main():
         "hibernate_t", hibernate_time_thread, pass_args=True))  # en
     dp.add_handler(CommandHandler(
         "iberna_t", hibernate_time_thread, pass_args=True))  # it
+
+    # Lock
+    dp.add_handler(CommandHandler("lock", lock))  # en
+    dp.add_handler(CommandHandler("blocca", lock))  # it
 
     # Annul the previous command
     dp.add_handler(CommandHandler("cancel", cancel))  # en

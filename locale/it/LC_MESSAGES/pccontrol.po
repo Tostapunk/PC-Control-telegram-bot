@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-09-11 17:31+0200\n"
-"PO-Revision-Date: 2018-09-11 17:39+0200\n"
+"POT-Creation-Date: 2018-09-11 18:29+0200\n"
+"PO-Revision-Date: 2018-09-11 18:33+0200\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -93,18 +93,22 @@ msgid "/hibernate - To hibernate your PC\n"
 msgstr "/iberna - Per ibernare il tuo PC\n"
 
 #: bot.py:251
+msgid "/lock - To lock your PC\n"
+msgstr "/blocca - Per bloccare il PC\n"
+
+#: bot.py:252
 msgid "/cancel - To annul the previous command\n"
 msgstr "/annulla - Per annullare il comando precedente\n"
 
-#: bot.py:252
+#: bot.py:253
 msgid "/check - To check the PC status\n"
 msgstr "/pc - Per controllare lo stato del PC\n"
 
-#: bot.py:253
+#: bot.py:254
 msgid "/launch - To launch a program | Example: /launch notepad\n"
 msgstr "/avvia - Per avviare un programma | Esempio: /avvia notepad\n"
 
-#: bot.py:254
+#: bot.py:255
 msgid ""
 "/link - To open a link | Example: /link http://google.com (don't use \"www"
 "\")\n"
@@ -112,11 +116,11 @@ msgstr ""
 "/link - Per aprire un link | Esempio: /link http://google.it (non usare \"www"
 "\")\n"
 
-#: bot.py:256
+#: bot.py:257
 msgid "/memo - To show a memo on your pc\n"
 msgstr "/memo - Per mostrare un memo sul tuo PC\n"
 
-#: bot.py:257
+#: bot.py:258
 msgid ""
 "/task - To check if a process is currently running or to kill it | Example: /"
 "task chrome\n"
@@ -124,15 +128,15 @@ msgstr ""
 "/processo - Per controllare se un processo è in esecuzione o per terminarlo "
 "| Esempio: /processo chrome\n"
 
-#: bot.py:259
+#: bot.py:260
 msgid "/screen - To take a screenshot and receive it through Imgur\n"
 msgstr "/screen - Per fare uno screenshot e riceverlo tramite Imgur\n"
 
-#: bot.py:261
+#: bot.py:262
 msgid "/menu - Shows the inline menu\n"
 msgstr "/menu - Mostra il menu inline\n"
 
-#: bot.py:262
+#: bot.py:263
 msgid ""
 "/kb or /keyboard - Brings the normal keyboard up\n"
 "\n"
@@ -140,7 +144,7 @@ msgstr ""
 "/kb or /tastiera- Rende visibile la tastiera principale\n"
 "\n"
 
-#: bot.py:263
+#: bot.py:264
 msgid ""
 "You can set a delay time for the execution of the first four commands by "
 "using _t + time in seconds after a command.\n"
@@ -148,77 +152,81 @@ msgstr ""
 "Puoi impostare un lasso di tempo per l'esecuzione dei primi quattro comandi "
 "usando _t + il tempo in secondi dopo un comando.\n"
 
-#: bot.py:266
+#: bot.py:267
 msgid "Example: /shutdown_t 20"
 msgstr "Esempio: /spegni_t 20"
 
-#: bot.py:268 bot.py:298 bot.py:399 bot.py:427 bot.py:455 bot.py:483 bot.py:510
-#: bot.py:540 bot.py:568 bot.py:599 bot.py:628 bot.py:668 bot.py:699 bot.py:725
-#: bot.py:760 bot.py:793 bot.py:823 bot.py:880
+#: bot.py:269 bot.py:301 bot.py:407 bot.py:435 bot.py:463 bot.py:491 bot.py:518
+#: bot.py:548 bot.py:576 bot.py:607 bot.py:620 bot.py:649 bot.py:689 bot.py:720
+#: bot.py:746 bot.py:781 bot.py:814 bot.py:844 bot.py:901
 msgid "Unauthorized."
 msgstr "Non autorizzato."
 
-#: bot.py:280 bot.py:333 bot.py:347
+#: bot.py:281 bot.py:338 bot.py:353
 msgid "Shutdown"
 msgstr "Spegni"
 
-#: bot.py:282 bot.py:333 bot.py:349
+#: bot.py:283 bot.py:338 bot.py:355
 msgid "Reboot"
 msgstr "Riavvia"
 
-#: bot.py:284 bot.py:334 bot.py:351
+#: bot.py:285 bot.py:339 bot.py:357
 msgid "Logout"
 msgstr "Logout"
 
-#: bot.py:286 bot.py:334 bot.py:353
+#: bot.py:287 bot.py:339 bot.py:359
 msgid "Hibernate"
 msgstr "Iberna"
 
-#: bot.py:288 bot.py:335 bot.py:355
-msgid "PC status"
-msgstr "Stato del PC"
+#: bot.py:289 bot.py:340 bot.py:361
+msgid "Lock"
+msgstr "Blocca"
 
-#: bot.py:290 bot.py:335 bot.py:357
+#: bot.py:291 bot.py:340 bot.py:365
 msgid "Screenshot"
 msgstr "Screenshot"
 
-#: bot.py:292 bot.py:336 bot.py:359
+#: bot.py:293 bot.py:341 bot.py:363
+msgid "PC status"
+msgstr "Stato del PC"
+
+#: bot.py:295 bot.py:342 bot.py:367
 msgid "Cancel"
 msgstr "Annulla"
 
-#: bot.py:296
+#: bot.py:299
 msgid "Please choose:"
 msgstr "Scegli:"
 
-#: bot.py:332
+#: bot.py:337
 msgid "Keyboard is up."
 msgstr "Tastiera attivata."
 
-#: bot.py:337 bot.py:361
+#: bot.py:343 bot.py:369
 msgid "Close Keyboard"
 msgstr "Disattiva tastiera"
 
-#: bot.py:362
+#: bot.py:370
 msgid "Keyboard is down."
 msgstr "Tastiera disattivata."
 
-#: bot.py:365
+#: bot.py:373
 msgid "Kill "
 msgstr "Termina "
 
-#: bot.py:367 bot.py:768
+#: bot.py:375 bot.py:789
 msgid "Exit"
 msgstr "Esci"
 
-#: bot.py:384 bot.py:392
+#: bot.py:392 bot.py:400
 msgid "Shutted down."
 msgstr "Spento."
 
-#: bot.py:414 bot.py:419
+#: bot.py:422 bot.py:427
 msgid "Shutting down..."
 msgstr "Lo sto spegnendo..."
 
-#: bot.py:422
+#: bot.py:430
 msgid ""
 "No time inserted\n"
 "            ``` Usage: /shutdown_t + time in seconds```"
@@ -226,15 +234,15 @@ msgstr ""
 "Nessun tempo inserito\n"
 "            ``` Uso: /spegni_t + tempo in secondi```"
 
-#: bot.py:440 bot.py:448
+#: bot.py:448 bot.py:456
 msgid "Rebooted."
 msgstr "Riavviato."
 
-#: bot.py:470 bot.py:475
+#: bot.py:478 bot.py:483
 msgid "Rebooting..."
 msgstr "Lo sto riavviando..."
 
-#: bot.py:478
+#: bot.py:486
 msgid ""
 "No time inserted\n"
 "            ``` Usage: /reboot_t + time in seconds```"
@@ -242,15 +250,15 @@ msgstr ""
 "Nessun tempo inserito\n"
 "            ``` Uso: /riavvia_t + tempo in secondi```"
 
-#: bot.py:496 bot.py:523
+#: bot.py:504 bot.py:531
 msgid "Logged out."
 msgstr "Logout effettuato."
 
-#: bot.py:503 bot.py:537
+#: bot.py:511 bot.py:545 bot.py:618
 msgid "Currently not working on Linux."
 msgstr "Attualmente non funzionante su Linux."
 
-#: bot.py:527
+#: bot.py:535
 msgid ""
 "No time inserted\n"
 "                ``` Usage: /logout_t + time in seconds```"
@@ -258,11 +266,11 @@ msgstr ""
 "Nessun tempo inserito\n"
 "            ``` Uso: /logout_t + tempo in secondi```"
 
-#: bot.py:553 bot.py:561 bot.py:582 bot.py:588
+#: bot.py:561 bot.py:569 bot.py:590 bot.py:596
 msgid "Hibernated."
 msgstr "Ibernato."
 
-#: bot.py:591
+#: bot.py:599
 msgid ""
 "\"No time inserted\n"
 "                ``` Usage: /hibernate_t + time in seconds```"
@@ -270,11 +278,15 @@ msgstr ""
 "Nessun tempo inserito\n"
 "            ``` Uso: /iberna_t + tempo in secondi```"
 
-#: bot.py:613 bot.py:619 bot.py:623 bot.py:626
+#: bot.py:616
+msgid "PC locked."
+msgstr "PC bloccato."
+
+#: bot.py:634 bot.py:640 bot.py:644 bot.py:647
 msgid "Annulled."
 msgstr "Annullato."
 
-#: bot.py:644
+#: bot.py:665
 msgid ""
 "Your PC is online.\n"
 "\n"
@@ -282,11 +294,11 @@ msgstr ""
 "Il tuo PC è online.\n"
 "\n"
 
-#: bot.py:645
+#: bot.py:666
 msgid "PC name: "
 msgstr "Nome del PC: "
 
-#: bot.py:646
+#: bot.py:667
 msgid ""
 "\n"
 "Logged user: "
@@ -294,7 +306,7 @@ msgstr ""
 "\n"
 "Utente che ha effettuato l'accesso: "
 
-#: bot.py:648
+#: bot.py:669
 msgid ""
 "\n"
 "OS: Windows "
@@ -302,7 +314,7 @@ msgstr ""
 "\n"
 "Sistema operativo: Windows "
 
-#: bot.py:650
+#: bot.py:671
 msgid ""
 "\n"
 "OS: "
@@ -310,7 +322,7 @@ msgstr ""
 "\n"
 "Sistema operativo: "
 
-#: bot.py:651
+#: bot.py:672
 msgid ""
 "\n"
 "CPU: "
@@ -318,7 +330,7 @@ msgstr ""
 "\n"
 "CPU: "
 
-#: bot.py:652
+#: bot.py:673
 msgid ""
 "\n"
 "Memory: "
@@ -326,7 +338,7 @@ msgstr ""
 "\n"
 "Memoria: "
 
-#: bot.py:656 bot.py:660
+#: bot.py:677 bot.py:681
 msgid ""
 "\n"
 "Battery: "
@@ -334,19 +346,19 @@ msgstr ""
 "\n"
 "Batteria: "
 
-#: bot.py:658
+#: bot.py:679
 msgid "% | Charging"
 msgstr "% | In carica"
 
-#: bot.py:683 bot.py:691
+#: bot.py:704 bot.py:712
 msgid "Launching "
 msgstr "Avviando "
 
-#: bot.py:686
+#: bot.py:707
 msgid "Cannot launch "
 msgstr "Non posso avviare "
 
-#: bot.py:694
+#: bot.py:715
 msgid ""
 "No program name inserted\n"
 "            ``` Usage: /launch + program name```"
@@ -354,15 +366,15 @@ msgstr ""
 "Nessun programma inserito\n"
 "            ``` Uso: /avvia + nome del programma```"
 
-#: bot.py:710 bot.py:718
+#: bot.py:731 bot.py:739
 msgid "Opening "
 msgstr "Aprendo "
 
-#: bot.py:713
+#: bot.py:734
 msgid "Cannot open "
 msgstr "Non posso aprire "
 
-#: bot.py:721
+#: bot.py:742
 msgid ""
 "No link inserted\n"
 "``` Usage: /link + web link```"
@@ -370,7 +382,7 @@ msgstr ""
 "Nessun link inserito\n"
 "``` Uso: /link + web link```"
 
-#: bot.py:741
+#: bot.py:762
 msgid ""
 "\n"
 "sent by "
@@ -378,24 +390,24 @@ msgstr ""
 "\n"
 "inviato da "
 
-#: bot.py:743
+#: bot.py:764
 msgid " through PC-Control"
 msgstr " tramite PC-Control"
 
-#: bot.py:757
+#: bot.py:778
 msgid "No text inserted"
 msgstr "Nessun testo inserito"
 
-#: bot.py:767
+#: bot.py:788
 #, python-format
 msgid "Kill %s"
 msgstr "Termina %s"
 
-#: bot.py:779 bot.py:786 bot.py:812 bot.py:821
+#: bot.py:800 bot.py:807 bot.py:833 bot.py:842
 msgid "The program is not running"
 msgstr "Il programma non è in esecuzione"
 
-#: bot.py:789
+#: bot.py:810
 msgid ""
 "No task inserted\n"
 "``` Usage: /task + process name```"
@@ -403,14 +415,14 @@ msgstr ""
 "Nessun processo inserito\n"
 "``` Uso: /processo + nome del processo```"
 
-#: bot.py:808 bot.py:817
+#: bot.py:829 bot.py:838
 msgid "I've killed "
 msgstr "Ho terminato "
 
-#: bot.py:854
+#: bot.py:875
 msgid "Cannot find an Imgur token"
 msgstr "Non trovo un token di Imgur"
 
-#: bot.py:865
+#: bot.py:886
 msgid "Uploaded with PC-Control"
 msgstr "Caricata tramite PC-Control"
