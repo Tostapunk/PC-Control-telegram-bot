@@ -121,6 +121,10 @@ def set_globals():
 
 
 def admin_check(update):
+    if update.message:
+        from_user = update.message.from_user
+    elif update.callback_query:
+        from_user = update.callback_query.from_user
     if platform.system() != "Windows":
         curr_dir = os.path.dirname(os.path.abspath(__file__))
         handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
@@ -129,7 +133,7 @@ def admin_check(update):
     handle.row_factory = sqlite3.Row
     cursor = handle.cursor()
     query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
+                           (from_user.id,)).fetchone()
     if query["privs"] == -2:
         return True
 
@@ -610,7 +614,11 @@ def hibernate_time_thread(bot, update, args):
 
 
 def lock(bot, update):
-    db.update_user(update.message.from_user, bot)
+    if update.message:
+        from_user = update.message.from_user
+    elif update.callback_query:
+        from_user = update.callback_query.from_user
+    db.update_user(from_user, bot)
     if admin_check(update) is True:
         if platform.system() == "Windows":
             ctypes.windll.user32.LockWorkStation()
@@ -619,7 +627,7 @@ def lock(bot, update):
             text = _("Currently not working on Linux.")
     else:
         text = _("Unauthorized.")
-    bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    bot.sendMessage(chat_id=from_user.id, text=text)
 
 
 def cancel(bot, update):
@@ -636,7 +644,6 @@ def cancel(bot, update):
         except NameError:
             try:
                 if h_t.isAlive():
-                    print("kek")
                     h_t.cancel()
                     text = _("Annulled.")
             except NameError:
@@ -872,7 +879,7 @@ def imgur(bot, update):
         cursor.execute("SELECT value FROM config WHERE name='Imgur_token'")
         check = cursor.fetchall()
         if len(check) == 0:
-            bot.sendMessage(chat_id=update.message.chat.id,
+            bot.sendMessage(chat_id=from_user.id,
                             text=_("Cannot find an Imgur token"))
         else:
             handle = sqlite3.connect('pccontrol.sqlite')
