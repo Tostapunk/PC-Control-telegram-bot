@@ -860,19 +860,6 @@ def imgur(bot, update):
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
     if admin_check(update) is True:
-        if platform.system() == "Windows":
-            SaveDirectory = r''
-            ImageEditorPath = r'C:\WINDOWS\system32\mspaint.exe'
-            img = imggrab.grab()
-            saveas = os.path.join(SaveDirectory, 'screenshot' + '.png')
-            img.save(saveas)
-            editorstring = '"start"%s" "%s"' % (ImageEditorPath, saveas)
-            subprocess.call(editorstring, startupinfo=startupinfo(),
-                            shell=True)
-        else:
-            subprocess.call("import -window root screenshot.png",
-                            startupinfo=startupinfo(), shell=True)
-
         handle = sqlite3.connect('pccontrol.sqlite')
         handle.row_factory = sqlite3.Row
         cursor = handle.cursor()
@@ -882,9 +869,18 @@ def imgur(bot, update):
             bot.sendMessage(chat_id=from_user.id,
                             text=_("Cannot find an Imgur token"))
         else:
-            handle = sqlite3.connect('pccontrol.sqlite')
-            handle.row_factory = sqlite3.Row
-            cursor = handle.cursor()
+            if platform.system() == "Windows":
+                SaveDirectory = r''
+                ImageEditorPath = r'C:\WINDOWS\system32\mspaint.exe'
+                img = imggrab.grab()
+                saveas = os.path.join(SaveDirectory, 'screenshot' + '.png')
+                img.save(saveas)
+                editorstring = '"start"%s" "%s"' % (ImageEditorPath, saveas)
+                subprocess.call(editorstring, startupinfo=startupinfo(),
+                                shell=True)
+            else:
+                subprocess.call("import -window root screenshot.png",
+                                startupinfo=startupinfo(), shell=True)
             cursor.execute("SELECT value FROM config WHERE name='Imgur_token'")
             CLIENT_ID = cursor.fetchone()
             PATH = "screenshot.png"
