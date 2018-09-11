@@ -11,19 +11,19 @@ import sqlite3
 import subprocess
 import sys
 import threading
+import tkinter as tk
 from datetime import datetime
+from tkinter import ttk
 
 import distro
 import psutil
 import pyimgur
 import pyscreenshot as imggrab
 import pytz
-import tkinter as tk
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, \
     ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import CallbackQueryHandler, CommandHandler, Filters, \
     MessageHandler, Updater
-from tkinter import ttk
 from tzlocal import get_localzone
 
 if sys.version_info[0] < 3:
@@ -287,7 +287,7 @@ def menu(bot, update):
                                           callback_data='hibernate')],
                     [InlineKeyboardButton(_("PC status"),
                                           callback_data='check'),
-                     InlineKeyboardButton(_("Screenshoot"),
+                     InlineKeyboardButton(_("Screenshot"),
                                           callback_data='screen')],
                     [InlineKeyboardButton(_("Cancel"),
                                           callback_data='cancel')]]
@@ -500,7 +500,7 @@ def logout(bot, update):
                 chat_id = update.callback_query.message.chat.id
             bot.sendMessage(chat_id=chat_id, text=text)
         else:
-            text = _("Currently not supported.")
+            text = _("Currently not working on Linux.")
             if update.message:
                 chat_id = update.message.chat.id
             elif update.callback_query:
@@ -520,23 +520,22 @@ def logout_time_thread(bot, update, args):
     if admin_check(update) is True:
         def logout_time():
             if len(args) != 0:
-                if platform.system() == "Windows":
-                    text = _("Logging out...")
+                    text = _("Logged out.")
                     bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                    import time
-                    time.sleep(float(args[0]))
                     subprocess.call("shutdown /l", startupinfo=startupinfo())
-                else:
-                    text = _("Currently not supported.")
-                    bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
                 text = _("""No time inserted
                 ``` Usage: /logout_t + time in seconds```""")
                 bot.sendMessage(chat_id=update.message.chat.id,
                                 text=text, parse_mode=ParseMode.MARKDOWN)
 
-        t = threading.Thread(target=logout_time)
-        t.start()
+        if platform.system() == "Windows":
+            global l_t
+            l_t = threading.Timer(int(args[0]), logout_time)
+            l_t.start()
+        else:
+            text = _("Currently not working on Linux.")
+            bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -580,25 +579,22 @@ def hibernate_time_thread(bot, update, args):
         def hibernate_time():
             if len(args) != 0:
                 if platform.system() == "Windows":
-                    text = _("Hibernating...")
+                    text = _("Hibernated.")
                     bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                    import time
-                    time.sleep(float(args[0]))
                     subprocess.call("shutdown /h", startupinfo=startupinfo())
                 else:
-                    subprocess.call("sleep %s" % (args[0]) +
-                                    "s; systemctl suspend",
+                    subprocess.call("systemctl suspend",
                                     startupinfo=startupinfo(), shell=True)
-                    text = _("Hibernating...")
+                    text = _("Hibernated.")
                     bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
                 text = _(""""No time inserted
                 ``` Usage: /hibernate_t + time in seconds```""")
                 bot.sendMessage(chat_id=update.message.chat.id,
                                 text=text, parse_mode=ParseMode.MARKDOWN)
-
-        t = threading.Thread(target=hibernate_time)
-        t.start()
+        global h_t
+        h_t = threading.Timer(int(args[0]), hibernate_time)
+        h_t.start()
     else:
         text = _("Unauthorized.")
         bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -611,29 +607,30 @@ def cancel(bot, update):
         from_user = update.callback_query.from_user
     db.update_user(from_user, bot)
     if admin_check(update) is True:
-        if platform.system() == "Windows":
-            subprocess.call('shutdown /a', startupinfo=startupinfo())
-            text = _("Annulled.")
-            if update.message:
-                chat_id = update.message.chat.id
-            elif update.callback_query:
-                chat_id = update.callback_query.message.chat.id
-            bot.sendMessage(chat_id=chat_id, text=text)
-        else:
-            subprocess.call('shutdown -c', startupinfo=startupinfo(), shell=True)
-            text = _("Annulled.")
-            if update.message:
-                chat_id = update.message.chat.id
-            elif update.callback_query:
-                chat_id = update.callback_query.message.chat.id
-            bot.sendMessage(chat_id=chat_id, text=text)
+        try:
+            if l_t.isAlive():
+                l_t.cancel()
+                text = _("Annulled.")
+        except NameError:
+            try:
+                if h_t.isAlive():
+                    print("kek")
+                    h_t.cancel()
+                    text = _("Annulled.")
+            except NameError:
+                if platform.system() == "Windows":
+                    subprocess.call('shutdown /a', startupinfo=startupinfo())
+                    text = _("Annulled.")
+                else:
+                    subprocess.call('shutdown -c', startupinfo=startupinfo(), shell=True)
+                    text = _("Annulled.")
     else:
         text = _("Unauthorized.")
-        if update.message:
-            chat_id = update.message.chat.id
-        elif update.callback_query:
-            chat_id = update.callback_query.message.chat.id
-        bot.sendMessage(chat_id=chat_id, text=text)
+    if update.message:
+        chat_id = update.message.chat.id
+    elif update.callback_query:
+        chat_id = update.callback_query.message.chat.id
+    bot.sendMessage(chat_id=chat_id, text=text)
 
 
 def check(bot, update):
