@@ -14,6 +14,7 @@ import sys
 import threading
 import tkinter as tk
 from datetime import datetime
+from pathlib import Path
 from tkinter import ttk
 
 import distro
@@ -29,6 +30,15 @@ from tzlocal import get_localzone
 
 if sys.version_info[0] < 3:
     raise Exception("This bot works only with Python 3.x")
+
+if platform.system() != "Windows":
+    db = Path(os.path.dirname(os.path.abspath(__file__)) + '/pccontrol.sqlite')
+    if db.exists() is False:
+        raise Exception("You need to start bot_setup first")
+else:
+    db = Path('pccontrol.sqlite')
+    if db.exists() is False:
+        raise Exception("You need to start bot_setup first")
 
 # Enable logging
 logging.basicConfig(
