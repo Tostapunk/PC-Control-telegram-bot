@@ -160,13 +160,13 @@ def botfather_token_set(val1):
             token1.destroy()
             B1.destroy()
             L1_done.configure(text=_("Token saved!"),
-                              font="TImes 11", fg="green", justify=LEFT)
+                              font="Times 11", fg="green", justify=LEFT)
         elif len(val1) == 0:
             L1_done.configure(text=_("Your entry is empty"),
-                              font="TImes 11", fg="red", justify=LEFT)
+                              font="Times 11", fg="red", justify=LEFT)
         else:
             L1_done.configure(text=_("The inserted token is wrong"),
-                              font="TImes 11", fg="red", justify=LEFT)
+                              font="Times 11", fg="red", justify=LEFT)
     else:
         if len(val1) >= 45 <= 50:
             handle = sqlite3.connect('pccontrol.sqlite')
@@ -179,13 +179,13 @@ def botfather_token_set(val1):
             token1.destroy()
             B1.destroy()
             L1_done.configure(text=_("Token saved!"),
-                              font="TImes 11", fg="green", justify=LEFT)
+                              font="Times 11", fg="green", justify=LEFT)
         elif len(val1) == 0:
             L1_done.configure(text=_("Your entry is empty"),
-                              font="TImes 11", fg="red", justify=LEFT)
+                              font="Times 11", fg="red", justify=LEFT)
         else:
             L1_done.configure(text=_("The inserted token is wrong"),
-                              font="TImes 11", fg="red", justify=LEFT)
+                              font="Times 11", fg="red", justify=LEFT)
 
 
 def imgur_token_set(val2):
@@ -206,10 +206,10 @@ def imgur_token_set(val2):
             token2.destroy()
             B2.destroy()
             L2_done.configure(text=_("Token saved!"),
-                              font="TImes 11", fg="green", justify=LEFT)
+                              font="Times 11", fg="green", justify=LEFT)
         else:
             L2_done.configure(text=_("Your entry is empty"),
-                              font="TImes 11", fg="red", justify=LEFT)
+                              font="Times 11", fg="red", justify=LEFT)
     else:
         if len(val2) != 0:
             handle = sqlite3.connect('pccontrol.sqlite')
@@ -221,10 +221,10 @@ def imgur_token_set(val2):
             token2.destroy()
             B2.destroy()
             L2_done.configure(text=_("Token saved!"),
-                              font="TImes 11", fg="green", justify=LEFT)
+                              font="Times 11", fg="green", justify=LEFT)
         else:
             L2_done.configure(text=_("Your entry is empty"),
-                              font="TImes 11", fg="red", justify=LEFT)
+                              font="Times 11", fg="red", justify=LEFT)
 
 
 def requirements_check():
@@ -390,10 +390,10 @@ def privs_window():
             add_b.destroy()
             rm_b.destroy()
             usr_done.configure(text=_("Permissions for %s changed!") % (
-                usr), font="TImes 11", fg="green", justify=LEFT)
+                usr), font="Times 11", fg="green", justify=LEFT)
         else:
             usr_done.configure(text=_("%s isn't in your database") % (
-                usr), font="TImes 11", fg="red", justify=LEFT)
+                usr), font="Times 11", fg="red", justify=LEFT)
 
     def remove_privs(usr):
         handle = sqlite3.connect('pccontrol.sqlite')
@@ -409,10 +409,10 @@ def privs_window():
             add_b.destroy()
             rm_b.destroy()
             usr_done.configure(text=_("Permissions for %s changed!") % (
-                usr), font="TImes 11", fg="green", justify=LEFT)
+                usr), font="Times 11", fg="green", justify=LEFT)
         else:
             usr_done.configure(text=_("%s isn't in your database") % (
-                usr), font="TImes 11", fg="red", justify=LEFT)
+                usr), font="Times 11", fg="red", justify=LEFT)
 
 
 def restart_popup():
@@ -654,7 +654,7 @@ def startup_disable():
 
 
 db_and_co()
-L1 = Label(root, text=_("BotFather token"), font="TImes 11 bold", justify=LEFT)
+L1 = Label(root, text=_("BotFather token"), font="Times 11 bold", justify=LEFT)
 L1.pack()
 token1 = Entry(root, bd=5)
 token1.pack()
@@ -664,7 +664,7 @@ B1.pack(pady=5)
 L1_done = Label(root, text="")
 L1_done.pack()
 
-L2 = Label(root, text=_("Imgur token"), font="TImes 11 bold", justify=LEFT)
+L2 = Label(root, text=_("Imgur token"), font="Times 11 bold", justify=LEFT)
 L2.pack()
 token2 = Entry(root, bd=5)
 token2.pack()
