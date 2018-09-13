@@ -715,10 +715,13 @@ def launch(bot, update, args):
                     text = _("Cannot launch ") + (args[0])
                     bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
-                subprocess.call("%s" % (args[0]),
-                                startupinfo=startupinfo(), shell=True)
-                text = _("Launching ") + (args[0]) + "..."
-                bot.sendMessage(chat_id=update.message.chat.id, text=text)
+                def launch_thread():
+                    subprocess.call("%s" % (args[0]),
+                                    startupinfo=startupinfo(), shell=True)
+                    text = _("Launching ") + (args[0]) + "..."
+                    bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            t = threading.Thread(target=launch_thread)
+            t.start()
         else:
             text = _("""No program name inserted
             ``` Usage: /launch + program name```""")
