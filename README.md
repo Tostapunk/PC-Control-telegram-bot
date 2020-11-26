@@ -11,7 +11,7 @@ Use [this channel](https://t.me/tostabots) to get notified when there's a new co
 
 ### Prerequisites
 
-- Python 3.5+
+- Python 3.6+
 - An [Imgur client ID](https://api.imgur.com/)
 - A [BotFather](https://t.me/BotFather) token
 
