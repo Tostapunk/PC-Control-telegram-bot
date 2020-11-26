@@ -240,14 +240,9 @@ def requirements():
             "pip install -r requirements.txt > requirements_log.txt",
             startupinfo=startupinfo(), shell=True)
     else:
-        if sys.version_info[0] < 3:
-            subprocess.call(
-                "pip install -r requirements.txt > requirements_log.txt",
-                startupinfo=startupinfo(), shell=True)
-        else:
-            subprocess.call(
-                "pip3 install -r requirements.txt > requirements_log.txt",
-                startupinfo=startupinfo(), shell=True)
+        subprocess.call(
+            "pip3 install -r requirements.txt > requirements_log.txt",
+            startupinfo=startupinfo(), shell=True)
     requirements_popup()
     requirements_check()
 
@@ -267,10 +262,10 @@ def requirements_popup():
     lr.grid()
     yes_b = tk.Button(b_frame, text=_("Yes"),
                       command=lambda: [req.destroy(), log_link()])
-    yes_b.grid(row=0, column=0, sticky=tk.W+tk.E)
+    yes_b.grid(row=0, column=0, sticky=tk.W + tk.E)
     no_b = tk.Button(b_frame, text=_("No"),
                      command=lambda: req.destroy())
-    no_b.grid(row=0, column=1, sticky=tk.W+tk.E)
+    no_b.grid(row=0, column=1, sticky=tk.W + tk.E)
 
 
 def log_link():
@@ -546,8 +541,8 @@ def startup_enable():
             user = process.stdout.read().strip()
             text = 'export PYTHONPATH="${PYTHONPATH}' + ':'.join(
                 sys.path) + '"' + "\n\nsudo -H -u " + user + " " \
-                          + sys.executable + " " + curr_dir \
-                          + "/bot.pyw &\n\nexit 0"
+                   + sys.executable + " " + curr_dir \
+                   + "/bot.pyw &\n\nexit 0"
             data[12] = text
             with open('/etc/rc.local', 'w') as file:
                 file.writelines(data)
