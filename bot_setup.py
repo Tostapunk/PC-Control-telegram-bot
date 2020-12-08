@@ -2,14 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import fileinput
-import gettext
 import os
+import pathlib
 import platform
-import sqlite3
 import subprocess
-
+import sys
 import tkinter as tk
 from tkinter import *
+
+import db
+import lang
+import utils
 
 if platform.system() == "Windows":
     import winreg
@@ -24,15 +27,7 @@ root.resizable(width=False, height=False)
 
 
 def startupinfo():
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("SELECT value FROM config WHERE name='console'")
-    query = cursor.fetchone()
-    console = "hide"
-    if query:
-        console = query["value"]
-    if console == "hide":
+    if db.startupinfo_check() == "hide":
         if platform.system() == "Windows":
             value = subprocess.STARTUPINFO()
             value.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -44,191 +39,50 @@ def startupinfo():
 
 
 def db_and_co():
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    # The bot will automatically create the right db if it not exist
-    config_table = "CREATE TABLE IF NOT EXISTS " \
-                   "`config` ( `id` INTEGER UNIQUE, `name` TEXT ," \
-                   " `value` TEXT, UNIQUE(name, value), PRIMARY KEY(`id`))"
-
-    users_table = "CREATE TABLE IF NOT EXISTS " \
-                  "`users` ( `id` INTEGER UNIQUE, `name_first` TEXT," \
-                  " `name_last` TEXT, `username` TEXT, `privs` INTEGER," \
-                  " `last_use` INTEGER, `time_used` INTEGER," \
-                  " `language` TEXT DEFAULT 'en', PRIMARY KEY(`id`))"
-    cursor.execute(config_table)
-    cursor.execute(users_table)
-
+    pathlib.Path(utils.current_path() + "/data").mkdir(parents=True, exist_ok=True)
+    pathlib.Path(utils.current_path() + "/tmp").mkdir(parents=True, exist_ok=True)
+    db.create()
     create_mo_files()
-    cursor.execute("SELECT value FROM config WHERE name='language'")
-    query = cursor.fetchone()
-    lang = "en"
-    if query:
-        lang = query["value"]
-    translate = gettext.translation(
-        "setup", localedir="locale", languages=[lang])
-    translate.install()
-    return lang
+    lang.install("bot_setup")
 
 
-def en_lang():
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("SELECT value FROM config WHERE name='language'")
-    data = cursor.fetchall()
-    if len(data) == 0:
-        handle = sqlite3.connect('pccontrol.sqlite')
-        handle.row_factory = sqlite3.Row
-        cursor = handle.cursor()
-        cursor.execute(
-            "INSERT INTO config(name, value) VALUES ('language', 'en')")
-        handle.commit()
-        restart_popup()
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-        handle.row_factory = sqlite3.Row
-        cursor = handle.cursor()
-        cursor.execute("UPDATE config SET value='en' WHERE name='language'")
-        handle.commit()
-        restart_popup()
-
-
-def it_lang():
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("SELECT value FROM config WHERE name='language'")
-    data = cursor.fetchall()
-    if len(data) == 0:
-        handle = sqlite3.connect('pccontrol.sqlite')
-        handle.row_factory = sqlite3.Row
-        cursor = handle.cursor()
-        cursor.execute(
-            "INSERT INTO config(name, value) VALUES ('language', 'it')")
-        handle.commit()
-        restart_popup()
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-        handle.row_factory = sqlite3.Row
-        cursor = handle.cursor()
-        cursor.execute("UPDATE config SET value='it' WHERE name='language'")
-        handle.commit()
-        restart_popup()
-
-
-def botfather_token_check():
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("SELECT value FROM config WHERE name='BotFather_token'")
-    data = cursor.fetchall()
-    if len(data) == 0:
+def tokens_check():
+    if not db.token_exists("BotFather_token"):
         B1.configure(text=_("Confirm"))
     else:
         B1.configure(text=_("Change token"))
-
-
-def imgur_token_check():
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("SELECT value FROM config WHERE name='Imgur_token'")
-    data = cursor.fetchall()
-    if len(data) == 0:
+    if not db.token_exists("Imgur_token"):
         B2.configure(text=_("Confirm"))
     else:
         B2.configure(text=_("Change token"))
 
 
 def botfather_token_set(val1):
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("SELECT value FROM config WHERE name='BotFather_token'")
-    data = cursor.fetchall()
-    if len(data) == 0:
-        if len(val1) >= 45 <= 50:
-            handle = sqlite3.connect('pccontrol.sqlite')
-            handle.row_factory = sqlite3.Row
-            cursor = handle.cursor()
-            cursor.execute(
-                "INSERT INTO config(name, value)"
-                " VALUES ('BotFather_token', ?)", (val1,))
-            handle.commit()
-            token1.destroy()
-            B1.destroy()
-            L1_done.configure(text=_("Token saved!"),
-                              font="Times 11", fg="green", justify=LEFT)
-        elif len(val1) == 0:
-            L1_done.configure(text=_("Your entry is empty"),
-                              font="Times 11", fg="red", justify=LEFT)
-        else:
-            L1_done.configure(text=_("The inserted token is wrong"),
-                              font="Times 11", fg="red", justify=LEFT)
+    if val1:
+        db.token_set("BotFather_token", val1)
+        token1.destroy()
+        B1.destroy()
+        L1_done.configure(text=_("Token saved!"),
+                          font="Times 11", fg="green", justify=LEFT)
     else:
-        if len(val1) >= 45 <= 50:
-            handle = sqlite3.connect('pccontrol.sqlite')
-            handle.row_factory = sqlite3.Row
-            cursor = handle.cursor()
-            cursor.execute(
-                "UPDATE config SET value=? "
-                "WHERE name='BotFather_token'", (val1,))
-            handle.commit()
-            token1.destroy()
-            B1.destroy()
-            L1_done.configure(text=_("Token saved!"),
-                              font="Times 11", fg="green", justify=LEFT)
-        elif len(val1) == 0:
-            L1_done.configure(text=_("Your entry is empty"),
-                              font="Times 11", fg="red", justify=LEFT)
-        else:
-            L1_done.configure(text=_("The inserted token is wrong"),
-                              font="Times 11", fg="red", justify=LEFT)
+        L1_done.configure(text=_("Your entry is empty"),
+                          font="Times 11", fg="red", justify=LEFT)
 
 
 def imgur_token_set(val2):
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("SELECT value FROM config WHERE name='Imgur_token'")
-    data = cursor.fetchall()
-    if len(data) == 0:
-        if len(val2) != 0:
-            handle = sqlite3.connect('pccontrol.sqlite')
-            handle.row_factory = sqlite3.Row
-            cursor = handle.cursor()
-            cursor.execute(
-                "INSERT INTO config(name, value) "
-                "VALUES ('Imgur_token', ?)", (val2,))
-            handle.commit()
-            token2.destroy()
-            B2.destroy()
-            L2_done.configure(text=_("Token saved!"),
-                              font="Times 11", fg="green", justify=LEFT)
-        else:
-            L2_done.configure(text=_("Your entry is empty"),
-                              font="Times 11", fg="red", justify=LEFT)
+    if val2:
+        db.token_set("Imgur_token", val2)
+        token2.destroy()
+        B2.destroy()
+        L2_done.configure(text=_("Token saved!"),
+                          font="Times 11", fg="green", justify=LEFT)
     else:
-        if len(val2) != 0:
-            handle = sqlite3.connect('pccontrol.sqlite')
-            handle.row_factory = sqlite3.Row
-            cursor = handle.cursor()
-            cursor.execute(
-                "UPDATE config SET value=? WHERE name='Imgur_token'", (val2,))
-            handle.commit()
-            token2.destroy()
-            B2.destroy()
-            L2_done.configure(text=_("Token saved!"),
-                              font="Times 11", fg="green", justify=LEFT)
-        else:
-            L2_done.configure(text=_("Your entry is empty"),
-                              font="Times 11", fg="red", justify=LEFT)
+        L2_done.configure(text=_("Your entry is empty"),
+                          font="Times 11", fg="red", justify=LEFT)
 
 
 def requirements_check():
-    if os.path.isfile("requirements_log.txt") is False:
+    if os.path.isfile(utils.current_path() + "/data/requirements_log.txt") is False:
         B3.configure(text=_("Install the requirements"))
     else:
         B3.configure(text=_("Update the requirements"))
@@ -237,12 +91,12 @@ def requirements_check():
 def requirements():
     if platform.system() == "Windows":
         subprocess.call(
-            "pip install -r requirements.txt > requirements_log.txt",
-            startupinfo=startupinfo(), shell=True)
+            "pip install -r " + utils.current_path() + "/requirements.txt >" + utils.current_path() +
+            "/data/requirements_log.txt", startupinfo=startupinfo(), shell=True)
     else:
         subprocess.call(
-            "pip3 install -r requirements.txt > requirements_log.txt",
-            startupinfo=startupinfo(), shell=True)
+            "pip3 install -r " + utils.current_path() + "/requirements.txt >" + utils.current_path() +
+            "/data/requirements_log.txt", startupinfo=startupinfo(), shell=True)
     requirements_popup()
     requirements_check()
 
@@ -271,87 +125,49 @@ def requirements_popup():
 def log_link():
     if platform.system() == "Windows":
         subprocess.call(
-            "requirements_log.txt", startupinfo=startupinfo(), shell=True)
+            utils.current_path() + "/data/requirements_log.txt", startupinfo=startupinfo(),
+            shell=True)
     else:
-        subprocess.call("xdg-open requirements_log.txt",
+        subprocess.call("xdg-open " + utils.current_path() + "/data/requirements_log.txt",
                         startupinfo=startupinfo(), shell=True)
 
 
 def create_mo_files():
-    if os.path.isfile('locale/en/LC_MESSAGES/setup.mo') is False:
+    if os.path.isfile(lang.locale_path() + "/en/LC_MESSAGES/bot_setup.mo") is False or\
+            os.path.isfile(lang.locale_path() + "/it/LC_MESSAGES/bot_setup.mo") is False:
         subprocess.call(
             "pip install Babel", startupinfo=startupinfo(), shell=True)
-        subprocess.call('pybabel compile -D setup '
-                        '-d locale -l en -i locale/en/LC_MESSAGES/setup.po',
+        subprocess.call("pybabel compile -D bot_setup -d " + lang.locale_path() + " -l en -i" + lang.locale_path() +
+                        "/en/LC_MESSAGES/bot_setup.po",
                         startupinfo=startupinfo(), shell=True)
-        subprocess.call('pybabel compile -D setup '
-                        '-d locale -l it -i locale/it/LC_MESSAGES/setup.po',
+        subprocess.call("pybabel compile -D bot_setup -d " + lang.locale_path() + " -l it -i" + lang.locale_path() +
+                        "/it/LC_MESSAGES/bot_setup.po",
                         startupinfo=startupinfo(), shell=True)
-        if os.path.isfile('locale/en/LC_MESSAGES/pccontrol.mo') is False:
-            subprocess.call(
-                "pip install Babel", startupinfo=startupinfo(), shell=True)
-            subprocess.call(
-                'pybabel compile -D pccontrol '
-                '-d locale -l en -i locale/en/LC_MESSAGES/pccontrol.po',
-                startupinfo=startupinfo(), shell=True)
-            subprocess.call(
-                'pybabel compile -D pccontrol '
-                '-d locale -l it -i locale/it/LC_MESSAGES/pccontrol.po',
-                startupinfo=startupinfo(), shell=True)
-    elif os.path.isfile('locale/en/LC_MESSAGES/pccontrol.mo') is False:
+    elif os.path.isfile(lang.locale_path() + "/en/LC_MESSAGES/bot.mo") is False or\
+            os.path.isfile(lang.locale_path() + "/it/LC_MESSAGES/bot.mo") is False:
         subprocess.call(
             "pip install Babel", startupinfo=startupinfo(), shell=True)
-        subprocess.call(
-            'pybabel compile -D pccontrol '
-            '-d locale -l en -i locale/en/LC_MESSAGES/pccontrol.po',
-            startupinfo=startupinfo(), shell=True)
-        subprocess.call(
-            'pybabel compile -D pccontrol '
-            '-d locale -l it -i locale/it/LC_MESSAGES/pccontrol.po',
-            startupinfo=startupinfo(), shell=True)
+        subprocess.call("pybabel compile -D bot -d " + lang.locale_path() + " -l en -i" + lang.locale_path() +
+                        "/en/LC_MESSAGES/bot.po",
+                        startupinfo=startupinfo(), shell=True)
+        subprocess.call("pybabel compile -D bot -d " + lang.locale_path() + " -l it -i" + lang.locale_path() +
+                        "/it/LC_MESSAGES/bot.po",
+                        startupinfo=startupinfo(), shell=True)
 
 
 def bot_start():
     root.withdraw()
     create_mo_files()
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    if startupinfo() is not None:
-        if platform.system() == "Windows":
-            cursor.execute("SELECT value FROM config WHERE name='startup'")
-            query = cursor.fetchone()
-            startup = "false"
-            if query:
-                startup = query["value"]
-            if startup == "true":
-                subprocess.call(sys.executable + " bot.pyw",
-                                creationflags=0x08000000,
-                                shell=True)
-            else:
-                subprocess.call(sys.executable + " bot.py",
-                                creationflags=0x08000000,
-                                shell=True)
+    if startupinfo() is not None or platform.system() == "Windows":
+        if db.startup_get() == "true":
+            subprocess.call(sys.executable + " bot.pyw", creationflags=0x08000000, shell=True)
         else:
-            cursor.execute("SELECT value FROM config WHERE name='startup'")
-            query = cursor.fetchone()
-            startup = "false"
-            if query:
-                startup = query["value"]
-            if startup == "true":
-                subprocess.call(sys.executable + " bot.pyw", shell=True)
-            else:
-                subprocess.call(sys.executable + " bot.py", shell=True)
+            subprocess.call(sys.executable + " bot.py", creationflags=0x08000000, shell=True)
     else:
-        cursor.execute("SELECT value FROM config WHERE name='startup'")
-        query = cursor.fetchone()
-        startup = "false"
-        if query:
-            startup = query["value"]
-        if startup == "true":
-            subprocess.call(sys.executable + " bot.pyw", shell=True)
+        if db.startup_get() == "true":
+            subprocess.call(sys.executable + " bot/bot.pyw", shell=True)
         else:
-            subprocess.call(sys.executable + " bot.py", shell=True)
+            subprocess.call(sys.executable + " bot/bot.py", shell=True)
 
 
 def privs_window():
@@ -371,43 +187,29 @@ def privs_window():
     usr_done = Label(privs, text="")
     usr_done.pack()
 
-    def add_privs(usr):
-        handle = sqlite3.connect('pccontrol.sqlite')
-        handle.row_factory = sqlite3.Row
-        cursor = handle.cursor()
-        cursor.execute("SELECT * FROM users WHERE username=?", (usr,))
-        data = cursor.fetchall()
-        if len(data) != 0:
-            cursor.execute("UPDATE users SET privs='-2' WHERE username=?",
-                           (usr,))
-            handle.commit()
+    def add_privs(user):
+        if db.user_exists(user):
+            db.user_role(user, admin=True)
             usr_e.destroy()
             add_b.destroy()
             rm_b.destroy()
             usr_done.configure(text=_("Permissions for %s changed!") % (
-                usr), font="Times 11", fg="green", justify=LEFT)
+                user), font="Times 11", fg="green", justify=LEFT)
         else:
             usr_done.configure(text=_("%s isn't in your database") % (
-                usr), font="Times 11", fg="red", justify=LEFT)
+                user), font="Times 11", fg="red", justify=LEFT)
 
-    def remove_privs(usr):
-        handle = sqlite3.connect('pccontrol.sqlite')
-        handle.row_factory = sqlite3.Row
-        cursor = handle.cursor()
-        cursor.execute("SELECT * FROM users WHERE username=?", (usr,))
-        data = cursor.fetchall()
-        if len(data) != 0:
-            cursor.execute("UPDATE users SET privs='' WHERE username=?",
-                           (usr,))
-            handle.commit()
+    def remove_privs(user):
+        if db.user_exists(user):
+            db.user_role(user, admin=False)
             usr_e.destroy()
             add_b.destroy()
             rm_b.destroy()
             usr_done.configure(text=_("Permissions for %s changed!") % (
-                usr), font="Times 11", fg="green", justify=LEFT)
+                user), font="Times 11", fg="green", justify=LEFT)
         else:
             usr_done.configure(text=_("%s isn't in your database") % (
-                usr), font="Times 11", fg="red", justify=LEFT)
+                user), font="Times 11", fg="red", justify=LEFT)
 
 
 def restart_popup():
@@ -426,61 +228,17 @@ def restart_popup():
 
 
 def console_show():
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("SELECT value FROM config WHERE name='console'")
-    data = cursor.fetchall()
-    if len(data) == 0:
-        handle = sqlite3.connect('pccontrol.sqlite')
-        handle.row_factory = sqlite3.Row
-        cursor = handle.cursor()
-        cursor.execute(
-            "INSERT INTO config(name, value) VALUES ('console', 'show')")
-        handle.commit()
-        restart_popup()
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-        handle.row_factory = sqlite3.Row
-        cursor = handle.cursor()
-        cursor.execute("UPDATE config SET value='show' WHERE name='console'")
-        handle.commit()
-        restart_popup()
+    db.console_set("show")
+    restart_popup()
 
 
 def console_hide():
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("SELECT value FROM config WHERE name='console'")
-    data = cursor.fetchall()
-    if len(data) == 0:
-        handle = sqlite3.connect('pccontrol.sqlite')
-        handle.row_factory = sqlite3.Row
-        cursor = handle.cursor()
-        cursor.execute(
-            "INSERT INTO config(name, value) VALUES ('console', 'hide')")
-        handle.commit()
-        restart_popup()
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-        handle.row_factory = sqlite3.Row
-        cursor = handle.cursor()
-        cursor.execute("UPDATE config SET value='hide' WHERE name='console'")
-        handle.commit()
-        restart_popup()
+    db.console_set("hide")
+    restart_popup()
 
 
 def startup_popup():
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("SELECT value FROM config WHERE name='startup'")
-    query = cursor.fetchone()
-    startup = "false"
-    if query:
-        startup = query["value"]
-    if startup == "false":
+    if db.startup_get() == "false":
         warning = tk.Toplevel(root)
         warning.wm_title(_("Warning"))
         warn_l = Label(warning, text=_(
@@ -502,35 +260,20 @@ def startup_popup():
 
 
 def startup_enable():
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    curr_dir = os.path.dirname(os.path.abspath(__file__))
     if platform.system() == "Windows":
-        if os.path.isfile(curr_dir + "\\bot.py") is True:
-            os.rename(curr_dir + "\\bot.py", curr_dir + "\\bot.pyw")
+        if os.path.isfile(utils.current_path() + "\\bot\\bot.py") is True:
+            os.rename(utils.current_path() + "\\bot\\bot.py", utils.current_path() + "\\bot\\bot.pyw")
         key = winreg.OpenKey(
             winreg.HKEY_CURRENT_USER,
             'Software\Microsoft\Windows\CurrentVersion\Run', 0,
             winreg.KEY_SET_VALUE)
         winreg.SetValueEx(key, 'PC-Control', 0, winreg.REG_SZ,
-                          '"' + curr_dir + '\\bot.pyw"')
+                          '"' + utils.current_path() + '\\bot\\bot.pyw"')
         key.Close()
-        cursor.execute("SELECT value FROM config WHERE name='startup'")
-        data = cursor.fetchall()
-        if len(data) == 0:
-            cursor.execute(
-                "INSERT INTO config(name, value) "
-                "VALUES ('startup', 'true')")
-            handle.commit()
-            restart_popup()
-        else:
-            cursor.execute(
-                "UPDATE config SET value='true' WHERE name='startup'")
-            handle.commit()
+        db.startup_set("true")
     else:
-        if os.path.isfile(curr_dir + "/bot.py") is True:
-            os.rename(curr_dir + "/bot.py", curr_dir + "/bot.pyw")
+        if os.path.isfile(utils.current_path() + "/bot/bot.py") is True:
+            os.rename(utils.current_path() + "/bot/bot.py", utils.current_path() + "/bot/bot.pyw")
         try:
             with open('/etc/rc.local', 'r') as file:
                 data = file.readlines()
@@ -541,22 +284,12 @@ def startup_enable():
             user = process.stdout.read().strip()
             text = 'export PYTHONPATH="${PYTHONPATH}' + ':'.join(
                 sys.path) + '"' + "\n\nsudo -H -u " + user + " " \
-                   + sys.executable + " " + curr_dir \
-                   + "/bot.pyw &\n\nexit 0"
+                   + sys.executable + " " + utils.current_path() \
+                   + "/bot/bot.pyw &\n\nexit 0"
             data[12] = text
             with open('/etc/rc.local', 'w') as file:
                 file.writelines(data)
-            cursor.execute("SELECT value FROM config WHERE name='startup'")
-            data = cursor.fetchall()
-            if len(data) == 0:
-                cursor.execute(
-                    "INSERT INTO config(name, value) "
-                    "VALUES ('startup', 'true')")
-                handle.commit()
-            else:
-                cursor.execute(
-                    "UPDATE config SET value='true' WHERE name='startup'")
-                handle.commit()
+            db.startup_set("true")
         except IOError as e:
             error = tk.Toplevel(root)
             error.wm_title(_("Error"))
@@ -571,16 +304,7 @@ def startup_enable():
 
 
 def startup_disable():
-    handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    curr_dir = os.path.dirname(os.path.abspath(__file__))
-    cursor.execute("SELECT value FROM config WHERE name='startup'")
-    query = cursor.fetchone()
-    startup = "false"
-    if query:
-        startup = query["value"]
-    if startup == "true":
+    if db.startup_get() == "true":
         if platform.system() == "Windows":
             key = winreg.OpenKey(
                 winreg.HKEY_CURRENT_USER,
@@ -588,23 +312,11 @@ def startup_disable():
                 winreg.KEY_SET_VALUE)
             winreg.DeleteValue(key, 'PC-Control')
             key.Close()
-            os.rename(curr_dir + "\\bot.pyw", curr_dir + "\\bot.py")
-            cursor.execute("SELECT value FROM config "
-                           "WHERE name='startup'")
-            data = cursor.fetchall()
-            if len(data) == 0:
-                cursor.execute(
-                    "INSERT INTO config(name, value) "
-                    "VALUES ('startup', 'false')")
-                handle.commit()
-            else:
-                cursor.execute(
-                    "UPDATE config SET value='false' "
-                    "WHERE name='startup'")
-                handle.commit()
+            os.rename(utils.current_path() + "\\bot\\bot.pyw", utils.current_path() + "\\bot\\bot.py")
+            db.startup_set("false")
         else:
             try:
-                os.rename(curr_dir + "/bot.pyw", curr_dir + "/bot.py")
+                os.rename(utils.current_path() + "/bot/bot.pyw", utils.current_path() + "/bot/bot.py")
                 for line_number, line in enumerate(
                         fileinput.input('/etc/rc.local', inplace=1)):
                     if (line_number == 12 or
@@ -614,19 +326,9 @@ def startup_disable():
                         continue
                     else:
                         sys.stdout.write(line)
-                cursor.execute("SELECT value FROM config WHERE name='startup'")
-                data = cursor.fetchall()
-                if len(data) == 0:
-                    cursor.execute(
-                        "INSERT INTO config(name, value) "
-                        "VALUES ('startup', 'false')")
-                    handle.commit()
-                else:
-                    cursor.execute(
-                        "UPDATE config SET value='false' WHERE name='startup'")
-                    handle.commit()
+                db.startup_set("false")
             except OSError as e:
-                os.rename(curr_dir + "/bot.py", curr_dir + "/bot.pyw")
+                os.rename(utils.current_path() + "/bot/bot.py", utils.current_path() + "/bot/bot.pyw")
                 error = tk.Toplevel(root)
                 error.wm_title(_("Error"))
                 warn_l = Label(error, text=_(
@@ -686,8 +388,8 @@ filemenu = Menu(menubar, tearoff=0)
 menubar.add_cascade(label=_("Options"), menu=filemenu)
 
 lang_menu = Menu(root, tearoff=0)
-lang_menu.add_command(label=_("English"), command=lambda: en_lang())
-lang_menu.add_command(label=_("Italian"), command=lambda: it_lang())
+lang_menu.add_command(label=_("English"), command=lambda: [db.lang_set("bot_setup", "en"), restart_popup()])
+lang_menu.add_command(label=_("Italian"), command=lambda: [db.lang_set("bot_setup", "it"), restart_popup()])
 filemenu.add_cascade(label=_("Language"), menu=lang_menu, underline=0)
 
 console_menu = Menu(root, tearoff=0)
@@ -701,8 +403,7 @@ startup_menu.add_command(label=_("Disable"), command=lambda: startup_disable())
 filemenu.add_cascade(label=_("Startup"), menu=startup_menu, underline=0)
 
 db_and_co()
-botfather_token_check()
-imgur_token_check()
+tokens_check()
 requirements_check()
 create_mo_files()
 root.mainloop()

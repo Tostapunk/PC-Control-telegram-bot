@@ -3,42 +3,34 @@
 
 import ctypes
 import getpass
-import gettext
 import logging
 import os
 import platform
 import socket
-import sqlite3
 import subprocess
 import sys
 import threading
 import tkinter as tk
-from datetime import datetime
-from pathlib import Path
 from tkinter import ttk
 
 import distro
 import psutil
 import pyimgur
 import pyscreenshot as imggrab
-import pytz
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, \
     ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CallbackQueryHandler, CommandHandler, Filters, \
     MessageHandler, Updater, CallbackContext
-from tzlocal import get_localzone
+
+import db
+import lang
+import utils
 
 if sys.version_info[0] < 3:
     raise Exception("This bot works only with Python 3.x")
 
-if platform.system() != "Windows":
-    db = Path(os.path.dirname(os.path.abspath(__file__)) + '/pccontrol.sqlite')
-    if db.exists() is False:
-        raise Exception("You need to start bot_setup first")
-else:
-    db = Path('pccontrol.sqlite')
-    if db.exists() is False:
-        raise Exception("You need to start bot_setup first")
+if db.exists() is False:
+    raise Exception("You need to start bot_setup first")
 
 # Enable logging
 logging.basicConfig(
@@ -47,179 +39,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class DBHandler:
-    def __init__(self, path):
-        self._dbpath = path
-
-    def update_user(self, from_user, bot):  # Update the user list (db)
-        if platform.system() != "Windows":
-            curr_dir = os.path.dirname(os.path.abspath(__file__))
-            handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-        else:
-            handle = sqlite3.connect('pccontrol.sqlite')
-        handle.row_factory = sqlite3.Row
-        cursor = handle.cursor()
-        check = cursor.execute(
-            "SELECT id,time_used FROM users WHERE id=?",
-            (from_user.id,)).fetchone()
-        used = 0
-        if check:
-            if check["time_used"]:
-                used = check["time_used"]
-        query = (from_user.first_name,
-                 from_user.last_name,
-                 from_user.username,
-                 datetime.now(pytz.timezone(str(get_localzone()))
-                              ).strftime('%Y-%m-%d %H:%M'),
-                 used + 1,
-                 from_user.id)
-        if check:
-            cursor.execute(
-                "UPDATE users SET name_first=?,name_last=?,username=?,"
-                "last_use=?,time_used=? WHERE id=?",
-                query)
-        else:
-            data = cursor.execute("SELECT count(*) as tot FROM users").fetchone()
-            if data[0] == 0:
-                query = (from_user.first_name,
-                         from_user.last_name,
-                         from_user.username,
-                         datetime.now(pytz.timezone(str(get_localzone()))
-                                      ).strftime('%Y-%m-%d %H:%M'),
-                         used + 1,
-                         from_user.id,
-                         "-2")
-                cursor.execute(
-                    "INSERT INTO users(name_first,name_last,username,last_use,"
-                    "time_used,id,privs) VALUES(?,?,?,?,?,?,?)",
-                    query)
-            else:
-                cursor.execute(
-                    "INSERT INTO users(name_first,name_last,username,last_use,"
-                    "time_used,id) VALUES(?,?,?,?,?,?)",
-                    query)
-            admins = cursor.execute(
-                "SELECT id, language FROM users WHERE privs='-2'").fetchall()
-            localedir = os.path.dirname(os.path.abspath(__file__)) + "/locale"
-            for admin in admins:
-                if admin["id"] != from_user.id:
-                    gettext.translation(
-                        "pccontrol", localedir=localedir,
-                        languages=[admin["language"]]).install()
-                    text = _("<b>New user registered into the database</b> \n\n")
-                    text += _("Name: ") + from_user.first_name
-                    if from_user.last_name:
-                        text += _("\nLast name: ") + from_user.last_name
-                    if from_user.username:
-                        text += _("\nUsername: @") + from_user.username
-                    bot.sendMessage(
-                        chat_id=admin["id"], text=text, parse_mode=ParseMode.HTML)
-        handle.commit()
-
-
-def set_globals():
-    global db
-    db = DBHandler("pccontrol.sqlite")
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        locale = curr_dir + "/locale"
-    else:
-        locale = "locale"
-    default_lang = gettext.translation(
-        "pccontrol", localedir=locale, languages=["en"])
-    default_lang.install()
-
-
-def admin_check(update):
-    if update.message:
-        from_user = update.message.from_user
-    elif update.callback_query:
-        from_user = update.callback_query.from_user
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (from_user.id,)).fetchone()
-    if query["privs"] == -2:
-        return True
-
-
-def lang_check(update):
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT language FROM users WHERE id=?",
-                           (update.message.from_user.id,)).fetchone()
-    lang = "en"
-    if query:
-        lang = query["language"]
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        locale = curr_dir + "/locale"
-    else:
-        locale = "locale"
-    translate = gettext.translation(
-        "pccontrol", localedir=locale, languages=[lang])
-    translate.install()
-    return lang
-
-
-def en_lang(update: Update, context: CallbackContext):
-    db.update_user(update.message.from_user, context.bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("UPDATE users SET language='en' WHERE id=?",
-                   (update.message.from_user.id,))
-    handle.commit()
-    text = "Language set to english"
-    update.message.reply_text(text=text)
-    keyboard_up(update, context)
-
-
-def it_lang(update: Update, context: CallbackContext):
-    db.update_user(update.message.from_user, context.bot)
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("UPDATE users SET language='it' WHERE id=?",
-                   (update.message.from_user.id,))
-    handle.commit()
-    text = "Lingua impostata su italiano"
-    update.message.reply_text(text=text)
-    keyboard_up(update, context)
-
-
 def startupinfo():
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("SELECT value FROM config WHERE name='console'")
-    query = cursor.fetchone()
-    console = "hide"
-    if query:
-        console = query["value"]
-    if console == "hide":
+    if db.startupinfo_check() == "hide":
         if platform.system() == "Windows":
             value = subprocess.STARTUPINFO()
             value.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -255,9 +76,9 @@ Made by <a href='http://www.t.me/Tostapunk'>Tostapunk</a>
 
 
 def bot_help(update: Update, context: CallbackContext):
-    lang_check(update)
+    lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         text = _("<b>Available commands:</b>\n")
         text += _("/shutdown - To shutdown your PC\n")
         text += _("/reboot - To reboot your PC\n")
@@ -290,9 +111,9 @@ def bot_help(update: Update, context: CallbackContext):
 
 
 def menu(update: Update, context: CallbackContext):
-    lang_check(update)
+    lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         keyboard = [[InlineKeyboardButton(_("Shutdown"),
                                           callback_data='shutdown'),
                      InlineKeyboardButton(_("Reboot"),
@@ -347,7 +168,7 @@ def button(update: Update, context: CallbackContext):
 
 
 def keyboard_up(update: Update, context: CallbackContext):
-    lang_check(update)
+    lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
     text = _("Keyboard is up.")
     keyboard = [[_('Shutdown'), _('Reboot')],
@@ -361,7 +182,7 @@ def keyboard_up(update: Update, context: CallbackContext):
 
 
 def message_handler(update: Update, context: CallbackContext):
-    if lang_check(update) == "it":
+    if db.lang_check("bot", update) == "it":
         args = update.message.text[8:]
     else:
         args = update.message.text[5:]
@@ -390,9 +211,11 @@ def message_handler(update: Update, context: CallbackContext):
     elif update.message.text == _("Exit"):
         keyboard_up(update, context)
     elif update.message.text == "English":
-        en_lang(update, context)
+        db.lang_set("bot", "en", update)
+        keyboard_up(update, context)
     elif update.message.text == "Italian":
-        it_lang(update, context)
+        db.lang_set("bot", "it", update)
+        keyboard_up(update, context)
 
 
 def shutdown(update: Update, context: CallbackContext):
@@ -401,7 +224,7 @@ def shutdown(update: Update, context: CallbackContext):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /s', startupinfo=startupinfo())
             text = _("Shutted down.")
@@ -429,7 +252,7 @@ def shutdown(update: Update, context: CallbackContext):
 
 def shutdown_time(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         if len(context.args) != 0:
             if platform.system() == "Windows":
                 subprocess.call("shutdown /s /t %s" % (context.args[0]),
@@ -457,7 +280,7 @@ def reboot(update: Update, context: CallbackContext):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /r', startupinfo=startupinfo())
             text = _("Rebooted.")
@@ -485,7 +308,7 @@ def reboot(update: Update, context: CallbackContext):
 
 def reboot_time(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         if len(context.args) != 0:
             if platform.system() == "Windows":
                 subprocess.call("shutdown /r /t %s" % (context.args[0]),
@@ -513,7 +336,7 @@ def logout(update: Update, context: CallbackContext):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /l', startupinfo=startupinfo())
             text = _("Logged out.")
@@ -540,7 +363,7 @@ def logout(update: Update, context: CallbackContext):
 
 def logout_time_thread(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         def logout_time():
             if len(context.args) != 0:
                     text = _("Logged out.")
@@ -570,7 +393,7 @@ def hibernate(update: Update, context: CallbackContext):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /h', startupinfo=startupinfo())
             text = _("Hibernated.")
@@ -598,7 +421,7 @@ def hibernate(update: Update, context: CallbackContext):
 
 def hibernate_time_thread(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         def hibernate_time():
             if len(context.args) != 0:
                 if platform.system() == "Windows":
@@ -629,7 +452,7 @@ def lock(update: Update, context: CallbackContext):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         if platform.system() == "Windows":
             ctypes.windll.user32.LockWorkStation()
             text = _("PC locked.")
@@ -646,7 +469,7 @@ def cancel(update: Update, context: CallbackContext):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         try:
             if l_t.isAlive():
                 l_t.cancel()
@@ -678,7 +501,7 @@ def check(update: Update, context: CallbackContext):
     elif update.callback_query:
         from_user = update.callback_query.from_user
     db.update_user(from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         text = ""
         text += _("Your PC is online.\n\n")
         text += _("PC name: ") + socket.gethostname()
@@ -714,7 +537,7 @@ def check(update: Update, context: CallbackContext):
 
 def launch(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         if len(context.args) != 0:
             if platform.system() == "Windows":
                 ret = subprocess.call("start %s" % (context.args[0]),
@@ -744,7 +567,7 @@ def launch(update: Update, context: CallbackContext):
 
 def link(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         if len(context.args) != 0:
             if platform.system() == "Windows":
                 ret = subprocess.call("start %s" % (context.args[0]),
@@ -769,9 +592,9 @@ def link(update: Update, context: CallbackContext):
 
 
 def memo_thread(update: Update, context: CallbackContext):
-    lang_check(update)
+    lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         args = update.message.text[6:]
         if len(args) != 0:
             def memo():
@@ -804,13 +627,13 @@ def memo_thread(update: Update, context: CallbackContext):
 
 
 def task(update: Update, context: CallbackContext):
-    lang_check(update)
+    lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
     kill_kb = [[_('Kill %s') % (context.args[0])],
                [_('Exit')]]
     reply_markup = ReplyKeyboardMarkup(
         kill_kb, resize_keyboard=True)
-    if admin_check(update) is True:
+    if db.admin_check(update) is True:
         if len(context.args) != 0:
             if platform.system() == "Windows":
                 try:
@@ -838,8 +661,8 @@ def task(update: Update, context: CallbackContext):
 
 def task_kill(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if admin_check(update) is True:
-        if lang_check(update) == 'it':
+    if db.admin_check(update) is True:
+        if db.lang_check("bot", update) == 'it':
             args = update.message.text[8:]
         else:
             args = update.message.text[5:]
@@ -869,57 +692,38 @@ def task_kill(update: Update, context: CallbackContext):
 def imgur(update: Update, context: CallbackContext):
     if update.message:
         from_user = update.message.from_user
+        chat_id = update.message.chat.id
     elif update.callback_query:
         from_user = update.callback_query.from_user
+        chat_id = update.callback_query.message.chat.id
     db.update_user(from_user, context.bot)
-    if admin_check(update) is True:
-        handle = sqlite3.connect('pccontrol.sqlite')
-        handle.row_factory = sqlite3.Row
-        cursor = handle.cursor()
-        cursor.execute("SELECT value FROM config WHERE name='Imgur_token'")
-        check = cursor.fetchall()
-        if len(check) == 0:
+    if db.admin_check(update) is True:
+        if not db.token_exists("Imgur_token"):
             context.bot.sendMessage(chat_id=from_user.id,
                             text=_("Cannot find an Imgur token"))
         else:
             if platform.system() == "Windows":
-                SaveDirectory = r''
                 ImageEditorPath = r'C:\WINDOWS\system32\mspaint.exe'
                 img = imggrab.grab()
-                saveas = os.path.join(SaveDirectory, 'screenshot' + '.png')
+                saveas = os.path.join(utils.current_path() + "/tmp/", 'screenshot' + '.png')
                 img.save(saveas)
                 editorstring = '"start"%s" "%s"' % (ImageEditorPath, saveas)
                 subprocess.call(editorstring, startupinfo=startupinfo(),
                                 shell=True)
             else:
-                subprocess.call("import -window root screenshot.png",
+                subprocess.call("import -window root " + utils.current_path() + "/tmp/screenshot.png",
                                 startupinfo=startupinfo(), shell=True)
-            cursor.execute("SELECT value FROM config WHERE name='Imgur_token'")
-            CLIENT_ID = cursor.fetchone()
-            PATH = "screenshot.png"
+            CLIENT_ID = db.token_get("Imgur_token")
+            PATH = utils.current_path() + "/tmp/screenshot.png"
 
-            im = pyimgur.Imgur(CLIENT_ID["value"])
+            im = pyimgur.Imgur(CLIENT_ID)
             uploaded_image = im.upload_image(
                 PATH, title=_("Uploaded with PC-Control"))
-            if update.message:
-                chat_id = update.message.chat.id
-            elif update.callback_query:
-                chat_id = update.callback_query.message.chat.id
             context.bot.sendMessage(chat_id=chat_id, text=uploaded_image.link)
 
-            if platform.system() == "Windows":
-                subprocess.call(
-                    'del screenshot.png', startupinfo=startupinfo(),
-                    shell=True)
-            else:
-                subprocess.call("rm -rf screenshot.png",
-                                startupinfo=startupinfo(), shell=True)
+            os.remove(PATH)
     else:
         text = _("Unauthorized.")
-        if update.message:
-            chat_id = update.message.chat.id
-        elif update.callback_query:
-            chat_id = update.callback_query.message.chat.id
         context.bot.sendMessage(chat_id=chat_id, text=text)
 
 
@@ -928,22 +732,13 @@ def error(update, context):
 
 
 def main():
-    if platform.system() != "Windows":
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
-        handle = sqlite3.connect(curr_dir + '/pccontrol.sqlite')
-    else:
-        handle = sqlite3.connect('pccontrol.sqlite')
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("SELECT value FROM config WHERE name='BotFather_token'")
-    token = cursor.fetchone()
     # Create the EventHandler and pass it your bot's token.
-    updater = Updater(token["value"])
+    updater = Updater(db.token_get("BotFather_token"))
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
     # Set Database Handler as global class
-    set_globals()
+    lang.install("bot", lang="en")
 
     # Start
     dp.add_handler(CommandHandler("start", start))  # en & it
