@@ -17,10 +17,8 @@ import distro
 import psutil
 import pyimgur
 import pyscreenshot as imggrab
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, \
-    ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
-from telegram.ext import CallbackQueryHandler, CommandHandler, Filters, \
-    MessageHandler, Updater, CallbackContext
+from telegram import ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
+from telegram.ext import CommandHandler, Filters, MessageHandler, Updater, CallbackContext
 
 import db
 import lang
@@ -95,7 +93,6 @@ def bot_help(update: Update, context: CallbackContext):
                   "or to kill it | Example: /task chrome\n")
         text += _("/screen - To take a screenshot"
                   " and receive it through Imgur\n")
-        text += _("/menu - Shows the inline menu\n")
         text += _("/kb or /keyboard - Brings the normal keyboard up\n\n")
         text += _("You can set a delay time for the execution"
                   " of the first four commands by using _t + time in seconds"
@@ -108,63 +105,6 @@ def bot_help(update: Update, context: CallbackContext):
         text=text,
         parse_mode=ParseMode.HTML,
         disable_web_page_preview="true")
-
-
-def menu(update: Update, context: CallbackContext):
-    lang.install("bot", update)
-    db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        keyboard = [[InlineKeyboardButton(_("Shutdown"),
-                                          callback_data='shutdown'),
-                     InlineKeyboardButton(_("Reboot"),
-                                          callback_data='reboot')],
-                    [InlineKeyboardButton(_("Logout"),
-                                          callback_data='logout'),
-                     InlineKeyboardButton(_("Hibernate"),
-                                          callback_data='hibernate')],
-                    [InlineKeyboardButton(_("Lock"),
-                                          callback_data='lock'),
-                     InlineKeyboardButton(_("Screenshot"),
-                                          callback_data='screen')],
-                    [InlineKeyboardButton(_("PC status"),
-                                          callback_data='check')],
-                    [InlineKeyboardButton(_("Cancel"),
-                                          callback_data='cancel')]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        update.message.reply_text(
-            _('Please choose:'), reply_markup=reply_markup)
-    else:
-        text = _("Unauthorized.")
-        if update.message:
-            chat_id = update.message.chat.id
-        elif update.callback_query:
-            chat_id = update.callback_query.message.chat.id
-        context.bot.sendMessage(
-            chat_id=chat_id,
-            text=text,
-            parse_mode=ParseMode.HTML,
-            disable_web_page_preview="true")
-
-
-def button(update: Update, context: CallbackContext):
-    query = update.callback_query
-    if query.data == 'shutdown':
-        shutdown(context.bot, update)
-    elif query.data == 'reboot':
-        reboot(context.bot, update)
-    elif query.data == 'logout':
-        logout(context.bot, update)
-    elif query.data == 'hibernate':
-        hibernate(context.bot, update)
-    elif query.data == 'lock':
-        lock(context.bot, update)
-    elif query.data == 'check':
-        check(context.bot, update)
-    elif query.data == 'screen':
-        imgur(context.bot, update)
-    elif query.data == 'cancel':
-        cancel(context.bot, update)
-    context.bot.answer_callback_query(callback_query_id=query.id)
 
 
 def keyboard_up(update: Update, context: CallbackContext):
@@ -746,10 +686,6 @@ def main():
     # Help
     dp.add_handler(CommandHandler("help", bot_help))  # en
     dp.add_handler(CommandHandler("aiuto", bot_help))  # it
-
-    # Menu
-    updater.dispatcher.add_handler(CallbackQueryHandler(button))
-    dp.add_handler(CommandHandler("menu", menu))  # en & it
 
     # Send keyboard up
     dp.add_handler(CommandHandler("keyboard", keyboard_up))  # en
