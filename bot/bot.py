@@ -19,6 +19,7 @@ import pyimgur
 import pyscreenshot as imggrab
 from telegram import ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater, CallbackContext
+from telegram.utils import helpers
 
 import db
 import lang
@@ -51,66 +52,59 @@ def startupinfo():
 
 def start(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    text = _("""Welcome to <a href='https://goo.gl/9TjCHR'>PC-Control bot</a>, \
-you can get the bot profile picture
-<a href='http://i.imgur.com/294uZ8G.png'>here</a>
+    text = _("""Welcome to [PC\-Control bot](https://goo.gl/9TjCHR), 
+you can get the bot profile picture [here](http://i.imgur.com/294uZ8G.png)
 
-Use /help to see all the commands!
+Use /help to see all the commands\!
 
 
-Made by <a href='http://www.t.me/Tostapunk'>Tostapunk</a>
-<a href='https://twitter.com/Schiavon_Mattia'>Twitter</a> | \
-<a href='https://plus.google.com/+MattiaSchiavon'>Google+</a> | \
-<a href='https://github.com/Tostapunk'>GitHub</a>""")
+Made by [Tostapunk](https://www.t.me/Tostapunk)
+[Twitter](https://twitter.com/Schiavon_Mattia) \| [Google\+](https://plus.google.com/+MattiaSchiavon) \| [GitHub](https://github.com/Tostapunk)""")
 
     language_kb = [['English', 'Italian']]
     reply_markup = ReplyKeyboardMarkup(language_kb, resize_keyboard=True)
     context.bot.sendMessage(
         chat_id=update.message.chat.id,
         text=text,
-        parse_mode=ParseMode.HTML,
-        disable_web_page_preview="true",
-        reply_markup=reply_markup)
+        parse_mode=ParseMode.MARKDOWN_V2,
+        reply_markup=reply_markup,
+        disable_web_page_preview="true")
 
 
 def bot_help(update: Update, context: CallbackContext):
     lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
     if db.admin_check(update) is True:
-        text = _("<b>Available commands:</b>\n")
-        text += _("/shutdown - To shutdown your PC\n")
-        text += _("/reboot - To reboot your PC\n")
-        text += _("/logout - To log out from your current account\n")
-        text += _("/hibernate - To hibernate your PC\n")
-        text += _("/lock - To lock your PC\n")
-        text += _("/cancel - To annul the previous command\n")
-        text += _("/check - To check the PC status\n")
-        text += _("/launch - To launch a program | Example: /launch notepad\n")
-        text += _("/link - To open a link "
-                  "| Example: /link http://google.com (don't use \"www\")\n")
-        text += _("/memo - To show a memo on your pc\n")
-        text += _("/task - To check if a process is currently running "
-                  "or to kill it | Example: /task chrome\n")
-        text += _("/screen - To take a screenshot"
-                  " and receive it through Imgur\n")
-        text += _("/kb or /keyboard - Brings the normal keyboard up\n\n")
-        text += _("You can set a delay time for the execution"
-                  " of the first four commands by using _t + time in seconds"
-                  " after a command.\n")
-        text += _("Example: /shutdown_t 20")
+        text = _("""
+*Available commands:*
+/shutdown - To shutdown your PC
+/reboot - To reboot your PC
+/logout - To log out from your current account
+/hibernate - To hibernate your PC
+/lock - To lock your PC
+/cancel - To annul the previous command
+/check - To check the PC status
+/launch - To launch a program | Example: /launch notepad
+/link - To open a link | Example: /link http://google.com (don't use \"www\")
+/memo - To show a memo on your pc
+/task - To check if a process is currently running or to kill it | Example: /task chrome
+/screen - To take a screenshot and receive it through Imgur
+/kb or /keyboard - Brings the normal keyboard up
+You can set a delay time for the execution of the first four commands by using _t + time in seconds after a command.
+Example: /shutdown_t 20""")
     else:
-        text = _("Unauthorized.")
+        text = _("Unauthorized")
     context.bot.sendMessage(
         chat_id=update.message.chat.id,
-        text=text,
-        parse_mode=ParseMode.HTML,
+        text=helpers.escape_markdown(text, 2),
+        parse_mode=ParseMode.MARKDOWN_V2,
         disable_web_page_preview="true")
 
 
 def keyboard_up(update: Update, context: CallbackContext):
     lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
-    text = _("Keyboard is up.")
+    text = _("Keyboard is up")
     keyboard = [[_('Shutdown'), _('Reboot')],
                 [_('Logout'), _('Hibernate')],
                 [_('Lock'), _('Screenshot')],
@@ -208,7 +202,7 @@ def shutdown_time(update: Update, context: CallbackContext):
             text = _("""No time inserted
             ``` Usage: /shutdown_t + time in seconds```""")
             context.bot.sendMessage(chat_id=update.message.chat.id,
-                            text=text, parse_mode=ParseMode.MARKDOWN)
+                                    text=text, parse_mode=ParseMode.MARKDOWN_V2)
     else:
         text = _("Unauthorized.")
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -256,7 +250,7 @@ def reboot_time(update: Update, context: CallbackContext):
                 text = _("Rebooting...")
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
-                subprocess.call("reboot -t %s" % (int(context.args[0])/ 60),
+                subprocess.call("reboot -t %s" % (int(context.args[0]) / 60),
                                 startupinfo=startupinfo(), shell=True)
                 text = _("Rebooting...")
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -264,7 +258,7 @@ def reboot_time(update: Update, context: CallbackContext):
             text = _("""No time inserted
             ``` Usage: /reboot_t + time in seconds```""")
             context.bot.sendMessage(chat_id=update.message.chat.id,
-                            text=text, parse_mode=ParseMode.MARKDOWN)
+                                    text=text, parse_mode=ParseMode.MARKDOWN_V2)
     else:
         text = _("Unauthorized.")
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -313,7 +307,7 @@ def logout_time_thread(update: Update, context: CallbackContext):
                 text = _("""No time inserted
                 ``` Usage: /logout_t + time in seconds```""")
                 context.bot.sendMessage(chat_id=update.message.chat.id,
-                                text=text, parse_mode=ParseMode.MARKDOWN)
+                                        text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
         if platform.system() == "Windows":
             global l_t
@@ -374,10 +368,10 @@ def hibernate_time_thread(update: Update, context: CallbackContext):
                     text = _("Hibernated.")
                     context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
             else:
-                text = _(""""No time inserted
+                text = _("""No time inserted
                 ``` Usage: /hibernate_t + time in seconds```""")
                 context.bot.sendMessage(chat_id=update.message.chat.id,
-                                text=text, parse_mode=ParseMode.MARKDOWN)
+                                        text=text, parse_mode=ParseMode.MARKDOWN_V2)
         global h_t
         h_t = threading.Timer(int(context.args[0]), hibernate_time)
         h_t.start()
@@ -499,7 +493,7 @@ def launch(update: Update, context: CallbackContext):
             text = _("""No program name inserted
             ``` Usage: /launch + program name```""")
             context.bot.sendMessage(chat_id=update.message.chat.id,
-                            text=text, parse_mode=ParseMode.MARKDOWN)
+                                    text=text, parse_mode=ParseMode.MARKDOWN_V2)
     else:
         text = _("Unauthorized.")
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -525,7 +519,7 @@ def link(update: Update, context: CallbackContext):
         else:
             text = _("No link inserted\n``` Usage: /link + web link```")
             context.bot.sendMessage(chat_id=update.message.chat.id,
-                            text=text, parse_mode=ParseMode.MARKDOWN)
+                                    text=text, parse_mode=ParseMode.MARKDOWN_V2)
     else:
         text = _("Unauthorized.")
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -593,7 +587,7 @@ def task(update: Update, context: CallbackContext):
         else:
             text = _("No task inserted\n``` Usage: /task + process name```")
             context.bot.sendMessage(chat_id=update.message.chat.id,
-                            text=text, parse_mode=ParseMode.MARKDOWN)
+                                    text=text, parse_mode=ParseMode.MARKDOWN_V2)
     else:
         text = _("Unauthorized.")
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
