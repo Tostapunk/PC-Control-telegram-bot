@@ -1,15 +1,18 @@
-import os
 import platform
-import sqlite3
 from datetime import datetime
 from pathlib import Path
 
 import pytz
 from telegram import ParseMode
+from telegram.utils import helpers
 from tzlocal import get_localzone
 
 import lang
 import utils
+
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, Column, Integer, Text
 
 
 def database():
@@ -20,224 +23,188 @@ def database():
     return path
 
 
+engine = create_engine("sqlite:///" + database(), echo=False)
+Base = declarative_base()
+
+Base.metadata.bind = engine
+DBsession = sessionmaker(bind=engine)
+
+
+class Config(Base):
+    __tablename__ = "config"
+    id = Column(Integer, primary_key=True, unique=True)
+    name = Column(Text, nullable=False, unique=True)
+    value = Column(Text, nullable=False)
+
+
+class Users(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, unique=True)
+    name_first = Column(Text)
+    name_last = Column(Text)
+    username = Column(Text)
+    privs = Column(Text)
+    last_use = Column(Text)
+    time_used = Column(Integer)
+    language = Column(Text, default="en")
+
+
 def exists():
     return Path(database()).exists()
 
 
 def create():
     if exists() is False:
-        handle = sqlite3.connect(database())
-        handle.row_factory = sqlite3.Row
-        cursor = handle.cursor()
-        # The bot will automatically create the right db if it not exist
-        config_table = "CREATE TABLE IF NOT EXISTS " \
-                       "`config` ( `id` INTEGER UNIQUE, `name` TEXT ," \
-                       " `value` TEXT, UNIQUE(name, value), PRIMARY KEY(`id`))"
-
-        users_table = "CREATE TABLE IF NOT EXISTS " \
-                      "`users` ( `id` INTEGER UNIQUE, `name_first` TEXT," \
-                      " `name_last` TEXT, `username` TEXT, `privs` INTEGER," \
-                      " `last_use` INTEGER, `time_used` INTEGER," \
-                      " `language` TEXT DEFAULT 'en', PRIMARY KEY(`id`))"
-        cursor.execute(config_table)
-        cursor.execute(users_table)
-
+        Base.metadata.create_all(engine)
         lang_set("bot_setup", "en")
+        console_set("hide")
+        startup_set("false")
 
 
 def update_user(from_user, bot):  # Update the user list (db)
-    handle = sqlite3.connect(database())
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    check = cursor.execute(
-        "SELECT id,time_used FROM users WHERE id=?", (from_user.id,)).fetchone()
+    session = DBsession()
+    user = session.query(Users).filter(Users.id == from_user.id).one_or_none()
     used = 0
-    if check:
-        if check["time_used"]:
-            used = check["time_used"]
-    query = (from_user.first_name,
-             from_user.last_name,
-             from_user.username,
-             datetime.now(pytz.timezone(str(get_localzone()))
-                          ).strftime('%Y-%m-%d %H:%M'),
-             used + 1,
-             from_user.id)
-    if check:
-        cursor.execute(
-            "UPDATE users SET name_first=?,name_last=?,username=?,"
-            "last_use=?,time_used=? WHERE id=?",
-            query)
+    if user:
+        if user.time_used:
+            used = user.time_used
+    if user:
+        user.name_first = from_user.first_name
+        user.name_last = from_user.last_name
+        user.username = from_user.username
+        user.last_use = datetime.now(pytz.timezone(str(get_localzone()))).strftime('%Y-%m-%d %H:%M')
+        user.time_used = used + 1
     else:
-        data = cursor.execute("SELECT count(*) as tot FROM users").fetchone()
-        if data[0] == 0:
-            query = (from_user.first_name,
-                     from_user.last_name,
-                     from_user.username,
-                     datetime.now(pytz.timezone(str(get_localzone()))
-                                  ).strftime('%Y-%m-%d %H:%M'),
-                     used + 1,
-                     from_user.id,
-                     "-2")
-            cursor.execute(
-                "INSERT INTO users(name_first,name_last,username,last_use,"
-                "time_used,id,privs) VALUES(?,?,?,?,?,?,?)",
-                query)
+        if session.query(Users).count() == 0:
+            new_user = Users(name_first=from_user.first_name,
+                             name_last=from_user.last_name,
+                             username=from_user.username,
+                             last_use=datetime.now(pytz.timezone(str(get_localzone()))).strftime('%Y-%m-%d %H:%M'),
+                             time_used=used + 1,
+                             id=from_user.id,
+                             privs="-2")
         else:
-            cursor.execute(
-                "INSERT INTO users(name_first,name_last,username,last_use,"
-                "time_used,id) VALUES(?,?,?,?,?,?)",
-                query)
-        admins = cursor.execute(
-            "SELECT id, language FROM users WHERE privs='-2'").fetchall()
+            new_user = Users(name_first=from_user.first_name,
+                             name_last=from_user.last_name,
+                             username=from_user.username,
+                             last_use=datetime.now(pytz.timezone(str(get_localzone()))).strftime('%Y-%m-%d %H:%M'),
+                             time_used=used + 1,
+                             id=from_user.id)
+        session.add(new_user)
+        admins = session.query(Users).filter(Users.privs == "-2").all()
         for admin in admins:
-            if admin["id"] != from_user.id:
-                lang.install("bot", lang=admin["language"])
-                text = _("<b>New user registered into the database</b> \n\n")
+            if admin.id != from_user.id:
+                lang.install("bot", lang=admin.language)
+                text = _("*New user registered into the database* \n\n")
                 text += _("Name: ") + from_user.first_name
                 if from_user.last_name:
                     text += _("\nLast name: ") + from_user.last_name
                 if from_user.username:
                     text += _("\nUsername: @") + from_user.username
                 bot.sendMessage(
-                    chat_id=admin["id"], text=text, parse_mode=ParseMode.HTML)
-    handle.commit()
+                    chat_id=admin.id, text=helpers.escape_markdown(text, 2), parse_mode=ParseMode.MARKDOWN_V2)
+    session.commit()
 
 
 def admin_check(update):
+    session = DBsession()
     if update.message:
         from_user = update.message.from_user
     elif update.callback_query:
         from_user = update.callback_query.from_user
-    handle = sqlite3.connect(database())
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT privs FROM users WHERE id=?",
-                           (from_user.id,)).fetchone()
-    if query["privs"] == -2:
+
+    privs = session.query(Users).filter(Users.id == from_user.id).one_or_none().privs
+    if privs == "-2":
         return True
 
 
 def lang_set(caller, lang, update=None):
-    handle = sqlite3.connect(database())
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
+    session = DBsession()
     if caller == "bot":
-        cursor.execute("UPDATE users SET language=? WHERE id=?",
-                       (lang, update.message.from_user.id,))
+        session.query(Users).filter(Users.id == update.message.from_user.id).one().language = lang
     elif caller == "bot_setup":
         if lang_check(caller):
-            cursor.execute("UPDATE config SET value=? WHERE name='language'", (lang,))
+            session.query(Config).filter(Config.name == "language").one().value = lang
         else:
-            cursor.execute("INSERT INTO config(name, value) VALUES ('language', ?)", (lang,))
-    handle.commit()
+            lang_value = Config(name="language", value=lang)
+            session.add(lang_value)
+    session.commit()
 
 
 def lang_check(caller, update=None):
-    handle = sqlite3.connect(database())
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
+    session = DBsession()
     if caller == "bot":
-        lang = "en"
-        query = cursor.execute("SELECT language FROM users WHERE id=?",
-                               (update.message.from_user.id,)).fetchone()
-        if query:
-            lang = query["language"]
-        return lang
+        return session.query(Users).filter(Users.id == update.message.from_user.id).one().language
     elif caller == "bot_setup":
-        lang = ""
-        query = cursor.execute("SELECT value FROM config WHERE name='language'").fetchone()
-        if query:
-            lang = query["value"]
-        return lang
-
-
-def token_exists(token_type):
-    handle = sqlite3.connect(database())
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    return cursor.execute("SELECT value FROM config WHERE name=?", (token_type,)).fetchone()
+        entry = session.query(Config).filter(Config.name == "language").one_or_none()
+        if entry:
+            return entry.value
 
 
 def token_set(token_type, token_value):
-    handle = sqlite3.connect(database())
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    if token_exists(token_type):
-        cursor.execute("UPDATE config SET value=? WHERE name=?", (token_value, token_type,))
+    session = DBsession()
+    if token_get(token_type):
+        session.query(Config).filter(Config.name == token_type).one().value = token_value
     else:
-
-        cursor.execute("INSERT INTO config(name, value) VALUES (?, ?)", (token_type, token_value,))
-    handle.commit()
+        token = Config(name=token_type, value=token_value)
+        session.add(token)
+    session.commit()
 
 
 def token_get(token_type):
-    handle = sqlite3.connect(database())
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    return cursor.execute("SELECT value FROM config WHERE name=?", (token_type,)).fetchone()["value"]
+    session = DBsession()
+    entry = session.query(Config).filter(Config.name == token_type).one_or_none()
+    if entry:
+        return entry.value
 
 
 def user_exists(user=None):
-    handle = sqlite3.connect(database())
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    if cursor.execute("SELECT * FROM users WHERE username=?", (user,)).fetchall():
+    session = DBsession()
+    if session.query(Users).filter(Users.username == user).one_or_none():
         return True
     else:
         return False
 
 
 def user_role(user, admin):
-    handle = sqlite3.connect(database())
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
+    session = DBsession()
+    user = session.query(Users).filter(Users.username == user).one()
     if admin:
-        privs = "-2"
+        user.privs = "-2"
     else:
-        privs = ""
-    cursor.execute("UPDATE users SET privs=? WHERE username=?", (privs, user,))
-    handle.commit()
+        user.privs = ""
+    session.commit()
 
 
 def startupinfo_check():
-    handle = sqlite3.connect(database())
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("SELECT value FROM config WHERE name='console'")
-    query = cursor.fetchone()
-    if query:
-        return query["value"]
-    else:
-        cursor.execute("INSERT INTO config(name, value) VALUES ('console', 'hide')")
-        handle.commit()
-        return "hide"
+    session = DBsession()
+    entry = session.query(Config).filter(Config.name == "console").one_or_none()
+    if entry:
+        return entry.value
 
 
 def console_set(value):
-    handle = sqlite3.connect(database())
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("UPDATE config SET value=? WHERE name='console'", (value,))
-    handle.commit()
+    session = DBsession()
+    if startupinfo_check():
+        session.query(Config).filter(Config.name == "console").one().value = value
+    else:
+        console_value = Config(name="console", value=value)
+        session.add(console_value)
+    session.commit()
 
 
 def startup_set(value):
-    handle = sqlite3.connect(database())
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    cursor.execute("UPDATE config SET value=? WHERE name='startup'", (value,))
-    handle.commit()
+    session = DBsession()
+    if startup_get():
+        session.query(Config).filter(Config.name == "startup").one().value = value
+    else:
+        startup_value = Config(name="startup", value=value)
+        session.add(startup_value)
+    session.commit()
 
 
 def startup_get():
-    handle = sqlite3.connect(database())
-    handle.row_factory = sqlite3.Row
-    cursor = handle.cursor()
-    query = cursor.execute("SELECT value FROM config WHERE name='startup'").fetchone()
-    if query:
-        return query["value"]
-    else:
-        cursor.execute("INSERT INTO config(name, value) VALUES ('startup', 'false')")
-        handle.commit()
-        return "false"
-
+    session = DBsession()
+    entry = session.query(Config).filter(Config.name == "startup").one_or_none()
+    if entry:
+        return entry.value

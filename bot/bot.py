@@ -632,7 +632,7 @@ def imgur(update: Update, context: CallbackContext):
         chat_id = update.callback_query.message.chat.id
     db.update_user(from_user, context.bot)
     if db.admin_check(update) is True:
-        if not db.token_exists("Imgur_token"):
+        if not db.token_get("Imgur_token"):
             context.bot.sendMessage(chat_id=from_user.id,
                             text=_("Cannot find an Imgur token"))
         else:

@@ -47,11 +47,11 @@ def db_and_co():
 
 
 def tokens_check():
-    if not db.token_exists("BotFather_token"):
+    if not db.token_get("BotFather_token"):
         B1.configure(text=_("Confirm"))
     else:
         B1.configure(text=_("Change token"))
-    if not db.token_exists("Imgur_token"):
+    if not db.token_get("Imgur_token"):
         B2.configure(text=_("Confirm"))
     else:
         B2.configure(text=_("Change token"))
