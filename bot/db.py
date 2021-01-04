@@ -16,11 +16,7 @@ from sqlalchemy import create_engine, Column, Integer, Text
 
 
 def database():
-    if platform.system() != "Windows":
-        path = utils.current_path() + "/data/pccontrol.sqlite"
-    else:
-        path = "../data/pccontrol.sqlite"
-    return path
+    return utils.current_path() + "/data/pccontrol.sqlite"
 
 
 engine = create_engine("sqlite:///" + database(), echo=False)
