@@ -104,12 +104,7 @@ def update_user(from_user, bot):  # Update the user list (db)
 
 def admin_check(update):
     session = DBsession()
-    if update.message:
-        from_user = update.message.from_user
-    elif update.callback_query:
-        from_user = update.callback_query.from_user
-
-    privs = session.query(Users).filter(Users.id == from_user.id).one_or_none().privs
+    privs = session.query(Users).filter(Users.id == update.message.from_user.id).one_or_none().privs
     if privs == "-2":
         return True
 

@@ -153,35 +153,19 @@ def message_handler(update: Update, context: CallbackContext):
 
 
 def shutdown(update: Update, context: CallbackContext):
-    if update.message:
-        from_user = update.message.from_user
-    elif update.callback_query:
-        from_user = update.callback_query.from_user
-    db.update_user(from_user, context.bot)
+    db.update_user(update.message.from_user, context.bot)
     if db.admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /s', startupinfo=startupinfo())
             text = _("Shutted down.")
-            if update.message:
-                chat_id = update.message.chat.id
-            elif update.callback_query:
-                chat_id = update.callback_query.message.chat.id
-            context.bot.sendMessage(chat_id=chat_id, text=text)
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             subprocess.call('shutdown -h now', startupinfo=startupinfo(), shell=True)
             text = _("Shutted down.")
-            if update.message:
-                chat_id = update.message.chat.id
-            elif update.callback_query:
-                chat_id = update.callback_query.message.chat.id
-            context.bot.sendMessage(chat_id=chat_id, text=text)
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         text = _("Unauthorized.")
-        if update.message:
-            chat_id = update.message.chat.id
-        elif update.callback_query:
-            chat_id = update.callback_query.message.chat.id
-        context.bot.sendMessage(chat_id=chat_id, text=text)
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
 def shutdown_time(update: Update, context: CallbackContext):
@@ -209,35 +193,19 @@ def shutdown_time(update: Update, context: CallbackContext):
 
 
 def reboot(update: Update, context: CallbackContext):
-    if update.message:
-        from_user = update.message.from_user
-    elif update.callback_query:
-        from_user = update.callback_query.from_user
-    db.update_user(from_user, context.bot)
+    db.update_user(update.message.from_user, context.bot)
     if db.admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /r', startupinfo=startupinfo())
             text = _("Rebooted.")
-            if update.message:
-                chat_id = update.message.chat.id
-            elif update.callback_query:
-                chat_id = update.callback_query.message.chat.id
-            context.bot.sendMessage(chat_id=chat_id, text=text)
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             subprocess.call('reboot', startupinfo=startupinfo())
             text = _("Rebooted.")
-            if update.message:
-                chat_id = update.message.chat.id
-            elif update.callback_query:
-                chat_id = update.callback_query.message.chat.id
-            context.bot.sendMessage(chat_id=chat_id, text=text)
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         text = _("Unauthorized.")
-        if update.message:
-            chat_id = update.message.chat.id
-        elif update.callback_query:
-            chat_id = update.callback_query.message.chat.id
-        context.bot.sendMessage(chat_id=chat_id, text=text)
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
 def reboot_time(update: Update, context: CallbackContext):
@@ -265,34 +233,18 @@ def reboot_time(update: Update, context: CallbackContext):
 
 
 def logout(update: Update, context: CallbackContext):
-    if update.message:
-        from_user = update.message.from_user
-    elif update.callback_query:
-        from_user = update.callback_query.from_user
-    db.update_user(from_user, context.bot)
+    db.update_user(update.message.from_user, context.bot)
     if db.admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /l', startupinfo=startupinfo())
             text = _("Logged out.")
-            if update.message:
-                chat_id = update.message.chat.id
-            elif update.callback_query:
-                chat_id = update.callback_query.message.chat.id
-            context.bot.sendMessage(chat_id=chat_id, text=text)
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             text = _("Currently not working on Linux.")
-            if update.message:
-                chat_id = update.message.chat.id
-            elif update.callback_query:
-                chat_id = update.callback_query.message.chat.id
-            context.bot.sendMessage(chat_id=chat_id, text=text)
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         text = _("Unauthorized.")
-        if update.message:
-            chat_id = update.message.chat.id
-        elif update.callback_query:
-            chat_id = update.callback_query.message.chat.id
-        context.bot.sendMessage(chat_id=chat_id, text=text)
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
 def logout_time_thread(update: Update, context: CallbackContext):
@@ -322,35 +274,19 @@ def logout_time_thread(update: Update, context: CallbackContext):
 
 
 def hibernate(update: Update, context: CallbackContext):
-    if update.message:
-        from_user = update.message.from_user
-    elif update.callback_query:
-        from_user = update.callback_query.from_user
-    db.update_user(from_user, context.bot)
+    db.update_user(update.message.from_user, context.bot)
     if db.admin_check(update) is True:
         if platform.system() == "Windows":
             subprocess.call('shutdown /h', startupinfo=startupinfo())
             text = _("Hibernated.")
-            if update.message:
-                chat_id = update.message.chat.id
-            elif update.callback_query:
-                chat_id = update.callback_query.message.chat.id
-            context.bot.sendMessage(chat_id=chat_id, text=text)
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             subprocess.call('systemctl suspend', startupinfo=startupinfo(), shell=True)
             text = _("Hibernated.")
-            if update.message:
-                chat_id = update.message.chat.id
-            elif update.callback_query:
-                chat_id = update.callback_query.message.chat.id
-            context.bot.sendMessage(chat_id=chat_id, text=text)
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         text = _("Unauthorized.")
-        if update.message:
-            chat_id = update.message.chat.id
-        elif update.callback_query:
-            chat_id = update.callback_query.message.chat.id
-        context.bot.sendMessage(chat_id=chat_id, text=text)
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
 def hibernate_time_thread(update: Update, context: CallbackContext):
@@ -381,11 +317,7 @@ def hibernate_time_thread(update: Update, context: CallbackContext):
 
 
 def lock(update: Update, context: CallbackContext):
-    if update.message:
-        from_user = update.message.from_user
-    elif update.callback_query:
-        from_user = update.callback_query.from_user
-    db.update_user(from_user, context.bot)
+    db.update_user(update.message.from_user, context.bot)
     if db.admin_check(update) is True:
         if platform.system() == "Windows":
             ctypes.windll.user32.LockWorkStation()
@@ -394,15 +326,11 @@ def lock(update: Update, context: CallbackContext):
             text = _("Currently not working on Linux.")
     else:
         text = _("Unauthorized.")
-    context.bot.sendMessage(chat_id=from_user.id, text=text)
+    context.bot.sendMessage(chat_id=update.message.from_user.id, text=text)
 
 
 def cancel(update: Update, context: CallbackContext):
-    if update.message:
-        from_user = update.message.from_user
-    elif update.callback_query:
-        from_user = update.callback_query.from_user
-    db.update_user(from_user, context.bot)
+    db.update_user(update.message.from_user, context.bot)
     if db.admin_check(update) is True:
         try:
             if l_t.isAlive():
@@ -422,19 +350,11 @@ def cancel(update: Update, context: CallbackContext):
                     text = _("Annulled.")
     else:
         text = _("Unauthorized.")
-    if update.message:
-        chat_id = update.message.chat.id
-    elif update.callback_query:
-        chat_id = update.callback_query.message.chat.id
-    context.bot.sendMessage(chat_id=chat_id, text=text)
+    context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
 def check(update: Update, context: CallbackContext):
-    if update.message:
-        from_user = update.message.from_user
-    elif update.callback_query:
-        from_user = update.callback_query.from_user
-    db.update_user(from_user, context.bot)
+    db.update_user(update.message.from_user, context.bot)
     if db.admin_check(update) is True:
         text = ""
         text += _("Your PC is online.\n\n")
@@ -455,18 +375,10 @@ def check(update: Update, context: CallbackContext):
             else:
                 text += _("\nBattery: ") + str(
                     format(psutil.sensors_battery().percent, ".0f")) + "%"
-        if update.message:
-            chat_id = update.message.chat.id
-        elif update.callback_query:
-            chat_id = update.callback_query.message.chat.id
-        context.bot.sendMessage(chat_id=chat_id, text=text)
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         text = _("Unauthorized.")
-        if update.message:
-            chat_id = update.message.chat.id
-        elif update.callback_query:
-            chat_id = update.callback_query.message.chat.id
-        context.bot.sendMessage(chat_id=chat_id, text=text)
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
 def launch(update: Update, context: CallbackContext):
@@ -624,16 +536,10 @@ def task_kill(update: Update, context: CallbackContext):
 
 
 def imgur(update: Update, context: CallbackContext):
-    if update.message:
-        from_user = update.message.from_user
-        chat_id = update.message.chat.id
-    elif update.callback_query:
-        from_user = update.callback_query.from_user
-        chat_id = update.callback_query.message.chat.id
-    db.update_user(from_user, context.bot)
+    db.update_user(update.message.from_user, context.bot)
     if db.admin_check(update) is True:
         if not db.token_get("Imgur_token"):
-            context.bot.sendMessage(chat_id=from_user.id,
+            context.bot.sendMessage(chat_id=update.message.from_user.id,
                             text=_("Cannot find an Imgur token"))
         else:
             if platform.system() == "Windows":
@@ -653,12 +559,12 @@ def imgur(update: Update, context: CallbackContext):
             im = pyimgur.Imgur(CLIENT_ID)
             uploaded_image = im.upload_image(
                 PATH, title=_("Uploaded with PC-Control"))
-            context.bot.sendMessage(chat_id=chat_id, text=uploaded_image.link)
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=uploaded_image.link)
 
             os.remove(PATH)
     else:
         text = _("Unauthorized.")
-        context.bot.sendMessage(chat_id=chat_id, text=text)
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
 def error(update, context):
