@@ -5,8 +5,6 @@ Through this bot you can execute actions on your PC directly from Telegram!
 
 This bot is available in English and Italian.
 
-Use [this channel](https://t.me/tostabots) to get notified when there's a new commit
-
 ## Getting Started
 
 ### Prerequisites
@@ -22,13 +20,13 @@ Execute ```python -m pip install -r requirements.txt```
 
 ## Setup the bot
 
-Launch the setup with ```python bot_setup.py```
+Launch the setup with ```python bot/bot_setup.py```
 
 Select your language from the options menu and add your tokens.
 
 Now start it!
 
-![setup](https://i.imgur.com/JJBVG9I.png)
+![setup](https://user-images.githubusercontent.com/25140297/103580613-d2b75780-4eda-11eb-85f9-e1e73aea6b26.png)
 
 ## Set the permissions
 
@@ -39,7 +37,7 @@ remove them
 
 Example:
 
-![privs](https://i.imgur.com/DyL2F8w.png)
+![privs](https://user-images.githubusercontent.com/25140297/103581006-76086c80-4edb-11eb-99a4-4e13777e7794.png)
 
 ### Available commands
 
