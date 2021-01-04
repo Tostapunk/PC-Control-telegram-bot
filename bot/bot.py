@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 def startupinfo():
-    if db.startupinfo_check() == "hide":
+    if db.console_get() == "hide":
         if platform.system() == "Windows":
             value = subprocess.STARTUPINFO()
             value.dwFlags |= subprocess.STARTF_USESHOWWINDOW

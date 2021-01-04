@@ -172,7 +172,7 @@ def user_role(user, admin):
     session.commit()
 
 
-def startupinfo_check():
+def console_get():
     session = DBsession()
     entry = session.query(Config).filter(Config.name == "console").one_or_none()
     if entry:
@@ -181,7 +181,7 @@ def startupinfo_check():
 
 def console_set(value):
     session = DBsession()
-    if startupinfo_check():
+    if console_get():
         session.query(Config).filter(Config.name == "console").one().value = value
     else:
         console_value = Config(name="console", value=value)
