@@ -17,13 +17,14 @@ Use [this channel](https://t.me/tostabots) to get notified when there's a new co
 
 GNU/Linux users: you need to install the python-tk package 
 
+### Install the requirements
+Execute ```python -m pip install -r requirements.txt```
+
 ## Setup the bot
 
 Launch the setup with ```python bot_setup.py```
 
 Select your language from the options menu and add your tokens.
-
-Install requirements.
 
 Now start it!
 

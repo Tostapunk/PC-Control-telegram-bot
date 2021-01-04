@@ -81,62 +81,9 @@ def imgur_token_set(val2):
                           font="Times 11", fg="red", justify=LEFT)
 
 
-def requirements_check():
-    if os.path.isfile(utils.current_path() + "/data/requirements_log.txt") is False:
-        B3.configure(text=_("Install the requirements"))
-    else:
-        B3.configure(text=_("Update the requirements"))
-
-
-def requirements():
-    if platform.system() == "Windows":
-        subprocess.call(
-            "pip install -r " + utils.current_path() + "/requirements.txt >" + utils.current_path() +
-            "/data/requirements_log.txt", startupinfo=startupinfo(), shell=True)
-    else:
-        subprocess.call(
-            "pip3 install -r " + utils.current_path() + "/requirements.txt >" + utils.current_path() +
-            "/data/requirements_log.txt", startupinfo=startupinfo(), shell=True)
-    requirements_popup()
-    requirements_check()
-
-
-def requirements_popup():
-    req = tk.Toplevel(root)
-    l_frame = tk.Frame(req)
-    l_frame.pack(fill=tk.X, side=tk.TOP)
-    b_frame = tk.Frame(req)
-    b_frame.pack(fill=tk.X, side=tk.BOTTOM)
-    b_frame.columnconfigure(0, weight=1)
-    b_frame.columnconfigure(1, weight=1)
-
-    lr = Label(l_frame, text=_("The requirements install process is done.\n"
-                               "Do you want to take a look to the log?"),
-               font="Times 11", justify=LEFT)
-    lr.grid()
-    yes_b = tk.Button(b_frame, text=_("Yes"),
-                      command=lambda: [req.destroy(), log_link()])
-    yes_b.grid(row=0, column=0, sticky=tk.W + tk.E)
-    no_b = tk.Button(b_frame, text=_("No"),
-                     command=lambda: req.destroy())
-    no_b.grid(row=0, column=1, sticky=tk.W + tk.E)
-
-
-def log_link():
-    if platform.system() == "Windows":
-        subprocess.call(
-            utils.current_path() + "/data/requirements_log.txt", startupinfo=startupinfo(),
-            shell=True)
-    else:
-        subprocess.call("xdg-open " + utils.current_path() + "/data/requirements_log.txt",
-                        startupinfo=startupinfo(), shell=True)
-
-
 def create_mo_files():
     if os.path.isfile(lang.locale_path() + "/en/LC_MESSAGES/bot_setup.mo") is False or\
             os.path.isfile(lang.locale_path() + "/it/LC_MESSAGES/bot_setup.mo") is False:
-        subprocess.call(
-            "pip install Babel", startupinfo=startupinfo(), shell=True)
         subprocess.call("pybabel compile -D bot_setup -d " + lang.locale_path() + " -l en -i" + lang.locale_path() +
                         "/en/LC_MESSAGES/bot_setup.po",
                         startupinfo=startupinfo(), shell=True)
@@ -145,8 +92,6 @@ def create_mo_files():
                         startupinfo=startupinfo(), shell=True)
     elif os.path.isfile(lang.locale_path() + "/en/LC_MESSAGES/bot.mo") is False or\
             os.path.isfile(lang.locale_path() + "/it/LC_MESSAGES/bot.mo") is False:
-        subprocess.call(
-            "pip install Babel", startupinfo=startupinfo(), shell=True)
         subprocess.call("pybabel compile -D bot -d " + lang.locale_path() + " -l en -i" + lang.locale_path() +
                         "/en/LC_MESSAGES/bot.po",
                         startupinfo=startupinfo(), shell=True)
@@ -371,15 +316,12 @@ B2.pack(pady=5)
 L2_done = Label(root, text="")
 L2_done.pack()
 
-B3 = tk.Button(root, text="", command=requirements)
+B3 = tk.Button(root, text=_("Start it!"), command=bot_start)
 B3.pack(pady=5)
 
-B4 = tk.Button(root, text=_("Start it!"), command=bot_start)
-B4.pack(pady=5)
-
-B5 = tk.Button(root, text=_(
+B4 = tk.Button(root, text=_(
     "Change user permissions"), command=privs_window)
-B5.pack(pady=5)
+B4.pack(pady=5)
 
 db_and_co()
 menubar = Menu(root)
@@ -404,6 +346,5 @@ filemenu.add_cascade(label=_("Startup"), menu=startup_menu, underline=0)
 
 db_and_co()
 tokens_check()
-requirements_check()
 create_mo_files()
 root.mainloop()
