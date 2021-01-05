@@ -1,9 +1,11 @@
 import platform
 from datetime import datetime
+from functools import wraps
 from pathlib import Path
 
 import pytz
-from telegram import ParseMode
+from telegram import ParseMode, Update
+from telegram.ext import CallbackContext
 from telegram.utils import helpers
 from tzlocal import get_localzone
 
@@ -102,11 +104,16 @@ def update_user(from_user, bot):  # Update the user list (db)
     session.commit()
 
 
-def admin_check(update):
-    session = DBsession()
-    privs = session.query(Users).filter(Users.id == update.message.from_user.id).one_or_none().privs
-    if privs == "-2":
-        return True
+def admin_check(func):
+    @wraps(func)
+    def is_admin(update: Update, context: CallbackContext):
+        session = DBsession()
+        privs = session.query(Users).filter(Users.id == update.message.from_user.id).one_or_none().privs
+        if privs == "-2":
+            return func(update, context)
+        else:
+            update.effective_message.reply_text(_("Unauthorized"))
+    return is_admin
 
 
 def lang_set(caller, lang, update=None):

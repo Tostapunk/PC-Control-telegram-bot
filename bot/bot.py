@@ -71,11 +71,11 @@ Made by [Tostapunk](https://www.t.me/Tostapunk)
         disable_web_page_preview="true")
 
 
+@db.admin_check
 def bot_help(update: Update, context: CallbackContext):
     lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        text = _("""
+    text = _("""
 *Available commands:*
 /shutdown - To shutdown your PC
 /reboot - To reboot your PC
@@ -92,8 +92,6 @@ def bot_help(update: Update, context: CallbackContext):
 /kb or /keyboard - Brings the normal keyboard up
 You can set a delay time for the execution of the first four commands by using _t + time in seconds after a command.
 Example: /shutdown_t 20""")
-    else:
-        text = _("Unauthorized")
     context.bot.sendMessage(
         chat_id=update.message.chat.id,
         text=helpers.escape_markdown(text, 2),
@@ -152,326 +150,287 @@ def message_handler(update: Update, context: CallbackContext):
         keyboard_up(update, context)
 
 
+@db.admin_check
 def shutdown(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        if platform.system() == "Windows":
-            subprocess.call('shutdown /s', startupinfo=startupinfo())
-            text = _("Shutted down.")
-            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-        else:
-            subprocess.call('shutdown -h now', startupinfo=startupinfo(), shell=True)
-            text = _("Shutted down.")
-            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    if platform.system() == "Windows":
+        subprocess.call('shutdown /s', startupinfo=startupinfo())
+        text = _("Shutted down.")
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = _("Unauthorized.")
+        subprocess.call('shutdown -h now', startupinfo=startupinfo(), shell=True)
+        text = _("Shutted down.")
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
+@db.admin_check
 def shutdown_time(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        if len(context.args) != 0:
-            if platform.system() == "Windows":
-                subprocess.call("shutdown /s /t %s" % (context.args[0]),
-                                startupinfo=startupinfo())
-                text = _("Shutting down...")
-                context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-            else:
-                subprocess.call("shutdown -t %s" % (int(context.args[0]) / 60),
-                                startupinfo=startupinfo(), shell=True)
-                text = _("Shutting down...")
-                context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    if len(context.args) != 0:
+        if platform.system() == "Windows":
+            subprocess.call("shutdown /s /t %s" % (context.args[0]),
+                            startupinfo=startupinfo())
+            text = _("Shutting down...")
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            text = _("""No time inserted
-            ``` Usage: /shutdown_t + time in seconds```""")
-            context.bot.sendMessage(chat_id=update.message.chat.id,
-                                    text=text, parse_mode=ParseMode.MARKDOWN_V2)
+            subprocess.call("shutdown -t %s" % (int(context.args[0]) / 60),
+                            startupinfo=startupinfo(), shell=True)
+            text = _("Shutting down...")
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = _("Unauthorized.")
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        text = _("""No time inserted
+        ``` Usage: /shutdown_t + time in seconds```""")
+        context.bot.sendMessage(chat_id=update.message.chat.id,
+                                text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
 
+@db.admin_check
 def reboot(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        if platform.system() == "Windows":
-            subprocess.call('shutdown /r', startupinfo=startupinfo())
-            text = _("Rebooted.")
-            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-        else:
-            subprocess.call('reboot', startupinfo=startupinfo())
-            text = _("Rebooted.")
-            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    if platform.system() == "Windows":
+        subprocess.call('shutdown /r', startupinfo=startupinfo())
+        text = _("Rebooted.")
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = _("Unauthorized.")
+        subprocess.call('reboot', startupinfo=startupinfo())
+        text = _("Rebooted.")
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
+@db.admin_check
 def reboot_time(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
+    if len(context.args) != 0:
+        if platform.system() == "Windows":
+            subprocess.call("shutdown /r /t %s" % (context.args[0]),
+                            startupinfo=startupinfo())
+            text = _("Rebooting...")
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        else:
+            subprocess.call("reboot -t %s" % (int(context.args[0]) / 60),
+                            startupinfo=startupinfo(), shell=True)
+            text = _("Rebooting...")
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        text = _("""No time inserted
+        ``` Usage: /reboot_t + time in seconds```""")
+        context.bot.sendMessage(chat_id=update.message.chat.id,
+                                text=text, parse_mode=ParseMode.MARKDOWN_V2)
+
+
+@db.admin_check
+def logout(update: Update, context: CallbackContext):
+    db.update_user(update.message.from_user, context.bot)
+    if platform.system() == "Windows":
+        subprocess.call('shutdown /l', startupinfo=startupinfo())
+        text = _("Logged out.")
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        text = _("Currently not working on Linux.")
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
+
+@db.admin_check
+def logout_time_thread(update: Update, context: CallbackContext):
+    db.update_user(update.message.from_user, context.bot)
+    def logout_time():
+        if len(context.args) != 0:
+                text = _("Logged out.")
+                context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+                subprocess.call("shutdown /l", startupinfo=startupinfo())
+        else:
+            text = _("""No time inserted
+            ``` Usage: /logout_t + time in seconds```""")
+            context.bot.sendMessage(chat_id=update.message.chat.id,
+                                    text=text, parse_mode=ParseMode.MARKDOWN_V2)
+
+    if platform.system() == "Windows":
+        global l_t
+        l_t = threading.Timer(int(context.args[0]), logout_time)
+        l_t.start()
+    else:
+        text = _("Currently not working on Linux.")
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
+
+@db.admin_check
+def hibernate(update: Update, context: CallbackContext):
+    db.update_user(update.message.from_user, context.bot)
+    if platform.system() == "Windows":
+        subprocess.call('shutdown /h', startupinfo=startupinfo())
+        text = _("Hibernated.")
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    else:
+        subprocess.call('systemctl suspend', startupinfo=startupinfo(), shell=True)
+        text = _("Hibernated.")
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+
+
+@db.admin_check
+def hibernate_time_thread(update: Update, context: CallbackContext):
+    db.update_user(update.message.from_user, context.bot)
+    def hibernate_time():
         if len(context.args) != 0:
             if platform.system() == "Windows":
-                subprocess.call("shutdown /r /t %s" % (context.args[0]),
-                                startupinfo=startupinfo())
-                text = _("Rebooting...")
+                text = _("Hibernated.")
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+                subprocess.call("shutdown /h", startupinfo=startupinfo())
             else:
-                subprocess.call("reboot -t %s" % (int(context.args[0]) / 60),
+                subprocess.call("systemctl suspend",
                                 startupinfo=startupinfo(), shell=True)
-                text = _("Rebooting...")
+                text = _("Hibernated.")
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             text = _("""No time inserted
-            ``` Usage: /reboot_t + time in seconds```""")
+            ``` Usage: /hibernate_t + time in seconds```""")
             context.bot.sendMessage(chat_id=update.message.chat.id,
                                     text=text, parse_mode=ParseMode.MARKDOWN_V2)
-    else:
-        text = _("Unauthorized.")
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    global h_t
+    h_t = threading.Timer(int(context.args[0]), hibernate_time)
+    h_t.start()
 
 
-def logout(update: Update, context: CallbackContext):
-    db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        if platform.system() == "Windows":
-            subprocess.call('shutdown /l', startupinfo=startupinfo())
-            text = _("Logged out.")
-            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-        else:
-            text = _("Currently not working on Linux.")
-            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-    else:
-        text = _("Unauthorized.")
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-
-
-def logout_time_thread(update: Update, context: CallbackContext):
-    db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        def logout_time():
-            if len(context.args) != 0:
-                    text = _("Logged out.")
-                    context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                    subprocess.call("shutdown /l", startupinfo=startupinfo())
-            else:
-                text = _("""No time inserted
-                ``` Usage: /logout_t + time in seconds```""")
-                context.bot.sendMessage(chat_id=update.message.chat.id,
-                                        text=text, parse_mode=ParseMode.MARKDOWN_V2)
-
-        if platform.system() == "Windows":
-            global l_t
-            l_t = threading.Timer(int(context.args[0]), logout_time)
-            l_t.start()
-        else:
-            text = _("Currently not working on Linux.")
-            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-    else:
-        text = _("Unauthorized.")
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-
-
-def hibernate(update: Update, context: CallbackContext):
-    db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        if platform.system() == "Windows":
-            subprocess.call('shutdown /h', startupinfo=startupinfo())
-            text = _("Hibernated.")
-            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-        else:
-            subprocess.call('systemctl suspend', startupinfo=startupinfo(), shell=True)
-            text = _("Hibernated.")
-            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-    else:
-        text = _("Unauthorized.")
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-
-
-def hibernate_time_thread(update: Update, context: CallbackContext):
-    db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        def hibernate_time():
-            if len(context.args) != 0:
-                if platform.system() == "Windows":
-                    text = _("Hibernated.")
-                    context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                    subprocess.call("shutdown /h", startupinfo=startupinfo())
-                else:
-                    subprocess.call("systemctl suspend",
-                                    startupinfo=startupinfo(), shell=True)
-                    text = _("Hibernated.")
-                    context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-            else:
-                text = _("""No time inserted
-                ``` Usage: /hibernate_t + time in seconds```""")
-                context.bot.sendMessage(chat_id=update.message.chat.id,
-                                        text=text, parse_mode=ParseMode.MARKDOWN_V2)
-        global h_t
-        h_t = threading.Timer(int(context.args[0]), hibernate_time)
-        h_t.start()
-    else:
-        text = _("Unauthorized.")
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-
-
+@db.admin_check
 def lock(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        if platform.system() == "Windows":
-            ctypes.windll.user32.LockWorkStation()
-            text = _("PC locked.")
-        else:
-            text = _("Currently not working on Linux.")
+    if platform.system() == "Windows":
+        ctypes.windll.user32.LockWorkStation()
+        text = _("PC locked.")
     else:
-        text = _("Unauthorized.")
+        text = _("Currently not working on Linux.")
     context.bot.sendMessage(chat_id=update.message.from_user.id, text=text)
 
 
+@db.admin_check
 def cancel(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
+    try:
+        if l_t.isAlive():
+            l_t.cancel()
+            text = _("Annulled.")
+    except NameError:
         try:
-            if l_t.isAlive():
-                l_t.cancel()
+            if h_t.isAlive():
+                h_t.cancel()
                 text = _("Annulled.")
         except NameError:
-            try:
-                if h_t.isAlive():
-                    h_t.cancel()
-                    text = _("Annulled.")
-            except NameError:
-                if platform.system() == "Windows":
-                    subprocess.call('shutdown /a', startupinfo=startupinfo())
-                    text = _("Annulled.")
-                else:
-                    subprocess.call('shutdown -c', startupinfo=startupinfo(), shell=True)
-                    text = _("Annulled.")
-    else:
-        text = _("Unauthorized.")
+            if platform.system() == "Windows":
+                subprocess.call('shutdown /a', startupinfo=startupinfo())
+                text = _("Annulled.")
+            else:
+                subprocess.call('shutdown -c', startupinfo=startupinfo(), shell=True)
+                text = _("Annulled.")
     context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
+@db.admin_check
 def check(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        text = ""
-        text += _("Your PC is online.\n\n")
-        text += _("PC name: ") + socket.gethostname()
-        text += _("\nLogged user: ") + getpass.getuser()
-        if platform.system() == "Windows":
-            text += _("\nOS: Windows ") + platform.win32_ver()[0]
-        else:
-            text += _("\nOS: ") + " ".join(distro.linux_distribution()[:2])
-        text += _("\nCPU: ") + str(psutil.cpu_percent()) + "%"
-        text += _("\nMemory: ") + str(
-            int(psutil.virtual_memory().percent)) + "%"
-        if psutil.sensors_battery():
-            if psutil.sensors_battery().power_plugged is True:
-                text += _("\nBattery: ") + str(
-                    format(psutil.sensors_battery().percent, ".0f")) \
-                        + _("% | Charging")
-            else:
-                text += _("\nBattery: ") + str(
-                    format(psutil.sensors_battery().percent, ".0f")) + "%"
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    text = ""
+    text += _("Your PC is online.\n\n")
+    text += _("PC name: ") + socket.gethostname()
+    text += _("\nLogged user: ") + getpass.getuser()
+    if platform.system() == "Windows":
+        text += _("\nOS: Windows ") + platform.win32_ver()[0]
     else:
-        text = _("Unauthorized.")
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        text += _("\nOS: ") + " ".join(distro.linux_distribution()[:2])
+    text += _("\nCPU: ") + str(psutil.cpu_percent()) + "%"
+    text += _("\nMemory: ") + str(
+        int(psutil.virtual_memory().percent)) + "%"
+    if psutil.sensors_battery():
+        if psutil.sensors_battery().power_plugged is True:
+            text += _("\nBattery: ") + str(
+                format(psutil.sensors_battery().percent, ".0f")) \
+                    + _("% | Charging")
+        else:
+            text += _("\nBattery: ") + str(
+                format(psutil.sensors_battery().percent, ".0f")) + "%"
+    context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
+@db.admin_check
 def launch(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        if len(context.args) != 0:
-            if platform.system() == "Windows":
-                ret = subprocess.call("start %s" % (context.args[0]),
-                                      startupinfo=startupinfo(), shell=True)
+    if len(context.args) != 0:
+        if platform.system() == "Windows":
+            ret = subprocess.call("start %s" % (context.args[0]),
+                                  startupinfo=startupinfo(), shell=True)
+            text = _("Launching ") + (context.args[0]) + "..."
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            if ret == 1:
+                text = _("Cannot launch ") + (context.args[0])
+                context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        else:
+            def launch_thread():
+                subprocess.call("%s" % (context.args[0]),
+                                startupinfo=startupinfo(), shell=True)
                 text = _("Launching ") + (context.args[0]) + "..."
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                if ret == 1:
-                    text = _("Cannot launch ") + (context.args[0])
-                    context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-            else:
-                def launch_thread():
-                    subprocess.call("%s" % (context.args[0]),
-                                    startupinfo=startupinfo(), shell=True)
-                    text = _("Launching ") + (context.args[0]) + "..."
-                    context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-            t = threading.Thread(target=launch_thread)
-            t.start()
-        else:
-            text = _("""No program name inserted
-            ``` Usage: /launch + program name```""")
-            context.bot.sendMessage(chat_id=update.message.chat.id,
-                                    text=text, parse_mode=ParseMode.MARKDOWN_V2)
+        t = threading.Thread(target=launch_thread)
+        t.start()
     else:
-        text = _("Unauthorized.")
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        text = _("""No program name inserted
+        ``` Usage: /launch + program name```""")
+        context.bot.sendMessage(chat_id=update.message.chat.id,
+                                text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
 
+@db.admin_check
 def link(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        if len(context.args) != 0:
-            if platform.system() == "Windows":
-                ret = subprocess.call("start %s" % (context.args[0]),
-                                      startupinfo=startupinfo(), shell=True)
-                text = _("Opening ") + (context.args[0]) + "..."
-                context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                if ret == 1:
-                    text = _("Cannot open ") + (context.args[0])
-                    context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-            else:
-                subprocess.call("xdg-open %s" % (context.args[0]),
-                                startupinfo=startupinfo(), shell=True)
-                text = _("Opening ") + (context.args[0]) + "..."
+    if len(context.args) != 0:
+        if platform.system() == "Windows":
+            ret = subprocess.call("start %s" % (context.args[0]),
+                                  startupinfo=startupinfo(), shell=True)
+            text = _("Opening ") + (context.args[0]) + "..."
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            if ret == 1:
+                text = _("Cannot open ") + (context.args[0])
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            text = _("No link inserted\n``` Usage: /link + web link```")
-            context.bot.sendMessage(chat_id=update.message.chat.id,
-                                    text=text, parse_mode=ParseMode.MARKDOWN_V2)
+            subprocess.call("xdg-open %s" % (context.args[0]),
+                            startupinfo=startupinfo(), shell=True)
+            text = _("Opening ") + (context.args[0]) + "..."
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = _("Unauthorized.")
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        text = _("No link inserted\n``` Usage: /link + web link```")
+        context.bot.sendMessage(chat_id=update.message.chat.id,
+                                text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
 
+@db.admin_check
 def memo_thread(update: Update, context: CallbackContext):
     lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        args = update.message.text[6:]
-        if len(args) != 0:
-            def memo():
-                popup = tk.Tk()
-                popup.wm_title("Memo")
-                label = ttk.Label(
-                    popup,
-                    text=args +
-                    _("\nsent by ") +
-                    update.message.from_user.name +
-                    _(" through PC-Control"),
-                    font=(
-                        "Helvetica",
-                        10))
-                label.pack(side="top", fill="x", pady=10)
-                global delete
-                delete = popup.destroy
-                B1 = ttk.Button(popup, text="Okay", command=delete)
-                B1.pack()
-                popup.mainloop()
+    args = update.message.text[6:]
+    if len(args) != 0:
+        def memo():
+            popup = tk.Tk()
+            popup.wm_title("Memo")
+            label = ttk.Label(
+                popup,
+                text=args +
+                _("\nsent by ") +
+                update.message.from_user.name +
+                _(" through PC-Control"),
+                font=(
+                    "Helvetica",
+                    10))
+            label.pack(side="top", fill="x", pady=10)
+            global delete
+            delete = popup.destroy
+            B1 = ttk.Button(popup, text="Okay", command=delete)
+            B1.pack()
+            popup.mainloop()
 
-            t = threading.Thread(target=memo)
-            t.start()
-        else:
-            text = _("No text inserted")
-            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        t = threading.Thread(target=memo)
+        t.start()
     else:
-        text = _("Unauthorized.")
+        text = _("No text inserted")
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
+@db.admin_check
 def task(update: Update, context: CallbackContext):
     lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
@@ -479,92 +438,82 @@ def task(update: Update, context: CallbackContext):
                [_('Exit')]]
     reply_markup = ReplyKeyboardMarkup(
         kill_kb, resize_keyboard=True)
-    if db.admin_check(update) is True:
-        if len(context.args) != 0:
-            if platform.system() == "Windows":
-                try:
-                    out = os.popen("tasklist | findstr %s" % (context.args[0])).read()
-                    context.bot.sendMessage(chat_id=update.message.chat.id,
-                                    text=out, reply_markup=reply_markup)
-                except BaseException:
-                    context.bot.sendMessage(chat_id=update.message.chat.id, text=_(
-                        "The program is not running"))
-            else:
-                try:
-                    out = os.popen("ps -A | grep %s" % (context.args[0])).read()
-                    context.bot.sendMessage(chat_id=update.message.chat.id, text=out, reply_markup=reply_markup)
-                except BaseException:
-                    context.bot.sendMessage(chat_id=update.message.chat.id, text=_(
-                        "The program is not running"))
-        else:
-            text = _("No task inserted\n``` Usage: /task + process name```")
-            context.bot.sendMessage(chat_id=update.message.chat.id,
-                                    text=text, parse_mode=ParseMode.MARKDOWN_V2)
-    else:
-        text = _("Unauthorized.")
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-
-
-def task_kill(update: Update, context: CallbackContext):
-    db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        if db.lang_check("bot", update) == 'it':
-            args = update.message.text[8:]
-        else:
-            args = update.message.text[5:]
+    if len(context.args) != 0:
         if platform.system() == "Windows":
             try:
-                subprocess.call("tskill " + args, startupinfo=startupinfo())
+                out = os.popen("tasklist | findstr %s" % (context.args[0])).read()
                 context.bot.sendMessage(chat_id=update.message.chat.id,
-                                text=_("I've killed ") + args)
-                keyboard_up(update, context)
+                                text=out, reply_markup=reply_markup)
             except BaseException:
-                context.bot.sendMessage(chat_id=update.message.chat.id,
-                                text=_("The program is not running"))
+                context.bot.sendMessage(chat_id=update.message.chat.id, text=_(
+                    "The program is not running"))
         else:
             try:
-                subprocess.call("pkill -f " + args, startupinfo=startupinfo(), shell=True)
-                context.bot.sendMessage(chat_id=update.message.chat.id,
-                                text=_("I've killed ") + args)
-                keyboard_up(update, context)
+                out = os.popen("ps -A | grep %s" % (context.args[0])).read()
+                context.bot.sendMessage(chat_id=update.message.chat.id, text=out, reply_markup=reply_markup)
             except BaseException:
-                context.bot.sendMessage(chat_id=update.message.chat.id,
-                                text=_("The program is not running"))
+                context.bot.sendMessage(chat_id=update.message.chat.id, text=_(
+                    "The program is not running"))
     else:
-        text = _("Unauthorized.")
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        text = _("No task inserted\n``` Usage: /task + process name```")
+        context.bot.sendMessage(chat_id=update.message.chat.id,
+                                text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
 
+@db.admin_check
+def task_kill(update: Update, context: CallbackContext):
+    db.update_user(update.message.from_user, context.bot)
+    if db.lang_check("bot", update) == 'it':
+        args = update.message.text[8:]
+    else:
+        args = update.message.text[5:]
+    if platform.system() == "Windows":
+        try:
+            subprocess.call("tskill " + args, startupinfo=startupinfo())
+            context.bot.sendMessage(chat_id=update.message.chat.id,
+                            text=_("I've killed ") + args)
+            keyboard_up(update, context)
+        except BaseException:
+            context.bot.sendMessage(chat_id=update.message.chat.id,
+                            text=_("The program is not running"))
+    else:
+        try:
+            subprocess.call("pkill -f " + args, startupinfo=startupinfo(), shell=True)
+            context.bot.sendMessage(chat_id=update.message.chat.id,
+                            text=_("I've killed ") + args)
+            keyboard_up(update, context)
+        except BaseException:
+            context.bot.sendMessage(chat_id=update.message.chat.id,
+                            text=_("The program is not running"))
+
+
+@db.admin_check
 def imgur(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if db.admin_check(update) is True:
-        if not db.token_get("Imgur_token"):
-            context.bot.sendMessage(chat_id=update.message.from_user.id,
-                            text=_("Cannot find an Imgur token"))
-        else:
-            if platform.system() == "Windows":
-                ImageEditorPath = r'C:\WINDOWS\system32\mspaint.exe'
-                img = imggrab.grab()
-                saveas = os.path.join(utils.current_path() + "/tmp/", 'screenshot' + '.png')
-                img.save(saveas)
-                editorstring = '"start"%s" "%s"' % (ImageEditorPath, saveas)
-                subprocess.call(editorstring, startupinfo=startupinfo(),
-                                shell=True)
-            else:
-                subprocess.call("import -window root " + utils.current_path() + "/tmp/screenshot.png",
-                                startupinfo=startupinfo(), shell=True)
-            CLIENT_ID = db.token_get("Imgur_token")
-            PATH = utils.current_path() + "/tmp/screenshot.png"
-
-            im = pyimgur.Imgur(CLIENT_ID)
-            uploaded_image = im.upload_image(
-                PATH, title=_("Uploaded with PC-Control"))
-            context.bot.sendMessage(chat_id=update.message.chat.id, text=uploaded_image.link)
-
-            os.remove(PATH)
+    if not db.token_get("Imgur_token"):
+        context.bot.sendMessage(chat_id=update.message.from_user.id,
+                        text=_("Cannot find an Imgur token"))
     else:
-        text = _("Unauthorized.")
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        if platform.system() == "Windows":
+            ImageEditorPath = r'C:\WINDOWS\system32\mspaint.exe'
+            img = imggrab.grab()
+            saveas = os.path.join(utils.current_path() + "/tmp/", 'screenshot' + '.png')
+            img.save(saveas)
+            editorstring = '"start"%s" "%s"' % (ImageEditorPath, saveas)
+            subprocess.call(editorstring, startupinfo=startupinfo(),
+                            shell=True)
+        else:
+            subprocess.call("import -window root " + utils.current_path() + "/tmp/screenshot.png",
+                            startupinfo=startupinfo(), shell=True)
+        CLIENT_ID = db.token_get("Imgur_token")
+        PATH = utils.current_path() + "/tmp/screenshot.png"
+
+        im = pyimgur.Imgur(CLIENT_ID)
+        uploaded_image = im.upload_image(
+            PATH, title=_("Uploaded with PC-Control"))
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=uploaded_image.link)
+
+        os.remove(PATH)
 
 
 def error(update, context):
