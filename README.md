@@ -8,7 +8,6 @@ Through this bot you can execute actions on your PC directly from Telegram!
 ### Prerequisites
 
 - Python 3.6+
-- An [Imgur client ID](https://api.imgur.com/)
 - A [BotFather](https://t.me/BotFather) token
 
 GNU/Linux users: you need to install the python-tk package 
@@ -20,9 +19,9 @@ Execute ```python -m pip install -r requirements.txt```
 
 Launch the setup with ```python bot/bot_setup.py```
 
-Add your tokens and start it!
+Add your BotFather token and start it!
 
-![setup](https://user-images.githubusercontent.com/25140297/103580613-d2b75780-4eda-11eb-85f9-e1e73aea6b26.png)
+![setup](https://user-images.githubusercontent.com/25140297/103703845-95b99680-4fa8-11eb-9b09-b660760de701.png)
 
 ## Set the permissions
 
@@ -50,7 +49,7 @@ Example:
 | /link | Open a web link | Example: /link http://google.com (don't use "www") |
 | /memo | Show a memo on your pc |
 | /task | Check if a process is currently running or kill it| Example: /task chrome |
-| /screen | Take a screenshot and receive it through Imgur |
+| /screen | Take a screenshot and receive it |
 | /menu | Shows the inline menu |
 | /kb or /keyboard | Brings the normal keyboard up |
 

@@ -21,7 +21,7 @@ if sys.version_info[0] < 3:
 
 root = tk.Tk()
 root.wm_title("Setup")
-root.geometry("290x350")
+root.geometry("200x200")
 root.resizable(width=False, height=False)
 
 
@@ -48,10 +48,6 @@ def tokens_check():
         B1.configure(text="Confirm")
     else:
         B1.configure(text="Change token")
-    if not db.token_get("Imgur_token"):
-        B2.configure(text="Confirm")
-    else:
-        B2.configure(text="Change token")
 
 
 def botfather_token_set(val1):
@@ -63,18 +59,6 @@ def botfather_token_set(val1):
                           font="Times 11", fg="green", justify=LEFT)
     else:
         L1_done.configure(text="Your entry is empty",
-                          font="Times 11", fg="red", justify=LEFT)
-
-
-def imgur_token_set(val2):
-    if val2:
-        db.token_set("Imgur_token", val2)
-        token2.destroy()
-        B2.destroy()
-        L2_done.configure(text="Token saved!",
-                          font="Times 11", fg="green", justify=LEFT)
-    else:
-        L2_done.configure(text="Your entry is empty",
                           font="Times 11", fg="red", justify=LEFT)
 
 
@@ -275,16 +259,6 @@ B1 = tk.Button(
 B1.pack(pady=5)
 L1_done = Label(root, text="")
 L1_done.pack()
-
-L2 = Label(root, text="Imgur token", font="Times 11 bold", justify=LEFT)
-L2.pack()
-token2 = Entry(root, bd=5)
-token2.pack()
-B2 = tk.Button(
-    root, text="", command=lambda: imgur_token_set(token2.get()))
-B2.pack(pady=5)
-L2_done = Label(root, text="")
-L2_done.pack()
 
 B3 = tk.Button(root, text="Start it!", command=bot_start)
 B3.pack(pady=5)

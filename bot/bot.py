@@ -15,8 +15,7 @@ from tkinter import ttk
 
 import distro
 import psutil
-import pyimgur
-import pyscreenshot as imggrab
+import pyscreenshot
 from telegram import ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater, CallbackContext
 from telegram.utils import helpers
@@ -84,7 +83,7 @@ def bot_help(update: Update, context: CallbackContext):
 /link - To open a link | Example: /link http://google.com (don't use \"www\")
 /memo - To show a memo on your pc
 /task - To check if a process is currently running or to kill it | Example: /task chrome
-/screen - To take a screenshot and receive it through Imgur
+/screen - To take a screenshot and receive it 
 /kb or /keyboard - Brings the normal keyboard up
 
 You can set a delay time for the execution of the first four commands by using _t + time in seconds after a command.
@@ -123,7 +122,7 @@ def message_handler(update: Update, context: CallbackContext):
     elif update.message.text == "PC status":
         check(update, context)
     elif update.message.text == "Screenshot":
-        imgur(update, context)
+        screenshot(update, context)
     elif update.message.text == "Cancel":
         cancel(update, context)
     elif update.message.text == "Close Keyboard":
@@ -467,32 +466,13 @@ def task_kill(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def imgur(update: Update, context: CallbackContext):
+def screenshot(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if not db.token_get("Imgur_token"):
-        context.bot.sendMessage(chat_id=update.message.from_user.id,
-                        text="Cannot find an Imgur token")
-    else:
-        if platform.system() == "Windows":
-            ImageEditorPath = r'C:\WINDOWS\system32\mspaint.exe'
-            img = imggrab.grab()
-            saveas = os.path.join(utils.current_path() + "/tmp/", 'screenshot' + '.png')
-            img.save(saveas)
-            editorstring = '"start"%s" "%s"' % (ImageEditorPath, saveas)
-            subprocess.call(editorstring, startupinfo=startupinfo(),
-                            shell=True)
-        else:
-            subprocess.call("import -window root " + utils.current_path() + "/tmp/screenshot.png",
-                            startupinfo=startupinfo(), shell=True)
-        CLIENT_ID = db.token_get("Imgur_token")
-        PATH = utils.current_path() + "/tmp/screenshot.png"
-
-        im = pyimgur.Imgur(CLIENT_ID)
-        uploaded_image = im.upload_image(
-            PATH, title="Uploaded with PC-Control")
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=uploaded_image.link)
-
-        os.remove(PATH)
+    path = os.path.join(utils.current_path() + "/tmp/screenshot.png")
+    img = pyscreenshot.grab()
+    img.save(path)
+    context.bot.send_photo(chat_id=update.message.chat.id, photo=open(path, 'rb'))
+    os.remove(path)
 
 
 def error(update, context):
@@ -568,8 +548,8 @@ def main():
     # Kill the selected process
     dp.add_handler(CommandHandler("task_kill", task_kill))
 
-    # Send a full screen screenshot through Imgur
-    dp.add_handler(CommandHandler("screen", imgur))
+    # Send a full screen screenshot
+    dp.add_handler(CommandHandler("screen", screenshot))
 
     # Keyboard Button Reply
     dp.add_handler(MessageHandler(Filters.text |
