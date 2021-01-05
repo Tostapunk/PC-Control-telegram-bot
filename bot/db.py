@@ -9,7 +9,6 @@ from telegram.ext import CallbackContext
 from telegram.utils import helpers
 from tzlocal import get_localzone
 
-import lang
 import utils
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -44,7 +43,6 @@ class Users(Base):
     privs = Column(Text)
     last_use = Column(Text)
     time_used = Column(Integer)
-    language = Column(Text, default="en")
 
 
 def exists():
@@ -54,7 +52,6 @@ def exists():
 def create():
     if exists() is False:
         Base.metadata.create_all(engine)
-        lang_set("bot_setup", "en")
         console_set("hide")
         startup_set("false")
 
@@ -92,13 +89,12 @@ def update_user(from_user, bot):  # Update the user list (db)
         admins = session.query(Users).filter(Users.privs == "-2").all()
         for admin in admins:
             if admin.id != from_user.id:
-                lang.install("bot", lang=admin.language)
-                text = _("*New user registered into the database* \n\n")
-                text += _("Name: ") + from_user.first_name
+                text = "*New user registered into the database* \n\n"
+                text += "Name: " + from_user.first_name
                 if from_user.last_name:
-                    text += _("\nLast name: ") + from_user.last_name
+                    text += "\nLast name: " + from_user.last_name
                 if from_user.username:
-                    text += _("\nUsername: @") + from_user.username
+                    text += "\nUsername: @" + from_user.username
                 bot.sendMessage(
                     chat_id=admin.id, text=helpers.escape_markdown(text, 2), parse_mode=ParseMode.MARKDOWN_V2)
     session.commit()
@@ -112,31 +108,8 @@ def admin_check(func):
         if privs == "-2":
             return func(update, context)
         else:
-            update.effective_message.reply_text(_("Unauthorized"))
+            update.effective_message.reply_text("Unauthorized")
     return is_admin
-
-
-def lang_set(caller, lang, update=None):
-    session = DBsession()
-    if caller == "bot":
-        session.query(Users).filter(Users.id == update.message.from_user.id).one().language = lang
-    elif caller == "bot_setup":
-        if lang_check(caller):
-            session.query(Config).filter(Config.name == "language").one().value = lang
-        else:
-            lang_value = Config(name="language", value=lang)
-            session.add(lang_value)
-    session.commit()
-
-
-def lang_check(caller, update=None):
-    session = DBsession()
-    if caller == "bot":
-        return session.query(Users).filter(Users.id == update.message.from_user.id).one().language
-    elif caller == "bot_setup":
-        entry = session.query(Config).filter(Config.name == "language").one_or_none()
-        if entry:
-            return entry.value
 
 
 def token_set(token_type, token_value):

@@ -22,7 +22,6 @@ from telegram.ext import CommandHandler, Filters, MessageHandler, Updater, Callb
 from telegram.utils import helpers
 
 import db
-import lang
 import utils
 
 if sys.version_info[0] < 3:
@@ -52,30 +51,27 @@ def startupinfo():
 
 def start(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    text = _("""Welcome to [PC\-Control bot](https://goo.gl/9TjCHR), 
+    text = """Welcome to [PC\-Control bot](https://goo.gl/9TjCHR), 
 you can get the bot profile picture [here](http://i.imgur.com/294uZ8G.png)
 
 Use /help to see all the commands\!
 
 
 Made by [Tostapunk](https://www.t.me/Tostapunk)
-[Twitter](https://twitter.com/Schiavon_Mattia) \| [Google\+](https://plus.google.com/+MattiaSchiavon) \| [GitHub](https://github.com/Tostapunk)""")
+[Twitter](https://twitter.com/Schiavon_Mattia) \| [Google\+](https://plus.google.com/+MattiaSchiavon) \| [GitHub](https://github.com/Tostapunk)"""
 
-    language_kb = [['English', 'Italian']]
-    reply_markup = ReplyKeyboardMarkup(language_kb, resize_keyboard=True)
     context.bot.sendMessage(
         chat_id=update.message.chat.id,
         text=text,
         parse_mode=ParseMode.MARKDOWN_V2,
-        reply_markup=reply_markup,
         disable_web_page_preview="true")
+    keyboard_up(update, context)
 
 
 @db.admin_check
 def bot_help(update: Update, context: CallbackContext):
-    lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
-    text = _("""
+    text = """
 *Available commands:*
 /shutdown - To shutdown your PC
 /reboot - To reboot your PC
@@ -90,8 +86,9 @@ def bot_help(update: Update, context: CallbackContext):
 /task - To check if a process is currently running or to kill it | Example: /task chrome
 /screen - To take a screenshot and receive it through Imgur
 /kb or /keyboard - Brings the normal keyboard up
+
 You can set a delay time for the execution of the first four commands by using _t + time in seconds after a command.
-Example: /shutdown_t 20""")
+Example: /shutdown_t 20"""
     context.bot.sendMessage(
         chat_id=update.message.chat.id,
         text=helpers.escape_markdown(text, 2),
@@ -100,53 +97,42 @@ Example: /shutdown_t 20""")
 
 
 def keyboard_up(update: Update, context: CallbackContext):
-    lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
-    text = _("Keyboard is up")
-    keyboard = [[_('Shutdown'), _('Reboot')],
-                [_('Logout'), _('Hibernate')],
-                [_('Lock'), _('Screenshot')],
-                [_('PC status')],
-                [_('Cancel')],
-                [_('Close Keyboard')]]
+    text = "Keyboard is up"
+    keyboard = [['Shutdown', 'Reboot'],
+                ['Logout', 'Hibernate'],
+                ['Lock', 'Screenshot'],
+                ['PC status'],
+                ['Cancel'],
+                ['Close Keyboard']]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     update.message.reply_text(reply_markup=reply_markup, text=text)
 
 
 def message_handler(update: Update, context: CallbackContext):
-    if db.lang_check("bot", update) == "it":
-        args = update.message.text[8:]
-    else:
-        args = update.message.text[5:]
-    if update.message.text == _("Shutdown"):
+    if update.message.text == "Shutdown":
         shutdown(update, context)
-    elif update.message.text == _("Reboot"):
+    elif update.message.text == "Reboot":
         reboot(update, context)
-    elif update.message.text == _("Logout"):
+    elif update.message.text == "Logout":
         logout(update, context)
-    elif update.message.text == _("Hibernate"):
+    elif update.message.text == "Hibernate":
         hibernate(update, context)
-    elif update.message.text == _("Lock"):
+    elif update.message.text == "Lock":
         lock(update, context)
-    elif update.message.text == _("PC status"):
+    elif update.message.text == "PC status":
         check(update, context)
-    elif update.message.text == _("Screenshot"):
+    elif update.message.text == "Screenshot":
         imgur(update, context)
-    elif update.message.text == _("Cancel"):
+    elif update.message.text == "Cancel":
         cancel(update, context)
-    elif update.message.text == _("Close Keyboard"):
-        text = _("Keyboard is down.")
+    elif update.message.text == "Close Keyboard":
+        text = "Keyboard is down."
         reply_markup = ReplyKeyboardRemove()
         update.message.reply_text(text=text, reply_markup=reply_markup)
-    elif update.message.text == _("Kill ") + args:
+    elif update.message.text == "Kill " + update.message.text[5:]:
         task_kill(update, context)
-    elif update.message.text == _("Exit"):
-        keyboard_up(update, context)
-    elif update.message.text == "English":
-        db.lang_set("bot", "en", update)
-        keyboard_up(update, context)
-    elif update.message.text == "Italian":
-        db.lang_set("bot", "it", update)
+    elif update.message.text == "Exit":
         keyboard_up(update, context)
 
 
@@ -155,11 +141,11 @@ def shutdown(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
     if platform.system() == "Windows":
         subprocess.call('shutdown /s', startupinfo=startupinfo())
-        text = _("Shutted down.")
+        text = "Shutted down."
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         subprocess.call('shutdown -h now', startupinfo=startupinfo(), shell=True)
-        text = _("Shutted down.")
+        text = "Shutted down."
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
@@ -170,16 +156,16 @@ def shutdown_time(update: Update, context: CallbackContext):
         if platform.system() == "Windows":
             subprocess.call("shutdown /s /t %s" % (context.args[0]),
                             startupinfo=startupinfo())
-            text = _("Shutting down...")
+            text = "Shutting down..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             subprocess.call("shutdown -t %s" % (int(context.args[0]) / 60),
                             startupinfo=startupinfo(), shell=True)
-            text = _("Shutting down...")
+            text = "Shutting down..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = _("""No time inserted
-        ``` Usage: /shutdown_t + time in seconds```""")
+        text = """No time inserted
+        ``` Usage: /shutdown_t + time in seconds```"""
         context.bot.sendMessage(chat_id=update.message.chat.id,
                                 text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
@@ -189,11 +175,11 @@ def reboot(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
     if platform.system() == "Windows":
         subprocess.call('shutdown /r', startupinfo=startupinfo())
-        text = _("Rebooted.")
+        text = "Rebooted."
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         subprocess.call('reboot', startupinfo=startupinfo())
-        text = _("Rebooted.")
+        text = "Rebooted."
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
@@ -204,16 +190,16 @@ def reboot_time(update: Update, context: CallbackContext):
         if platform.system() == "Windows":
             subprocess.call("shutdown /r /t %s" % (context.args[0]),
                             startupinfo=startupinfo())
-            text = _("Rebooting...")
+            text = "Rebooting..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             subprocess.call("reboot -t %s" % (int(context.args[0]) / 60),
                             startupinfo=startupinfo(), shell=True)
-            text = _("Rebooting...")
+            text = "Rebooting..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = _("""No time inserted
-        ``` Usage: /reboot_t + time in seconds```""")
+        text = """No time inserted
+        ``` Usage: /reboot_t + time in seconds```"""
         context.bot.sendMessage(chat_id=update.message.chat.id,
                                 text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
@@ -223,10 +209,10 @@ def logout(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
     if platform.system() == "Windows":
         subprocess.call('shutdown /l', startupinfo=startupinfo())
-        text = _("Logged out.")
+        text = "Logged out."
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = _("Currently not working on Linux.")
+        text = "Currently not working on Linux."
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
@@ -235,12 +221,12 @@ def logout_time_thread(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
     def logout_time():
         if len(context.args) != 0:
-                text = _("Logged out.")
+                text = "Logged out."
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
                 subprocess.call("shutdown /l", startupinfo=startupinfo())
         else:
-            text = _("""No time inserted
-            ``` Usage: /logout_t + time in seconds```""")
+            text = """No time inserted
+            ``` Usage: /logout_t + time in seconds```"""
             context.bot.sendMessage(chat_id=update.message.chat.id,
                                     text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
@@ -249,7 +235,7 @@ def logout_time_thread(update: Update, context: CallbackContext):
         l_t = threading.Timer(int(context.args[0]), logout_time)
         l_t.start()
     else:
-        text = _("Currently not working on Linux.")
+        text = "Currently not working on Linux."
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
@@ -258,11 +244,11 @@ def hibernate(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
     if platform.system() == "Windows":
         subprocess.call('shutdown /h', startupinfo=startupinfo())
-        text = _("Hibernated.")
+        text = "Hibernated."
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         subprocess.call('systemctl suspend', startupinfo=startupinfo(), shell=True)
-        text = _("Hibernated.")
+        text = "Hibernated."
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
@@ -272,17 +258,17 @@ def hibernate_time_thread(update: Update, context: CallbackContext):
     def hibernate_time():
         if len(context.args) != 0:
             if platform.system() == "Windows":
-                text = _("Hibernated.")
+                text = "Hibernated."
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
                 subprocess.call("shutdown /h", startupinfo=startupinfo())
             else:
                 subprocess.call("systemctl suspend",
                                 startupinfo=startupinfo(), shell=True)
-                text = _("Hibernated.")
+                text = "Hibernated."
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            text = _("""No time inserted
-            ``` Usage: /hibernate_t + time in seconds```""")
+            text = """No time inserted
+            ``` Usage: /hibernate_t + time in seconds```"""
             context.bot.sendMessage(chat_id=update.message.chat.id,
                                     text=text, parse_mode=ParseMode.MARKDOWN_V2)
     global h_t
@@ -295,9 +281,9 @@ def lock(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
     if platform.system() == "Windows":
         ctypes.windll.user32.LockWorkStation()
-        text = _("PC locked.")
+        text = "PC locked."
     else:
-        text = _("Currently not working on Linux.")
+        text = "Currently not working on Linux."
     context.bot.sendMessage(chat_id=update.message.from_user.id, text=text)
 
 
@@ -307,19 +293,19 @@ def cancel(update: Update, context: CallbackContext):
     try:
         if l_t.isAlive():
             l_t.cancel()
-            text = _("Annulled.")
+            text = "Annulled."
     except NameError:
         try:
             if h_t.isAlive():
                 h_t.cancel()
-                text = _("Annulled.")
+                text = "Annulled."
         except NameError:
             if platform.system() == "Windows":
                 subprocess.call('shutdown /a', startupinfo=startupinfo())
-                text = _("Annulled.")
+                text = "Annulled."
             else:
                 subprocess.call('shutdown -c', startupinfo=startupinfo(), shell=True)
-                text = _("Annulled.")
+                text = "Annulled."
     context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
@@ -327,23 +313,23 @@ def cancel(update: Update, context: CallbackContext):
 def check(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
     text = ""
-    text += _("Your PC is online.\n\n")
-    text += _("PC name: ") + socket.gethostname()
-    text += _("\nLogged user: ") + getpass.getuser()
+    text += "Your PC is online.\n\n"
+    text += "PC name: " + socket.gethostname()
+    text += "\nLogged user: " + getpass.getuser()
     if platform.system() == "Windows":
-        text += _("\nOS: Windows ") + platform.win32_ver()[0]
+        text += "\nOS: Windows " + platform.win32_ver()[0]
     else:
-        text += _("\nOS: ") + " ".join(distro.linux_distribution()[:2])
-    text += _("\nCPU: ") + str(psutil.cpu_percent()) + "%"
-    text += _("\nMemory: ") + str(
+        text += "\nOS: " + " ".join(distro.linux_distribution()[:2])
+    text += "\nCPU: " + str(psutil.cpu_percent()) + "%"
+    text += "\nMemory: " + str(
         int(psutil.virtual_memory().percent)) + "%"
     if psutil.sensors_battery():
         if psutil.sensors_battery().power_plugged is True:
-            text += _("\nBattery: ") + str(
+            text += "\nBattery: " + str(
                 format(psutil.sensors_battery().percent, ".0f")) \
-                    + _("% | Charging")
+                    + "% | Charging"
         else:
-            text += _("\nBattery: ") + str(
+            text += "\nBattery: " + str(
                 format(psutil.sensors_battery().percent, ".0f")) + "%"
     context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
@@ -355,22 +341,22 @@ def launch(update: Update, context: CallbackContext):
         if platform.system() == "Windows":
             ret = subprocess.call("start %s" % (context.args[0]),
                                   startupinfo=startupinfo(), shell=True)
-            text = _("Launching ") + (context.args[0]) + "..."
+            text = "Launching " + (context.args[0]) + "..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
             if ret == 1:
-                text = _("Cannot launch ") + (context.args[0])
+                text = "Cannot launch " + (context.args[0])
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             def launch_thread():
                 subprocess.call("%s" % (context.args[0]),
                                 startupinfo=startupinfo(), shell=True)
-                text = _("Launching ") + (context.args[0]) + "..."
+                text = "Launching " + (context.args[0]) + "..."
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         t = threading.Thread(target=launch_thread)
         t.start()
     else:
-        text = _("""No program name inserted
-        ``` Usage: /launch + program name```""")
+        text = """No program name inserted
+        ``` Usage: /launch + program name```"""
         context.bot.sendMessage(chat_id=update.message.chat.id,
                                 text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
@@ -382,25 +368,24 @@ def link(update: Update, context: CallbackContext):
         if platform.system() == "Windows":
             ret = subprocess.call("start %s" % (context.args[0]),
                                   startupinfo=startupinfo(), shell=True)
-            text = _("Opening ") + (context.args[0]) + "..."
+            text = "Opening " + (context.args[0]) + "..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
             if ret == 1:
-                text = _("Cannot open ") + (context.args[0])
+                text = "Cannot open " + (context.args[0])
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             subprocess.call("xdg-open %s" % (context.args[0]),
                             startupinfo=startupinfo(), shell=True)
-            text = _("Opening ") + (context.args[0]) + "..."
+            text = "Opening " + (context.args[0]) + "..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
-        text = _("No link inserted\n``` Usage: /link + web link```")
+        text = "No link inserted\n``` Usage: /link + web link```"
         context.bot.sendMessage(chat_id=update.message.chat.id,
                                 text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
 
 @db.admin_check
 def memo_thread(update: Update, context: CallbackContext):
-    lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
     args = update.message.text[6:]
     if len(args) != 0:
@@ -410,9 +395,9 @@ def memo_thread(update: Update, context: CallbackContext):
             label = ttk.Label(
                 popup,
                 text=args +
-                _("\nsent by ") +
+                "\nsent by " +
                 update.message.from_user.name +
-                _(" through PC-Control"),
+                " through PC-Control",
                 font=(
                     "Helvetica",
                     10))
@@ -426,16 +411,15 @@ def memo_thread(update: Update, context: CallbackContext):
         t = threading.Thread(target=memo)
         t.start()
     else:
-        text = _("No text inserted")
+        text = "No text inserted"
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
 @db.admin_check
 def task(update: Update, context: CallbackContext):
-    lang.install("bot", update)
     db.update_user(update.message.from_user, context.bot)
-    kill_kb = [[_('Kill %s') % (context.args[0])],
-               [_('Exit')]]
+    kill_kb = [['Kill %s' % (context.args[0])],
+               ['Exit']]
     reply_markup = ReplyKeyboardMarkup(
         kill_kb, resize_keyboard=True)
     if len(context.args) != 0:
@@ -445,17 +429,15 @@ def task(update: Update, context: CallbackContext):
                 context.bot.sendMessage(chat_id=update.message.chat.id,
                                 text=out, reply_markup=reply_markup)
             except BaseException:
-                context.bot.sendMessage(chat_id=update.message.chat.id, text=_(
-                    "The program is not running"))
+                context.bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
         else:
             try:
                 out = os.popen("ps -A | grep %s" % (context.args[0])).read()
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=out, reply_markup=reply_markup)
             except BaseException:
-                context.bot.sendMessage(chat_id=update.message.chat.id, text=_(
-                    "The program is not running"))
+                context.bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
     else:
-        text = _("No task inserted\n``` Usage: /task + process name```")
+        text = "No task inserted\n``` Usage: /task + process name```"
         context.bot.sendMessage(chat_id=update.message.chat.id,
                                 text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
@@ -463,28 +445,25 @@ def task(update: Update, context: CallbackContext):
 @db.admin_check
 def task_kill(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    if db.lang_check("bot", update) == 'it':
-        args = update.message.text[8:]
-    else:
-        args = update.message.text[5:]
+    args = update.message.text[5:]
     if platform.system() == "Windows":
         try:
             subprocess.call("tskill " + args, startupinfo=startupinfo())
             context.bot.sendMessage(chat_id=update.message.chat.id,
-                            text=_("I've killed ") + args)
+                            text="I've killed " + args)
             keyboard_up(update, context)
         except BaseException:
             context.bot.sendMessage(chat_id=update.message.chat.id,
-                            text=_("The program is not running"))
+                            text="The program is not running")
     else:
         try:
             subprocess.call("pkill -f " + args, startupinfo=startupinfo(), shell=True)
             context.bot.sendMessage(chat_id=update.message.chat.id,
-                            text=_("I've killed ") + args)
+                            text="I've killed " + args)
             keyboard_up(update, context)
         except BaseException:
             context.bot.sendMessage(chat_id=update.message.chat.id,
-                            text=_("The program is not running"))
+                            text="The program is not running")
 
 
 @db.admin_check
@@ -492,7 +471,7 @@ def imgur(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
     if not db.token_get("Imgur_token"):
         context.bot.sendMessage(chat_id=update.message.from_user.id,
-                        text=_("Cannot find an Imgur token"))
+                        text="Cannot find an Imgur token")
     else:
         if platform.system() == "Windows":
             ImageEditorPath = r'C:\WINDOWS\system32\mspaint.exe'
@@ -510,7 +489,7 @@ def imgur(update: Update, context: CallbackContext):
 
         im = pyimgur.Imgur(CLIENT_ID)
         uploaded_image = im.upload_image(
-            PATH, title=_("Uploaded with PC-Control"))
+            PATH, title="Uploaded with PC-Control")
         context.bot.sendMessage(chat_id=update.message.chat.id, text=uploaded_image.link)
 
         os.remove(PATH)
@@ -526,90 +505,71 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    # Set Database Handler as global class
-    lang.install("bot", lang="en")
-
     # Start
-    dp.add_handler(CommandHandler("start", start))  # en & it
+    dp.add_handler(CommandHandler("start", start))
 
     # Help
-    dp.add_handler(CommandHandler("help", bot_help))  # en
-    dp.add_handler(CommandHandler("aiuto", bot_help))  # it
+    dp.add_handler(CommandHandler("help", bot_help))
 
     # Send keyboard up
-    dp.add_handler(CommandHandler("keyboard", keyboard_up))  # en
-    dp.add_handler(CommandHandler("kb", keyboard_up))  # en
-    dp.add_handler(CommandHandler("tastiera", keyboard_up))  # it
+    dp.add_handler(CommandHandler("keyboard", keyboard_up))
+    dp.add_handler(CommandHandler("kb", keyboard_up))
 
     # Shutdown
-    dp.add_handler(CommandHandler("shutdown", shutdown))  # en
-    dp.add_handler(CommandHandler("spegni", shutdown))  # it
+    dp.add_handler(CommandHandler("shutdown", shutdown))
 
     # Shutdown time
     dp.add_handler(CommandHandler(
-        "shutdown_t", shutdown_time, pass_args=True))  # en
-    dp.add_handler(CommandHandler(
-        "spegni_t", shutdown_time, pass_args=True))  # it
+        "shutdown_t", shutdown_time, pass_args=True))
 
     # Reboot
-    dp.add_handler(CommandHandler("reboot", reboot))  # en
-    dp.add_handler(CommandHandler("riavvia", reboot))  # it
+    dp.add_handler(CommandHandler("reboot", reboot))
 
     # Reboot time
     dp.add_handler(CommandHandler(
-        "reboot_t", reboot_time, pass_args=True))  # en
-    dp.add_handler(CommandHandler(
-        "riavvia_t", reboot_time, pass_args=True))  # it
+        "reboot_t", reboot_time, pass_args=True))
 
     # Log out
-    dp.add_handler(CommandHandler("logout", logout))  # en & it
+    dp.add_handler(CommandHandler("logout", logout))
 
     # Log out time
     dp.add_handler(CommandHandler(
-        "logout_t", logout_time_thread, pass_args=True))  # en & it
+        "logout_t", logout_time_thread, pass_args=True))
 
     # Hibernate
-    dp.add_handler(CommandHandler("hibernate", hibernate))  # en
-    dp.add_handler(CommandHandler("iberna", hibernate))  # it
+    dp.add_handler(CommandHandler("hibernate", hibernate))
 
     # Hibernate time
     dp.add_handler(CommandHandler(
-        "hibernate_t", hibernate_time_thread, pass_args=True))  # en
-    dp.add_handler(CommandHandler(
-        "iberna_t", hibernate_time_thread, pass_args=True))  # it
+        "hibernate_t", hibernate_time_thread, pass_args=True))
 
     # Lock
-    dp.add_handler(CommandHandler("lock", lock))  # en
-    dp.add_handler(CommandHandler("blocca", lock))  # it
+    dp.add_handler(CommandHandler("lock", lock))
 
     # Annul the previous command
-    dp.add_handler(CommandHandler("cancel", cancel))  # en
-    dp.add_handler(CommandHandler("annulla", cancel))  # it
+    dp.add_handler(CommandHandler("cancel", cancel))
 
     # Check the PC status
-    dp.add_handler(CommandHandler("check", check))  # en
-    dp.add_handler(CommandHandler("PC", check))  # it
+    dp.add_handler(CommandHandler("check", check))
 
     # Launch a program
-    dp.add_handler(CommandHandler("launch", launch, pass_args=True))  # en
-    dp.add_handler(CommandHandler("avvia", launch, pass_args=True))  # it
+    dp.add_handler(CommandHandler("launch", launch, pass_args=True))
 
     # Open a link with the default browser
-    dp.add_handler(CommandHandler("link", link, pass_args=True))  # en & it
+    dp.add_handler(CommandHandler("link", link, pass_args=True))
 
     # Show a popup with the memo
     dp.add_handler(CommandHandler(
-        "memo", memo_thread, pass_args=True))  # en & it
+        "memo", memo_thread, pass_args=True))
 
     # Check if a program is currently active
-    dp.add_handler(CommandHandler("task", task, pass_args=True))  # en
-    dp.add_handler(CommandHandler("processo", task, pass_args=True))  # it
+    dp.add_handler(CommandHandler("task", task, pass_args=True))
 
     # Kill the selected process
-    dp.add_handler(CommandHandler("task_kill", task_kill))  # en & it
+    dp.add_handler(CommandHandler("task_kill", task_kill))
 
     # Send a full screen screenshot through Imgur
-    dp.add_handler(CommandHandler("screen", imgur))  # en & it
+    dp.add_handler(CommandHandler("screen", imgur))
 
     # Keyboard Button Reply
     dp.add_handler(MessageHandler(Filters.text |

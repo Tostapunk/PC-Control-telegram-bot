@@ -3,8 +3,6 @@
 
 Through this bot you can execute actions on your PC directly from Telegram!
 
-This bot is available in English and Italian.
-
 ## Getting Started
 
 ### Prerequisites
@@ -22,9 +20,7 @@ Execute ```python -m pip install -r requirements.txt```
 
 Launch the setup with ```python bot/bot_setup.py```
 
-Select your language from the options menu and add your tokens.
-
-Now start it!
+Add your tokens and start it!
 
 ![setup](https://user-images.githubusercontent.com/25140297/103580613-d2b75780-4eda-11eb-85f9-e1e73aea6b26.png)
 
