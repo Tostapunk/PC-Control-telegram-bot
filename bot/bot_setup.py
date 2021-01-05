@@ -82,9 +82,9 @@ def bot_start():
     root.withdraw()
     if startupinfo() is not None or platform.system() == "Windows":
         if db.startup_get() == "true":
-            subprocess.call(sys.executable + " bot.pyw", creationflags=0x08000000, shell=True)
+            subprocess.call(sys.executable + " bot/bot.pyw", creationflags=0x08000000, shell=True)
         else:
-            subprocess.call(sys.executable + " bot.py", creationflags=0x08000000, shell=True)
+            subprocess.call(sys.executable + " bot/bot.py", creationflags=0x08000000, shell=True)
     else:
         if db.startup_get() == "true":
             subprocess.call(sys.executable + " bot/bot.pyw", shell=True)
