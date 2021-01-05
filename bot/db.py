@@ -90,13 +90,13 @@ def update_user(from_user, bot):  # Update the user list (db)
         for admin in admins:
             if admin.id != from_user.id:
                 text = "*New user registered into the database* \n\n"
-                text += "Name: " + from_user.first_name
+                text += "Name: " + helpers.escape_markdown(from_user.first_name, 2)
                 if from_user.last_name:
-                    text += "\nLast name: " + from_user.last_name
+                    text += "\nLast name: " + helpers.escape_markdown(from_user.last_name, 2)
                 if from_user.username:
-                    text += "\nUsername: @" + from_user.username
+                    text += "\nUsername: @" + helpers.escape_markdown(from_user.username, 2)
                 bot.sendMessage(
-                    chat_id=admin.id, text=helpers.escape_markdown(text, 2), parse_mode=ParseMode.MARKDOWN_V2)
+                    chat_id=admin.id, text=text, parse_mode=ParseMode.MARKDOWN_V2)
     session.commit()
 
 

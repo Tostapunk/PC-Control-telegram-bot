@@ -71,8 +71,8 @@ Made by [Tostapunk](https://www.t.me/Tostapunk)
 @db.admin_check
 def bot_help(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    text = """
-*Available commands:*
+    text = "*Available commands:*"
+    text += helpers.escape_markdown("""
 /shutdown - To shutdown your PC
 /reboot - To reboot your PC
 /logout - To log out from your current account
@@ -88,10 +88,10 @@ def bot_help(update: Update, context: CallbackContext):
 /kb or /keyboard - Brings the normal keyboard up
 
 You can set a delay time for the execution of the first four commands by using _t + time in seconds after a command.
-Example: /shutdown_t 20"""
+Example: /shutdown_t 20""", 2)
     context.bot.sendMessage(
         chat_id=update.message.chat.id,
-        text=helpers.escape_markdown(text, 2),
+        text=text,
         parse_mode=ParseMode.MARKDOWN_V2,
         disable_web_page_preview="true")
 
