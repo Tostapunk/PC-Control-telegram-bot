@@ -1,9 +1,8 @@
-pyimgur
-pyscreenshot
-tzlocal
-python_telegram_bot
-pytz
-distro
-psutil
-Pillow
-SQLAlchemy
+pyscreenshot==2.3
+tzlocal==2.1
+python_telegram_bot==13.1
+pytz==2020.5
+distro==1.5.0
+psutil==5.8.0
+Pillow==8.1.0
+SQLAlchemy==1.3.22
