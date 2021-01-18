@@ -401,9 +401,7 @@ def memo_thread(update: Update, context: CallbackContext):
                     "Helvetica",
                     10))
             label.pack(side="top", fill="x", pady=10)
-            global delete
-            delete = popup.destroy
-            B1 = ttk.Button(popup, text="Okay", command=delete)
+            B1 = ttk.Button(popup, text="Okay", command=popup.destroy)
             B1.pack()
             popup.mainloop()
 
