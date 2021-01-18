@@ -219,20 +219,19 @@ def logout(update: Update, context: CallbackContext):
 def logout_time_thread(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
     def logout_time():
-        if len(context.args) != 0:
-                text = "Logged out."
-                context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                subprocess.call("shutdown /l", startupinfo=startupinfo())
+        text = "Logged out."
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        subprocess.call("shutdown /l", startupinfo=startupinfo())
+    if platform.system() == "Windows":
+        if context.args:
+            global l_t
+            l_t = threading.Timer(int(context.args[0]), logout_time)
+            l_t.start()
         else:
             text = """No time inserted
             ``` Usage: /logout_t + time in seconds```"""
             context.bot.sendMessage(chat_id=update.message.chat.id,
                                     text=text, parse_mode=ParseMode.MARKDOWN_V2)
-
-    if platform.system() == "Windows":
-        global l_t
-        l_t = threading.Timer(int(context.args[0]), logout_time)
-        l_t.start()
     else:
         text = "Currently not working on Linux."
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -255,24 +254,25 @@ def hibernate(update: Update, context: CallbackContext):
 def hibernate_time_thread(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
     def hibernate_time():
-        if len(context.args) != 0:
-            if platform.system() == "Windows":
-                text = "Hibernated."
-                context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                subprocess.call("shutdown /h", startupinfo=startupinfo())
-            else:
-                subprocess.call("systemctl suspend",
-                                startupinfo=startupinfo(), shell=True)
-                text = "Hibernated."
-                context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+        if platform.system() == "Windows":
+            text = "Hibernated."
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            subprocess.call("shutdown /h", startupinfo=startupinfo())
         else:
-            text = """No time inserted
-            ``` Usage: /hibernate_t + time in seconds```"""
-            context.bot.sendMessage(chat_id=update.message.chat.id,
-                                    text=text, parse_mode=ParseMode.MARKDOWN_V2)
-    global h_t
-    h_t = threading.Timer(int(context.args[0]), hibernate_time)
-    h_t.start()
+            subprocess.call("systemctl suspend",
+                            startupinfo=startupinfo(), shell=True)
+            text = "Hibernated."
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    if context.args:
+        global h_t
+        h_t = threading.Timer(int(context.args[0]), hibernate_time)
+        h_t.start()
+    else:
+        text = """No time inserted
+        ``` Usage: /hibernate_t + time in seconds```"""
+        context.bot.sendMessage(chat_id=update.message.chat.id,
+                                text=text, parse_mode=ParseMode.MARKDOWN_V2)
+
 
 
 @db.admin_check
@@ -417,11 +417,11 @@ def memo_thread(update: Update, context: CallbackContext):
 @db.admin_check
 def task(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    kill_kb = [['Kill %s' % (context.args[0])],
-               ['Exit']]
-    reply_markup = ReplyKeyboardMarkup(
-        kill_kb, resize_keyboard=True)
     if len(context.args) != 0:
+        kill_kb = [['Kill %s' % (context.args[0])],
+                   ['Exit']]
+        reply_markup = ReplyKeyboardMarkup(
+            kill_kb, resize_keyboard=True)
         if platform.system() == "Windows":
             try:
                 out = os.popen("tasklist | findstr %s" % (context.args[0])).read()
