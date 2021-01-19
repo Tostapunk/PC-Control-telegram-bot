@@ -290,12 +290,12 @@ def lock(update: Update, context: CallbackContext):
 def cancel(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
     try:
-        if l_t.isAlive():
+        if l_t.is_alive():
             l_t.cancel()
             text = "Annulled."
     except NameError:
         try:
-            if h_t.isAlive():
+            if h_t.is_alive():
                 h_t.cancel()
                 text = "Annulled."
         except NameError:
