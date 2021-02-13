@@ -274,7 +274,6 @@ def hibernate_time_thread(update: Update, context: CallbackContext):
                                 text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
 
-
 @db.admin_check
 def lock(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
@@ -347,10 +346,10 @@ def launch(update: Update, context: CallbackContext):
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             def launch_thread():
-                subprocess.run("%s" % (context.args[0]),
-                               startupinfo=startupinfo(), shell=True)
                 text = "Launching " + (context.args[0]) + "..."
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+                subprocess.run("%s" % (context.args[0]),
+                               startupinfo=startupinfo(), shell=True)
         t = threading.Thread(target=launch_thread)
         t.start()
     else:
