@@ -8,7 +8,7 @@ import platform
 import subprocess
 import sys
 import tkinter as tk
-from tkinter import *
+from tkinter import Entry, Label, Menu, LEFT
 
 import db
 import utils
