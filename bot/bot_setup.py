@@ -71,9 +71,9 @@ def bot_start():
             subprocess.run(sys.executable + " bot/bot.py", creationflags=0x08000000, shell=True)
     else:
         if db.startup_get() == "true":
-            subprocess.run(sys.executable + " bot/bot.pyw", shell=True)
+            subprocess.run(sys.executable + " bot.pyw", shell=True)
         else:
-            subprocess.run(sys.executable + " bot/bot.py", shell=True)
+            subprocess.run(sys.executable + " bot.py", shell=True)
 
 
 def privs_window():
