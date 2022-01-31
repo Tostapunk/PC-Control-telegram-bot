@@ -38,8 +38,8 @@ def startupinfo():
 
 
 def db_and_co():
-    pathlib.Path(utils.current_path() + "/data").mkdir(parents=True, exist_ok=True)
-    pathlib.Path(utils.current_path() + "/tmp").mkdir(parents=True, exist_ok=True)
+    pathlib.Path(os.path.join(os.path.dirname(utils.current_path()), "data")).mkdir(parents=True, exist_ok=True)
+    pathlib.Path(os.path.join(os.path.dirname(utils.current_path()), "tmp")).mkdir(parents=True, exist_ok=True)
     db.create()
 
 
@@ -66,14 +66,14 @@ def bot_start():
     root.withdraw()
     if startupinfo() is not None or platform.system() == "Windows":
         if db.startup_get() == "true":
-            subprocess.run(sys.executable + " bot/bot.pyw", creationflags=0x08000000, shell=True)
+            subprocess.run(sys.executable + " " + os.path.join(utils.current_path(), "bot.pyw"), creationflags=0x08000000, shell=True)
         else:
-            subprocess.run(sys.executable + " bot/bot.py", creationflags=0x08000000, shell=True)
+            subprocess.run(sys.executable + " " + os.path.join(utils.current_path(), "bot.py"), creationflags=0x08000000, shell=True)
     else:
         if db.startup_get() == "true":
-            subprocess.run(sys.executable + " bot.pyw", shell=True)
+            subprocess.run(sys.executable + " " + os.path.join(utils.current_path(), "bot.pyw"), shell=True)
         else:
-            subprocess.run(sys.executable + " bot.py", shell=True)
+            subprocess.run(sys.executable + " " + os.path.join(utils.current_path(), "bot.py"), shell=True)
 
 
 def privs_window():
@@ -163,48 +163,46 @@ def startup_popup():
 
 
 def startup_enable():
+    py_path = os.path.join(utils.current_path(), "bot.py")
+    pyw_path = os.path.join(utils.current_path(), "bot.pyw")
     if platform.system() == "Windows":
-        if os.path.isfile(utils.current_path() + "\\bot\\bot.py") is True:
-            os.rename(utils.current_path() + "\\bot\\bot.py", utils.current_path() + "\\bot\\bot.pyw")
+        if os.path.isfile(py_path) is True:
+            os.rename(py_path, pyw_path)
         key = winreg.OpenKey(
             winreg.HKEY_CURRENT_USER,
             'Software\Microsoft\Windows\CurrentVersion\Run', 0,
             winreg.KEY_SET_VALUE)
-        winreg.SetValueEx(key, 'PC-Control', 0, winreg.REG_SZ,
-                          '"' + utils.current_path() + '\\bot\\bot.pyw"')
+        winreg.SetValueEx(key, 'PC-Control', 0, winreg.REG_SZ, '"' + pyw_path +'"')
         key.Close()
         db.startup_set("true")
     else:
-        if os.path.isfile(utils.current_path() + "/bot/bot.py") is True:
-            os.rename(utils.current_path() + "/bot/bot.py", utils.current_path() + "/bot/bot.pyw")
+        if os.path.isfile(py_path) is True:
+            os.rename(py_path, pyw_path)
         try:
-            with open('/etc/rc.local', 'r') as file:
-                data = file.readlines()
-            process = subprocess.Popen("ls -l `tty` | awk '{print $3}'",
-                                       startupinfo=startupinfo(),
-                                       shell=True,
-                                       stdout=subprocess.PIPE)
-            user = process.stdout.read().strip()
-            text = 'export PYTHONPATH="${PYTHONPATH}' + ':'.join(
-                sys.path) + '"' + "\n\nsudo -H -u " + user + " " \
-                   + sys.executable + " " + utils.current_path() \
-                   + "/bot/bot.pyw &\n\nexit 0"
-            data[12] = text
-            with open('/etc/rc.local', 'w') as file:
-                file.writelines(data)
+            xdg_autostart_user_config_path = os.path.join(str(pathlib.Path.home()), ".config/autostart/") 
+            os.makedirs(xdg_autostart_user_config_path, exist_ok=True)
+            text = "[Desktop Entry]\n"
+            text += "Type=Application\n"
+            text += "Path=" + utils.current_path() + "/\n" 
+            text += "Exec=" + sys.executable + " bot.pyw\n"
+            text += "Name=PC-Control bot\n"
+            text += "Comment=PC-Control bot startup\n"
+            text += "\n"
+            with open(os.path.join(xdg_autostart_user_config_path + "PC-Control.desktop"), 'x') as file:
+                file.write(text)
             db.startup_set("true")
         except IOError as e:
             error = tk.Toplevel(root)
             error.wm_title("Error")
-            warn_l = Label(error, text="You need to launch bot_setup.py with admin rights to use this function.\n\n "
-                                       "Error: " + str(e), font="Times 11 bold", justify=LEFT)
+            warn_l = Label(error, text="Error: " + str(e), font="Times 11 bold", justify=LEFT)
             warn_l.pack()
-            ok_b = tk.Button(error, text="Okay",
-                             command=lambda: error.destroy())
+            ok_b = tk.Button(error, text="Okay", command=lambda: error.destroy())
             ok_b.pack()
 
 
 def startup_disable():
+    py_path = os.path.join(utils.current_path(), "bot.py")
+    pyw_path = os.path.join(utils.current_path(), "bot.pyw")
     if db.startup_get() == "true":
         if platform.system() == "Windows":
             key = winreg.OpenKey(
@@ -213,31 +211,20 @@ def startup_disable():
                 winreg.KEY_SET_VALUE)
             winreg.DeleteValue(key, 'PC-Control')
             key.Close()
-            os.rename(utils.current_path() + "\\bot\\bot.pyw", utils.current_path() + "\\bot\\bot.py")
+            os.rename(pyw_path, py_path)
             db.startup_set("false")
         else:
             try:
-                os.rename(utils.current_path() + "/bot/bot.pyw", utils.current_path() + "/bot/bot.py")
-                for line_number, line in enumerate(
-                        fileinput.input('/etc/rc.local', inplace=1)):
-                    if (line_number == 12 or
-                            line_number == 13 or
-                            line_number == 14 or
-                            line_number == 15):
-                        continue
-                    else:
-                        sys.stdout.write(line)
+                os.rename(pyw_path, py_path)
+                os.remove(os.path.join(str(pathlib.Path.home()),".config/autostart/PC-Control.desktop"))
                 db.startup_set("false")
             except OSError as e:
-                os.rename(utils.current_path() + "/bot/bot.py", utils.current_path() + "/bot/bot.pyw")
+                os.rename(py_path, pyw_path)
                 error = tk.Toplevel(root)
                 error.wm_title("Error")
-                warn_l = Label(error, text="You need to launch bot_setup.py with admin rights to use "
-                                           "this function.\n\n Error: " + str(e),
-                               font="Times 11 bold", justify=LEFT)
+                warn_l = Label(error, text="Error: " + str(e), font="Times 11 bold", justify=LEFT)
                 warn_l.pack()
-                ok_b = tk.Button(error, text="Okay",
-                                 command=lambda: error.destroy())
+                ok_b = tk.Button(error, text="Okay", command=lambda: error.destroy())
                 ok_b.pack()
     else:
         error = tk.Toplevel(root)

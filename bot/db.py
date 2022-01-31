@@ -2,6 +2,7 @@ import platform
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
+import os
 
 import pytz
 from telegram import ParseMode, Update
@@ -17,7 +18,7 @@ from sqlalchemy import create_engine, Column, Integer, Text
 
 
 def database():
-    return utils.current_path() + "/data/pccontrol.sqlite"
+    return os.path.join(os.path.dirname(utils.current_path()), "data/pccontrol.sqlite")
 
 
 engine = create_engine("sqlite:///" + database(), echo=False)

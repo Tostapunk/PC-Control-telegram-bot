@@ -466,7 +466,7 @@ def task_kill(update: Update, context: CallbackContext):
 @db.admin_check
 def screenshot(update: Update, context: CallbackContext):
     db.update_user(update.message.from_user, context.bot)
-    path = os.path.join(utils.current_path() + "/tmp/screenshot.png")
+    path = os.path.join(os.path.dirname(utils.current_path()), "tmp/screenshot.png")
     img = pyscreenshot.grab()
     img.save(path)
     context.bot.send_photo(chat_id=update.message.chat.id, photo=open(path, 'rb'))
