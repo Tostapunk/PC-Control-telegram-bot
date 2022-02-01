@@ -12,6 +12,8 @@ import sys
 import threading
 import tkinter as tk
 from tkinter import ttk
+from typing import Optional
+from shlex import quote
 
 import distro
 import psutil
@@ -36,7 +38,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def startupinfo():
+def startupinfo() -> Optional[int]:
     if db.console_get() == "hide":
         if platform.system() == "Windows":
             value = subprocess.STARTUPINFO()
@@ -48,7 +50,7 @@ def startupinfo():
     return value
 
 
-def start(update: Update, context: CallbackContext):
+def start(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     text = """Welcome to [PC\-Control bot](https://goo.gl/9TjCHR), 
 you can get the bot profile picture [here](http://i.imgur.com/294uZ8G.png)
@@ -56,8 +58,7 @@ you can get the bot profile picture [here](http://i.imgur.com/294uZ8G.png)
 Use /help to see all the commands\!
 
 
-Made by [Tostapunk](https://www.t.me/Tostapunk)
-[Twitter](https://twitter.com/Schiavon_Mattia) \| [Google\+](https://plus.google.com/+MattiaSchiavon) \| [GitHub](https://github.com/Tostapunk)"""
+Made by [Tostapunk](https://github.com/Tostapunk)"""
 
     context.bot.sendMessage(
         chat_id=update.message.chat.id,
@@ -68,7 +69,7 @@ Made by [Tostapunk](https://www.t.me/Tostapunk)
 
 
 @db.admin_check
-def bot_help(update: Update, context: CallbackContext):
+def bot_help(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     text = "*Available commands:*"
     text += helpers.escape_markdown("""
@@ -95,7 +96,7 @@ Example: /shutdown_t 20""", 2)
         disable_web_page_preview="true")
 
 
-def keyboard_up(update: Update, context: CallbackContext):
+def keyboard_up(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     text = "Keyboard is up"
     keyboard = [['Shutdown', 'Reboot'],
@@ -108,7 +109,7 @@ def keyboard_up(update: Update, context: CallbackContext):
     update.message.reply_text(reply_markup=reply_markup, text=text)
 
 
-def message_handler(update: Update, context: CallbackContext):
+def message_handler(update: Update, context: CallbackContext) -> None:
     if update.message.text == "Shutdown":
         shutdown(update, context)
     elif update.message.text == "Reboot":
@@ -136,7 +137,7 @@ def message_handler(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def shutdown(update: Update, context: CallbackContext):
+def shutdown(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     if platform.system() == "Windows":
         subprocess.run('shutdown /s', startupinfo=startupinfo())
@@ -149,16 +150,16 @@ def shutdown(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def shutdown_time(update: Update, context: CallbackContext):
+def shutdown_time(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
-    if len(context.args) != 0:
+    if context.args:
         if platform.system() == "Windows":
             subprocess.run("shutdown /s /t %s" % (context.args[0]),
                            startupinfo=startupinfo())
             text = "Shutting down..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            subprocess.run("shutdown -t %s" % (int(context.args[0]) / 60),
+            subprocess.run("shutdown -t %s" % (int(quote(context.args[0])) / 60),
                            startupinfo=startupinfo(), shell=True)
             text = "Shutting down..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -170,7 +171,7 @@ def shutdown_time(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def reboot(update: Update, context: CallbackContext):
+def reboot(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     if platform.system() == "Windows":
         subprocess.run('shutdown /r', startupinfo=startupinfo())
@@ -183,16 +184,16 @@ def reboot(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def reboot_time(update: Update, context: CallbackContext):
+def reboot_time(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
-    if len(context.args) != 0:
+    if context.args:
         if platform.system() == "Windows":
             subprocess.run("shutdown /r /t %s" % (context.args[0]),
                            startupinfo=startupinfo())
             text = "Rebooting..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            subprocess.run("reboot -t %s" % (int(context.args[0]) / 60),
+            subprocess.run("reboot -t %s" % (int(quote(context.args[0])) / 60),
                            startupinfo=startupinfo(), shell=True)
             text = "Rebooting..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -204,7 +205,7 @@ def reboot_time(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def logout(update: Update, context: CallbackContext):
+def logout(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     if platform.system() == "Windows":
         subprocess.run('shutdown /l', startupinfo=startupinfo())
@@ -216,9 +217,9 @@ def logout(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def logout_time_thread(update: Update, context: CallbackContext):
+def logout_time_thread(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
-    def logout_time():
+    def logout_time() -> None:
         text = "Logged out."
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         subprocess.run("shutdown /l", startupinfo=startupinfo())
@@ -238,7 +239,7 @@ def logout_time_thread(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def hibernate(update: Update, context: CallbackContext):
+def hibernate(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     if platform.system() == "Windows":
         subprocess.run('shutdown /h', startupinfo=startupinfo())
@@ -251,9 +252,9 @@ def hibernate(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def hibernate_time_thread(update: Update, context: CallbackContext):
+def hibernate_time_thread(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
-    def hibernate_time():
+    def hibernate_time() -> None:
         if platform.system() == "Windows":
             text = "Hibernated."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -275,7 +276,7 @@ def hibernate_time_thread(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def lock(update: Update, context: CallbackContext):
+def lock(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     if platform.system() == "Windows":
         ctypes.windll.user32.LockWorkStation()
@@ -286,7 +287,7 @@ def lock(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def cancel(update: Update, context: CallbackContext):
+def cancel(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     try:
         if l_t.is_alive():
@@ -308,7 +309,7 @@ def cancel(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def check(update: Update, context: CallbackContext):
+def check(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     text = ""
     text += "Your PC is online.\n\n"
@@ -317,7 +318,7 @@ def check(update: Update, context: CallbackContext):
     if platform.system() == "Windows":
         text += "\nOS: Windows " + platform.win32_ver()[0]
     else:
-        text += "\nOS: " + " ".join(distro.linux_distribution()[:2])
+        text += "\nOS: " + distro.id()
     text += "\nCPU: " + str(psutil.cpu_percent()) + "%"
     text += "\nMemory: " + str(
         int(psutil.virtual_memory().percent)) + "%"
@@ -333,11 +334,11 @@ def check(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def launch(update: Update, context: CallbackContext):
+def launch(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
-    if len(context.args) != 0:
+    if context.args:
         if platform.system() == "Windows":
-            ret = subprocess.run("start %s" % (context.args[0]),
+            ret = subprocess.run("start %s" % quote(context.args[0]),
                                  startupinfo=startupinfo(), shell=True).returncode
             text = "Launching " + (context.args[0]) + "..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -348,7 +349,7 @@ def launch(update: Update, context: CallbackContext):
             def launch_thread():
                 text = "Launching " + (context.args[0]) + "..."
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                subprocess.run("%s" % (context.args[0]),
+                subprocess.run("%s" % quote(context.args[0]),
                                startupinfo=startupinfo(), shell=True)
         t = threading.Thread(target=launch_thread)
         t.start()
@@ -360,11 +361,11 @@ def launch(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def link(update: Update, context: CallbackContext):
+def link(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
-    if len(context.args) != 0:
+    if context.args:
         if platform.system() == "Windows":
-            ret = subprocess.run("start %s" % (context.args[0]),
+            ret = subprocess.run("start %s" % quote(context.args[0]),
                                  startupinfo=startupinfo(), shell=True).returncode
             text = "Opening " + (context.args[0]) + "..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -372,7 +373,7 @@ def link(update: Update, context: CallbackContext):
                 text = "Cannot open " + (context.args[0])
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            subprocess.run("xdg-open %s" % (context.args[0]),
+            subprocess.run("xdg-open %s" % quote(context.args[0]),
                            startupinfo=startupinfo(), shell=True)
             text = "Opening " + (context.args[0]) + "..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -383,11 +384,11 @@ def link(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def memo_thread(update: Update, context: CallbackContext):
+def memo_thread(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     args = update.message.text[6:]
     if len(args) != 0:
-        def memo():
+        def memo() -> None:
             popup = tk.Tk()
             popup.wm_title("Memo")
             label = ttk.Label(
@@ -412,9 +413,9 @@ def memo_thread(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def task(update: Update, context: CallbackContext):
+def task(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
-    if len(context.args) != 0:
+    if context.args:
         kill_kb = [['Kill %s' % (context.args[0])],
                    ['Exit']]
         reply_markup = ReplyKeyboardMarkup(
@@ -439,12 +440,12 @@ def task(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def task_kill(update: Update, context: CallbackContext):
+def task_kill(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     args = update.message.text[5:]
     if platform.system() == "Windows":
         try:
-            subprocess.run("tskill " + args, startupinfo=startupinfo())
+            subprocess.run("tskill " + quote(args), startupinfo=startupinfo())
             context.bot.sendMessage(chat_id=update.message.chat.id,
                             text="I've killed " + args)
             keyboard_up(update, context)
@@ -453,7 +454,7 @@ def task_kill(update: Update, context: CallbackContext):
                             text="The program is not running")
     else:
         try:
-            subprocess.run("pkill -f " + args, startupinfo=startupinfo(), shell=True)
+            subprocess.run("pkill -f " + quote(args), startupinfo=startupinfo(), shell=True)
             context.bot.sendMessage(chat_id=update.message.chat.id,
                             text="I've killed " + args)
             keyboard_up(update, context)
@@ -464,7 +465,7 @@ def task_kill(update: Update, context: CallbackContext):
 
 
 @db.admin_check
-def screenshot(update: Update, context: CallbackContext):
+def screenshot(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     path = os.path.join(os.path.dirname(utils.current_path()), "tmp/screenshot.png")
     img = pyscreenshot.grab()
@@ -473,11 +474,11 @@ def screenshot(update: Update, context: CallbackContext):
     os.remove(path)
 
 
-def error(update, context):
+def error(update: Update, context: CallbackContext) -> None:
     logger.warning('Update "%s" caused error "%s"' % (update, error))
 
 
-def main():
+def main() -> None:
     # Create the EventHandler and pass it your bot's token.
     updater = Updater(db.token_get("BotFather_token"))
     # Get the dispatcher to register handlers
@@ -537,8 +538,7 @@ def main():
     dp.add_handler(CommandHandler("link", link, pass_args=True))
 
     # Show a popup with the memo
-    dp.add_handler(CommandHandler(
-        "memo", memo_thread, pass_args=True))
+    dp.add_handler(CommandHandler("memo", memo_thread, pass_args=True))
 
     # Check if a program is currently active
     dp.add_handler(CommandHandler("task", task, pass_args=True))

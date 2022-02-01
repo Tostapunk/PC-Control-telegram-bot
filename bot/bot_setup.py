@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import fileinput
 import os
 import pathlib
 import platform
@@ -9,6 +8,7 @@ import subprocess
 import sys
 import tkinter as tk
 from tkinter import Entry, Label, Menu, LEFT
+from typing import Optional
 
 import db
 import utils
@@ -25,7 +25,7 @@ root.geometry("200x200")
 root.resizable(width=False, height=False)
 
 
-def startupinfo():
+def startupinfo() -> Optional[int]:
     if db.console_get() == "hide":
         if platform.system() == "Windows":
             value = subprocess.STARTUPINFO()
@@ -37,22 +37,22 @@ def startupinfo():
     return value
 
 
-def db_and_co():
+def db_and_co() -> None:
     pathlib.Path(os.path.join(os.path.dirname(utils.current_path()), "data")).mkdir(parents=True, exist_ok=True)
     pathlib.Path(os.path.join(os.path.dirname(utils.current_path()), "tmp")).mkdir(parents=True, exist_ok=True)
     db.create()
 
 
-def tokens_check():
+def tokens_check() -> None:
     if not db.token_get("BotFather_token"):
         B1.configure(text="Confirm")
     else:
         B1.configure(text="Change token")
 
 
-def botfather_token_set(val1):
-    if val1:
-        db.token_set("BotFather_token", val1)
+def botfather_token_set(token: str) -> None:
+    if token:
+        db.token_set("BotFather_token", token)
         token1.destroy()
         B1.destroy()
         L1_done.configure(text="Token saved!",
@@ -62,7 +62,7 @@ def botfather_token_set(val1):
                           font="Times 11", fg="red", justify=LEFT)
 
 
-def bot_start():
+def bot_start() -> None:
     root.withdraw()
     if startupinfo() is not None or platform.system() == "Windows":
         if db.startup_get() == "true":
@@ -76,7 +76,7 @@ def bot_start():
             subprocess.run(sys.executable + " " + os.path.join(utils.current_path(), "bot.py"), shell=True)
 
 
-def privs_window():
+def privs_window() -> None:
     privs = tk.Toplevel(root)
     privs.wm_title("Permissions")
     usr_l = Label(privs, text="Username",
@@ -93,7 +93,7 @@ def privs_window():
     usr_done = Label(privs, text="")
     usr_done.pack()
 
-    def add_privs(user):
+    def add_privs(user: str) -> None:
         if db.user_exists(user):
             db.user_role(user, admin=True)
             usr_e.destroy()
@@ -105,7 +105,7 @@ def privs_window():
             usr_done.configure(text="%s isn't in your database" % (
                 user), font="Times 11", fg="red", justify=LEFT)
 
-    def remove_privs(user):
+    def remove_privs(user: str) -> None:
         if db.user_exists(user):
             db.user_role(user, admin=False)
             usr_e.destroy()
@@ -118,7 +118,7 @@ def privs_window():
                 user), font="Times 11", fg="red", justify=LEFT)
 
 
-def restart_popup():
+def restart_popup() -> None:
     privs = tk.Toplevel(root)
     privs.wm_title("Restart")
     lp = Label(privs, text="Please restart bot_setup to apply the change",
@@ -127,22 +127,22 @@ def restart_popup():
     add_b = tk.Button(privs, text="Restart", command=lambda: restart())
     add_b.pack()
 
-    def restart():
+    def restart() -> None:
         python = sys.executable
         os.execl(python, python, *sys.argv)
 
 
-def console_show():
+def console_show() -> None:
     db.console_set("show")
     restart_popup()
 
 
-def console_hide():
+def console_hide() -> None:
     db.console_set("hide")
     restart_popup()
 
 
-def startup_popup():
+def startup_popup() -> None:
     if db.startup_get() == "false":
         warning = tk.Toplevel(root)
         warning.wm_title("Warning")
@@ -162,7 +162,7 @@ def startup_popup():
         ok_b.pack()
 
 
-def startup_enable():
+def startup_enable() -> None:
     py_path = os.path.join(utils.current_path(), "bot.py")
     pyw_path = os.path.join(utils.current_path(), "bot.pyw")
     if platform.system() == "Windows":
@@ -200,7 +200,7 @@ def startup_enable():
             ok_b.pack()
 
 
-def startup_disable():
+def startup_disable() -> None:
     py_path = os.path.join(utils.current_path(), "bot.py")
     pyw_path = os.path.join(utils.current_path(), "bot.pyw")
     if db.startup_get() == "true":

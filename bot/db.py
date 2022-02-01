@@ -3,9 +3,10 @@ from datetime import datetime
 from functools import wraps
 from pathlib import Path
 import os
+from typing import Callable, Optional
 
 import pytz
-from telegram import ParseMode, Update
+from telegram import ParseMode, Update, User, Bot
 from telegram.ext import CallbackContext
 from telegram.utils import helpers
 from tzlocal import get_localzone
@@ -17,7 +18,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, Column, Integer, Text
 
 
-def database():
+def database() -> str:
     return os.path.join(os.path.dirname(utils.current_path()), "data/pccontrol.sqlite")
 
 
@@ -46,18 +47,18 @@ class Users(Base):
     time_used = Column(Integer)
 
 
-def exists():
+def exists() -> bool:
     return Path(database()).exists()
 
 
-def create():
+def create() -> None:
     if exists() is False:
         Base.metadata.create_all(engine)
         console_set("hide")
         startup_set("false")
 
 
-def update_user(from_user, bot):  # Update the user list (db)
+def update_user(from_user: User, bot: Bot) -> None:  # Update the user list (db)
     session = DBsession()
     user = session.query(Users).filter(Users.id == from_user.id).one_or_none()
     used = 0
@@ -101,9 +102,9 @@ def update_user(from_user, bot):  # Update the user list (db)
     session.commit()
 
 
-def admin_check(func):
+def admin_check(func: Callable) -> Callable[[Update, CallbackContext], Optional[Callable]]:
     @wraps(func)
-    def is_admin(update: Update, context: CallbackContext):
+    def is_admin(update: Update, context: CallbackContext) -> Optional[Callable]:
         session = DBsession()
         privs = session.query(Users).filter(Users.id == update.message.from_user.id).one_or_none().privs
         if privs == "-2":
@@ -113,7 +114,7 @@ def admin_check(func):
     return is_admin
 
 
-def token_set(token_type, token_value):
+def token_set(token_type: str, token_value: str) -> None:
     session = DBsession()
     if token_get(token_type):
         session.query(Config).filter(Config.name == token_type).one().value = token_value
@@ -123,14 +124,14 @@ def token_set(token_type, token_value):
     session.commit()
 
 
-def token_get(token_type):
+def token_get(token_type: str) -> Optional[str]:
     session = DBsession()
     entry = session.query(Config).filter(Config.name == token_type).one_or_none()
     if entry:
         return entry.value
 
 
-def user_exists(user=None):
+def user_exists(user: Optional[str] = None) -> bool:
     session = DBsession()
     if session.query(Users).filter(Users.username == user).one_or_none():
         return True
@@ -138,24 +139,24 @@ def user_exists(user=None):
         return False
 
 
-def user_role(user, admin):
+def user_role(user: str, admin: bool) -> None:
     session = DBsession()
-    user = session.query(Users).filter(Users.username == user).one()
+    db_user = session.query(Users).filter(Users.username == user).one()
     if admin:
-        user.privs = "-2"
+        db_user.privs = "-2"
     else:
-        user.privs = ""
+        db_user.privs = ""
     session.commit()
 
 
-def console_get():
+def console_get() -> Optional[str]:
     session = DBsession()
     entry = session.query(Config).filter(Config.name == "console").one_or_none()
     if entry:
         return entry.value
 
 
-def console_set(value):
+def console_set(value: str) -> None:
     session = DBsession()
     if console_get():
         session.query(Config).filter(Config.name == "console").one().value = value
@@ -165,7 +166,7 @@ def console_set(value):
     session.commit()
 
 
-def startup_set(value):
+def startup_set(value: str) -> None:
     session = DBsession()
     if startup_get():
         session.query(Config).filter(Config.name == "startup").one().value = value
@@ -175,7 +176,7 @@ def startup_set(value):
     session.commit()
 
 
-def startup_get():
+def startup_get() -> Optional[str]:
     session = DBsession()
     entry = session.query(Config).filter(Config.name == "startup").one_or_none()
     if entry:
