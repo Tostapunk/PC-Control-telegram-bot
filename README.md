@@ -53,8 +53,8 @@ Example:
 | /menu | Shows the inline menu |
 | /kb or /keyboard | Brings the normal keyboard up |
 
-You can set a delay time for the execution of the first four commands by using _t + time in seconds after a command.\
-Example: ```/shutdown_t 20```
+You can set a delay time for the execution of the first four commands by using _t + time in minutes after a command.\
+Example: ```/shutdown_t 2```
 
 ## Contributors
 Thanks to [Jasoc](https://github.com/jasoc) for the awesome [logo](https://i.imgur.com/V6B5ZEf.png)!

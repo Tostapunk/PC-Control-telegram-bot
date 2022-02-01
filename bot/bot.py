@@ -87,8 +87,8 @@ def bot_help(update: Update, context: CallbackContext) -> None:
 /screen - To take a screenshot and receive it 
 /kb or /keyboard - Brings the normal keyboard up
 
-You can set a delay time for the execution of the first four commands by using _t + time in seconds after a command.
-Example: /shutdown_t 20""", 2)
+You can set a delay time for the execution of the first four commands by using _t + time in minutes after a command.
+Example: /shutdown_t 2""", 2)
     context.bot.sendMessage(
         chat_id=update.message.chat.id,
         text=text,
@@ -154,18 +154,18 @@ def shutdown_time(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     if context.args:
         if platform.system() == "Windows":
-            subprocess.run("shutdown /s /t %s" % (context.args[0]),
+            subprocess.run("shutdown /s /t %s" % str(int(context.args[0])*60),
                            startupinfo=startupinfo())
             text = "Shutting down..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            subprocess.run("shutdown -t %s" % (int(quote(context.args[0])) / 60),
+            subprocess.run("shutdown -P +%s" % quote(context.args[0]),
                            startupinfo=startupinfo(), shell=True)
             text = "Shutting down..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         text = """No time inserted
-        ``` Usage: /shutdown_t + time in seconds```"""
+        ``` Usage: /shutdown_t + time in minutes```"""
         context.bot.sendMessage(chat_id=update.message.chat.id,
                                 text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
@@ -188,18 +188,18 @@ def reboot_time(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     if context.args:
         if platform.system() == "Windows":
-            subprocess.run("shutdown /r /t %s" % (context.args[0]),
+            subprocess.run("shutdown /r /t %s" % str(int(context.args[0])*60),
                            startupinfo=startupinfo())
             text = "Rebooting..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            subprocess.run("reboot -t %s" % (int(quote(context.args[0])) / 60),
+            subprocess.run("shutdown -r +%s" % quote(context.args[0]),
                            startupinfo=startupinfo(), shell=True)
             text = "Rebooting..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         text = """No time inserted
-        ``` Usage: /reboot_t + time in seconds```"""
+        ``` Usage: /reboot_t + time in minutes```"""
         context.bot.sendMessage(chat_id=update.message.chat.id,
                                 text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
@@ -226,11 +226,11 @@ def logout_time_thread(update: Update, context: CallbackContext) -> None:
     if platform.system() == "Windows":
         if context.args:
             global l_t
-            l_t = threading.Timer(int(context.args[0]), logout_time)
+            l_t = threading.Timer(int(context.args[0])*60, logout_time)
             l_t.start()
         else:
             text = """No time inserted
-            ``` Usage: /logout_t + time in seconds```"""
+            ``` Usage: /logout_t + time in minutes```"""
             context.bot.sendMessage(chat_id=update.message.chat.id,
                                     text=text, parse_mode=ParseMode.MARKDOWN_V2)
     else:
@@ -266,11 +266,11 @@ def hibernate_time_thread(update: Update, context: CallbackContext) -> None:
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     if context.args:
         global h_t
-        h_t = threading.Timer(int(context.args[0]), hibernate_time)
+        h_t = threading.Timer(int(context.args[0])*60, hibernate_time)
         h_t.start()
     else:
         text = """No time inserted
-        ``` Usage: /hibernate_t + time in seconds```"""
+        ``` Usage: /hibernate_t + time in minutes```"""
         context.bot.sendMessage(chat_id=update.message.chat.id,
                                 text=text, parse_mode=ParseMode.MARKDOWN_V2)
 
