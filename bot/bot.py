@@ -217,25 +217,20 @@ def logout(update: Update, context: CallbackContext) -> None:
 
 
 @db.admin_check
-def logout_time_thread(update: Update, context: CallbackContext) -> None:
+def logout_time(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
-    def logout_time() -> None:
-        text = "Logged out."
-        context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-        subprocess.run("shutdown /l", startupinfo=startupinfo())
-    if platform.system() == "Windows":
-        if context.args:
-            global l_t
-            l_t = threading.Timer(int(context.args[0])*60, logout_time)
-            l_t.start()
-        else:
-            text = """No time inserted
-            ``` Usage: /logout_t + time in minutes```"""
-            context.bot.sendMessage(chat_id=update.message.chat.id,
-                                    text=text, parse_mode=ParseMode.MARKDOWN_V2)
-    else:
+    if platform.system() != "Windows":
         text = "Currently not working on Linux."
         context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+    elif not context.args:
+        text = """No time inserted ```Usage: /logout_t + time in minutes```"""
+        context.bot.sendMessage(chat_id=update.message.chat.id, 
+                text=text, parse_mode=ParseMode.MARKDOWN_V2)
+    else:
+        time = int(context.args[0])
+        if thread_name := utils.ThreadTimer().start(logout, time, update, context): 
+            text = "%s function is already running, cancel it and retry" % thread_name
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
 @db.admin_check
@@ -252,27 +247,17 @@ def hibernate(update: Update, context: CallbackContext) -> None:
 
 
 @db.admin_check
-def hibernate_time_thread(update: Update, context: CallbackContext) -> None:
+def hibernate_time(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
-    def hibernate_time() -> None:
-        if platform.system() == "Windows":
-            text = "Hibernated."
-            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-            subprocess.run("shutdown /h", startupinfo=startupinfo())
-        else:
-            subprocess.run("systemctl suspend",
-                           startupinfo=startupinfo(), shell=True)
-            text = "Hibernated."
-            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-    if context.args:
-        global h_t
-        h_t = threading.Timer(int(context.args[0])*60, hibernate_time)
-        h_t.start()
+    if not context.args:
+        text = """No time inserted ```Usage: /hibernate_t + time in minutes```"""
+        context.bot.sendMessage(chat_id=update.message.chat.id, 
+                text=text, parse_mode=ParseMode.MARKDOWN_V2)
     else:
-        text = """No time inserted
-        ``` Usage: /hibernate_t + time in minutes```"""
-        context.bot.sendMessage(chat_id=update.message.chat.id,
-                                text=text, parse_mode=ParseMode.MARKDOWN_V2)
+        time = int(context.args[0])
+        if thread_name := utils.ThreadTimer().start(hibernate, time, update, context): 
+            text = "%s function is already running, cancel it and retry" % thread_name
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
 @db.admin_check
@@ -289,22 +274,14 @@ def lock(update: Update, context: CallbackContext) -> None:
 @db.admin_check
 def cancel(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
-    try:
-        if l_t.is_alive():
-            l_t.cancel()
-            text = "Annulled."
-    except NameError:
-        try:
-            if h_t.is_alive():
-                h_t.cancel()
-                text = "Annulled."
-        except NameError:
-            if platform.system() == "Windows":
-                subprocess.run('shutdown /a', startupinfo=startupinfo())
-                text = "Annulled."
-            else:
-                subprocess.run('shutdown -c', startupinfo=startupinfo(), shell=True)
-                text = "Annulled."
+    if (thread_name := utils.ThreadTimer().stop()):
+        text = "%s cancelled" % thread_name
+    else:
+        text = "Annulled."
+        if platform.system() == "Windows":
+            subprocess.run('shutdown /a', startupinfo=startupinfo())
+        else:
+            subprocess.run('shutdown -c', startupinfo=startupinfo(), shell=True)
     context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
@@ -512,15 +489,13 @@ def main() -> None:
     dp.add_handler(CommandHandler("logout", logout))
 
     # Log out time
-    dp.add_handler(CommandHandler(
-        "logout_t", logout_time_thread, pass_args=True))
+    dp.add_handler(CommandHandler("logout_t", logout_time))
 
     # Hibernate
     dp.add_handler(CommandHandler("hibernate", hibernate))
 
     # Hibernate time
-    dp.add_handler(CommandHandler(
-        "hibernate_t", hibernate_time_thread, pass_args=True))
+    dp.add_handler(CommandHandler("hibernate_t", hibernate_time))
 
     # Lock
     dp.add_handler(CommandHandler("lock", lock))
