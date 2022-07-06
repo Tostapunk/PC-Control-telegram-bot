@@ -18,7 +18,7 @@ from shlex import quote
 import distro
 import psutil
 import pyscreenshot
-from telegram import ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
+from telegram import ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, Bot
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater, CallbackContext
 from telegram.utils import helpers
 
@@ -451,6 +451,12 @@ def screenshot(update: Update, context: CallbackContext) -> None:
     os.remove(path)
 
 
+def is_up_notification(bot: Bot) -> None:
+    admins = db.get_admins_id()
+    for admin_id in admins:
+        bot.sendMessage(chat_id=admin_id, text="Bot up and running")
+    
+
 def error(update: Update, context: CallbackContext) -> None:
     logger.warning('Update "%s" caused error "%s"' % (update, error))
 
@@ -460,6 +466,9 @@ def main() -> None:
     updater = Updater(db.token_get("BotFather_token"))
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
+
+    # Send a message when the bot is up and running
+    is_up_notification(updater.bot)
 
     # Start
     dp.add_handler(CommandHandler("start", start))

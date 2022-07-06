@@ -1,3 +1,4 @@
+import array
 import platform
 from datetime import datetime
 from functools import wraps
@@ -58,6 +59,16 @@ def create() -> None:
         startup_set("false")
 
 
+def get_admins_id() -> array.array:
+    admins_arr = array.array('i')
+    session = DBsession()
+    admins = session.query(Users).filter(Users.privs == "-2").all()
+    for admin in admins:
+        admins_arr.append(admin.id)
+    session.commit()
+    return admins_arr
+
+
 def update_user(from_user: User, bot: Bot) -> None:  # Update the user list (db)
     session = DBsession()
     user = session.query(Users).filter(Users.id == from_user.id).one_or_none()
@@ -88,9 +99,9 @@ def update_user(from_user: User, bot: Bot) -> None:  # Update the user list (db)
                              time_used=used + 1,
                              id=from_user.id)
         session.add(new_user)
-        admins = session.query(Users).filter(Users.privs == "-2").all()
-        for admin in admins:
-            if admin.id != from_user.id:
+        admins = get_admins_id()
+        for admin_id in admins:
+            if admin_id != from_user.id:
                 text = "*New user registered into the database* \n\n"
                 text += "Name: " + helpers.escape_markdown(from_user.first_name, 2)
                 if from_user.last_name:
@@ -98,7 +109,7 @@ def update_user(from_user: User, bot: Bot) -> None:  # Update the user list (db)
                 if from_user.username:
                     text += "\nUsername: @" + helpers.escape_markdown(from_user.username, 2)
                 bot.sendMessage(
-                    chat_id=admin.id, text=text, parse_mode=ParseMode.MARKDOWN_V2)
+                    chat_id=admin_id, text=text, parse_mode=ParseMode.MARKDOWN_V2)
     session.commit()
 
 
