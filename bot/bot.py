@@ -10,8 +10,11 @@ import socket
 import subprocess
 import sys
 import threading
-import tkinter as tk
-from tkinter import ttk
+try:
+    import tkinter as tk
+    from tkinter import ttk
+except ImportError:
+    pass
 from typing import Optional
 from shlex import quote
 
@@ -363,6 +366,10 @@ def link(update: Update, context: CallbackContext) -> None:
 @db.admin_check
 def memo_thread(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
+    module = "tkinter"
+    if module not in sys.modules:
+        context.bot.sendMessage(chat_id=update.message.chat.id, text=f"Error: you need to install {module} to use this function")
+
     args = update.message.text[6:]
     if len(args) != 0:
         def memo() -> None:

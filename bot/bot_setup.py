@@ -1,14 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import argparse
 import os
 import pathlib
 import platform
 import subprocess
 import sys
-import tkinter as tk
-from tkinter import Entry, Label, Menu, LEFT
-from typing import Optional
+try:
+    import tkinter as tk
+    from tkinter import Entry, Label, Menu, LEFT
+except ImportError:
+    if len(sys.argv) == 1:
+        print("To use the UI mode you need to install tkinter. To use the command line mode type python bot/bot_setup.py -h\n")
+from typing import Optional, Any
 
 import db
 import utils
@@ -18,11 +23,6 @@ if platform.system() == "Windows":
 
 if sys.version_info[0] < 3:
     raise Exception("This bot works only with Python 3.x")
-
-root = tk.Tk()
-root.wm_title("Setup")
-root.geometry("200x200")
-root.resizable(width=False, height=False)
 
 
 def startupinfo() -> Optional[int]:
@@ -43,27 +43,36 @@ def db_and_co() -> None:
     db.create()
 
 
-def tokens_check() -> None:
+def tokens_check(btn: Any=None) -> None:
     if not db.token_get("BotFather_token"):
-        B1.configure(text="Confirm")
+        if btn:
+            btn.configure(text="Confirm")
     else:
-        B1.configure(text="Change token")
+        if btn:
+            btn.configure(text="Change token")
 
 
-def botfather_token_set(token: str) -> None:
+def botfather_token_set(token: str, entry: Any=None, btn: Any=None, lbl: Any=None) -> None:
     if token:
         db.token_set("BotFather_token", token)
-        token1.destroy()
-        B1.destroy()
-        L1_done.configure(text="Token saved!",
-                          font="Times 11", fg="green", justify=LEFT)
+        text = "Token saved!"
+        if entry and btn and lbl:
+            entry.destroy()
+            btn.destroy()
+            lbl.configure(text=text, font="Times 11", fg="green", justify=LEFT)
+        else:
+            print(text+"\n")
     else:
-        L1_done.configure(text="Your entry is empty",
-                          font="Times 11", fg="red", justify=LEFT)
+        text="Your entry is empty"
+        if lbl:
+            lbl.configure(text=text, font="Times 11", fg="red", justify=LEFT)
+        else:
+            print(text+"\n")
 
 
-def bot_start() -> None:
-    root.withdraw()
+def bot_start(root: Any=None) -> None:
+    if root:
+        root.withdraw()
     if startupinfo() is not None or platform.system() == "Windows":
         if db.startup_get() == "true":
             subprocess.run(sys.executable + " " + os.path.join(utils.current_path(), "bot.pyw"), creationflags=0x08000000, shell=True)
@@ -76,49 +85,62 @@ def bot_start() -> None:
             subprocess.run(sys.executable + " " + os.path.join(utils.current_path(), "bot.py"), shell=True)
 
 
-def privs_window() -> None:
+def privs_window(root: Any) -> None:
     privs = tk.Toplevel(root)
     privs.wm_title("Permissions")
-    usr_l = Label(privs, text="Username",
-                  font="Times 11 bold", justify=LEFT)
+    usr_l = Label(privs, text="Username", font="Times 11 bold", justify=LEFT)
     usr_l.pack()
     usr_e = Entry(privs, bd=5)
     usr_e.pack()
     add_b = tk.Button(privs, text="Add permissions",
-                      command=lambda: add_privs(usr_e.get()))
+                      command=lambda: add_privs(usr_e.get(), usr_e, add_b, rm_b, usr_done))
     add_b.pack()
     rm_b = tk.Button(privs, text="Remove permissions",
-                     command=lambda: remove_privs(usr_e.get()))
+                     command=lambda: remove_privs(usr_e.get(), usr_e, add_b, rm_b, usr_done))
     rm_b.pack()
     usr_done = Label(privs, text="")
     usr_done.pack()
 
-    def add_privs(user: str) -> None:
-        if db.user_exists(user):
-            db.user_role(user, admin=True)
+
+def add_privs(user: str, usr_e: Any=None, add_b: Any=None, rm_b: Any=None, usr_done_l: Any=None) -> None:
+    if db.user_exists(user):
+        db.user_role(user, admin=True)
+        text = f"Permissions for {user} changed"
+        if usr_e and add_b and rm_b and usr_done_l:
             usr_e.destroy()
             add_b.destroy()
             rm_b.destroy()
-            usr_done.configure(text="Permissions for %s changed!" % (
-                user), font="Times 11", fg="green", justify=LEFT)
+            usr_done_l.configure(text=text, font="Times 11", fg="green", justify=LEFT)
         else:
-            usr_done.configure(text="%s isn't in your database" % (
-                user), font="Times 11", fg="red", justify=LEFT)
+            print(text)
+    else:
+        text = f"{user} isn't in your database"
+        if usr_done_l:
+            usr_done_l.configure(text=text, font="Times 11", fg="red", justify=LEFT)
+        else:
+            print(text)
 
-    def remove_privs(user: str) -> None:
-        if db.user_exists(user):
-            db.user_role(user, admin=False)
+
+def remove_privs(user: str, usr_e: Any=None, add_b: Any=None, rm_b: Any=None, usr_done_l: Any=None) -> None:
+    if db.user_exists(user):
+        db.user_role(user, admin=False)
+        text = f"Permissions for {user} changed"
+        if usr_e and add_b and rm_b and usr_done_l:
             usr_e.destroy()
             add_b.destroy()
             rm_b.destroy()
-            usr_done.configure(text="Permissions for %s changed!" % (
-                user), font="Times 11", fg="green", justify=LEFT)
+            usr_done_l.configure(text=text, font="Times 11", fg="green", justify=LEFT)
         else:
-            usr_done.configure(text="%s isn't in your database" % (
-                user), font="Times 11", fg="red", justify=LEFT)
+            print(text)
+    else:
+        text = f"{user} isn't in your database"
+        if usr_done_l:
+            usr_done_l.configure(text=text, font="Times 11", fg="red", justify=LEFT)
+        else:
+            print(text)
 
 
-def restart_popup() -> None:
+def restart_popup(root: Any) -> None:
     privs = tk.Toplevel(root)
     privs.wm_title("Restart")
     lp = Label(privs, text="Please restart bot_setup to apply the change",
@@ -132,78 +154,77 @@ def restart_popup() -> None:
         os.execl(python, python, *sys.argv)
 
 
-def console_show() -> None:
+def console_show(ui: bool=False, root: Any=None) -> None:
     db.console_set("show")
-    restart_popup()
+    if ui and root:
+        restart_popup(root)
 
 
-def console_hide() -> None:
+def console_hide(ui: bool=False, root: Any=None) -> None:
     db.console_set("hide")
-    restart_popup()
+    if ui and root:
+        restart_popup(root)
 
 
-def startup_popup() -> None:
+def startup_enable(root: Any=None) -> None:
     if db.startup_get() == "false":
-        warning = tk.Toplevel(root)
-        warning.wm_title("Warning")
-        warn_l = Label(warning, text="By enabling this you wont see the bot console",
-                       font="Times 11 bold", justify=LEFT)
-        warn_l.pack()
-        ok_b = tk.Button(warning, text="Okay",
-                         command=lambda: [startup_enable(), warning.destroy()])
-        ok_b.pack()
-    else:
-        error = tk.Toplevel(root)
-        error.wm_title("Error")
-        warn_l = Label(error, text="Already enabled", font="Times 11 bold", justify=LEFT)
-        warn_l.pack()
-        ok_b = tk.Button(error, text="Okay",
-                         command=lambda: error.destroy())
-        ok_b.pack()
-
-
-def startup_enable() -> None:
-    py_path = os.path.join(utils.current_path(), "bot.py")
-    pyw_path = os.path.join(utils.current_path(), "bot.pyw")
-    if platform.system() == "Windows":
-        if os.path.isfile(py_path) is True:
-            os.rename(py_path, pyw_path)
-        key = winreg.OpenKey(
-            winreg.HKEY_CURRENT_USER,
-            'Software\Microsoft\Windows\CurrentVersion\Run', 0,
-            winreg.KEY_SET_VALUE)
-        winreg.SetValueEx(key, 'PC-Control', 0, winreg.REG_SZ, '"' + pyw_path +'"')
-        key.Close()
-        db.startup_set("true")
-    else:
-        if os.path.isfile(py_path) is True:
-            os.rename(py_path, pyw_path)
-        try:
-            xdg_autostart_user_config_path = os.path.join(str(pathlib.Path.home()), ".config/autostart/") 
-            os.makedirs(xdg_autostart_user_config_path, exist_ok=True)
-            text = "[Desktop Entry]\n"
-            text += "Type=Application\n"
-            text += "Path=" + utils.current_path() + "/\n" 
-            text += "Exec=" + sys.executable + " bot.pyw\n"
-            text += "Name=PC-Control bot\n"
-            text += "Comment=PC-Control bot startup\n"
-            text += "\n"
-            with open(os.path.join(xdg_autostart_user_config_path + "PC-Control.desktop"), 'x') as file:
-                file.write(text)
+        py_path = os.path.join(utils.current_path(), "bot.py")
+        pyw_path = os.path.join(utils.current_path(), "bot.pyw")
+        if platform.system() == "Windows":
+            if os.path.isfile(py_path) is True:
+                os.rename(py_path, pyw_path)
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                'Software\Microsoft\Windows\CurrentVersion\Run', 0,
+                winreg.KEY_SET_VALUE)
+            winreg.SetValueEx(key, 'PC-Control', 0, winreg.REG_SZ, '"' + pyw_path +'"')
+            key.Close()
             db.startup_set("true")
-        except IOError as e:
+        else:
+            if os.path.isfile(py_path) is True:
+                os.rename(py_path, pyw_path)
+            try:
+                xdg_autostart_user_config_path = os.path.join(str(pathlib.Path.home()), ".config/autostart/") 
+                os.makedirs(xdg_autostart_user_config_path, exist_ok=True)
+                text = "[Desktop Entry]\n"
+                text += "Type=Application\n"
+                text += "Path=" + utils.current_path() + "/\n" 
+                text += "Exec=" + sys.executable + " bot.pyw\n"
+                text += "Name=PC-Control bot\n"
+                text += "Comment=PC-Control bot startup\n"
+                text += "\n"
+                with open(os.path.join(xdg_autostart_user_config_path + "PC-Control.desktop"), 'x') as file:
+                    file.write(text)
+                db.startup_set("true")
+            except IOError as e:
+                text = f"Error: {str(e)}"
+                if root:
+                    error = tk.Toplevel(root)
+                    error.wm_title("Error")
+                    warn_l = Label(error, text=text, font="Times 11 bold", justify=LEFT)
+                    warn_l.pack()
+                    ok_b = tk.Button(error, text="Okay", command=lambda: error.destroy())
+                    ok_b.pack()
+                else:
+                    print(text+"\n")
+    else:
+        text = "Already enabled"
+        if root:
             error = tk.Toplevel(root)
             error.wm_title("Error")
-            warn_l = Label(error, text="Error: " + str(e), font="Times 11 bold", justify=LEFT)
+            warn_l = Label(error, text=text, font="Times 11 bold", justify=LEFT)
             warn_l.pack()
-            ok_b = tk.Button(error, text="Okay", command=lambda: error.destroy())
+            ok_b = tk.Button(error, text="Okay",
+                             command=lambda: error.destroy())
             ok_b.pack()
+        else:
+            print(text+"\n")
 
 
-def startup_disable() -> None:
-    py_path = os.path.join(utils.current_path(), "bot.py")
-    pyw_path = os.path.join(utils.current_path(), "bot.pyw")
+def startup_disable(root: Any=None) -> None:
     if db.startup_get() == "true":
+        py_path = os.path.join(utils.current_path(), "bot.py")
+        pyw_path = os.path.join(utils.current_path(), "bot.pyw")
         if platform.system() == "Windows":
             key = winreg.OpenKey(
                 winreg.HKEY_CURRENT_USER,
@@ -220,55 +241,113 @@ def startup_disable() -> None:
                 db.startup_set("false")
             except OSError as e:
                 os.rename(py_path, pyw_path)
-                error = tk.Toplevel(root)
-                error.wm_title("Error")
-                warn_l = Label(error, text="Error: " + str(e), font="Times 11 bold", justify=LEFT)
-                warn_l.pack()
-                ok_b = tk.Button(error, text="Okay", command=lambda: error.destroy())
-                ok_b.pack()
+                text = f"Error: {str(e)}"
+                if root:
+                    error = tk.Toplevel(root)
+                    error.wm_title("Error")
+                    warn_l = Label(error, text=text, font="Times 11 bold", justify=LEFT)
+                    warn_l.pack()
+                    ok_b = tk.Button(error, text="Okay", command=lambda: error.destroy())
+                    ok_b.pack()
+                else:
+                    print(text+"\n")
     else:
-        error = tk.Toplevel(root)
-        error.wm_title("Error")
-        warn_l = Label(error, text="Already disabled", font="Times 11 bold", justify=LEFT)
-        warn_l.pack()
-        ok_b = tk.Button(error, text="Okay",
-                         command=lambda: error.destroy())
-        ok_b.pack()
+        text = "Already disabled"
+        if root:
+            error = tk.Toplevel(root)
+            error.wm_title("Error")
+            warn_l = Label(error, text=text, font="Times 11 bold", justify=LEFT)
+            warn_l.pack()
+            ok_b = tk.Button(error, text="Okay",
+                             command=lambda: error.destroy())
+            ok_b.pack()
+        else:
+            print(text+"\n")
 
 
-db_and_co()
-L1 = Label(root, text="BotFather token", font="Times 11 bold", justify=LEFT)
-L1.pack()
-token1 = Entry(root, bd=5)
-token1.pack()
-B1 = tk.Button(
-    root, text="", command=lambda: botfather_token_set(token1.get()))
-B1.pack(pady=5)
-L1_done = Label(root, text="")
-L1_done.pack()
+def ui() -> None:
+    root = tk.Tk()
+    root.wm_title("Setup")
+    root.geometry("200x200")
+    root.resizable(width=False, height=False)
 
-B3 = tk.Button(root, text="Start it!", command=bot_start)
-B3.pack(pady=5)
+    bft_l = Label(root, text="BotFather token", font="Times 11 bold", justify=LEFT)
+    bft_l.pack()
+    bft_e = Entry(root, bd=5)
+    bft_e.pack()
+    bft_b = tk.Button(
+        root, text="", command=lambda: botfather_token_set(bft_e.get(), bft_e, bft_b, bft_done_l))
+    bft_b.pack(pady=5)
+    bft_done_l = Label(root, text="")
+    bft_done_l.pack()
 
-B4 = tk.Button(root, text="Change user permissions", command=privs_window)
-B4.pack(pady=5)
+    start_btn = tk.Button(root, text="Start it!", command=lambda: bot_start(root))
+    start_btn.pack(pady=5)
 
-db_and_co()
-menubar = Menu(root)
-root.config(menu=menubar)
-filemenu = Menu(menubar, tearoff=0)
-menubar.add_cascade(label="Options", menu=filemenu)
+    privs_btn = tk.Button(root, text="Change user permissions", command= lambda: privs_window(root))
+    privs_btn.pack(pady=5)
 
-console_menu = Menu(root, tearoff=0)
-console_menu.add_command(label="Show", command=lambda: console_show())
-console_menu.add_command(label="Hide", command=lambda: console_hide())
-filemenu.add_cascade(label="Console", menu=console_menu, underline=0)
+    db_and_co()
+    menubar = Menu(root)
+    root.config(menu=menubar)
+    filemenu = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Options", menu=filemenu)
 
-startup_menu = Menu(root, tearoff=0)
-startup_menu.add_command(label="Enable", command=lambda: startup_popup())
-startup_menu.add_command(label="Disable", command=lambda: startup_disable())
-filemenu.add_cascade(label="Startup", menu=startup_menu, underline=0)
+    console_menu = Menu(root, tearoff=0)
+    console_menu.add_command(label="Show", command=lambda: console_show(True, root))
+    console_menu.add_command(label="Hide", command=lambda: console_hide(True, root))
+    filemenu.add_cascade(label="Console", menu=console_menu, underline=0)
 
-db_and_co()
-tokens_check()
-root.mainloop()
+    startup_menu = Menu(root, tearoff=0)
+    startup_menu.add_command(label="Enable", command=lambda: startup_enable(root))
+    startup_menu.add_command(label="Disable", command=lambda: startup_disable(root))
+    filemenu.add_cascade(label="Startup", menu=startup_menu, underline=0)
+
+    db_and_co()
+    tokens_check(bft_b)
+    root.mainloop()
+
+
+def parse_args() -> bool:
+    parser = argparse.ArgumentParser(description="PC-Control setup utility", epilog="If called without options it will launch in UI mode")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--token", help="BotFather token", metavar="BotFather_token")
+    group.add_argument("--admin_add", help="add user to admin group", metavar="username")
+    group.add_argument("--admin_remove", help="remove user from admin group", metavar="username")
+    group.add_argument("--output_show", help="show command line output", action="store_true")
+    group.add_argument("--output_hide", help="hide command line output", action="store_true")
+    group.add_argument("--startup_enable", help="enable startup (run auomatically at startup)", action="store_true")
+    group.add_argument("--startup_disable", help="disable startup", action="store_true")
+    group.add_argument("--start", help="start the bot", action="store_true")
+
+    args = parser.parse_args()
+
+    if args.token:
+        botfather_token_set(args.token)
+    elif args.start:
+        bot_start()
+    elif args.admin_add:
+        add_privs(args.admin_add)
+    elif args.admin_remove:
+        remove_privs(args.admin_remove)
+    elif args.output_show:
+        console_show()
+    elif args.output_hide:
+        console_hide()
+    elif args.startup_enable:
+        startup_enable()
+    elif args.startup_disable:
+        startup_disable()
+    else:
+        return False
+    return True
+
+
+def main() -> None:
+    db_and_co()
+    if parse_args() == False:
+        ui()
+
+
+if __name__ == "__main__":
+    main()
