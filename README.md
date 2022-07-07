@@ -1,4 +1,6 @@
-![logo](https://i.imgur.com/294uZ8G.png)
+<img src="https://user-images.githubusercontent.com/25140297/177854111-c6c7e75f-4dce-4255-a157-2c9dd1faad50.png#gh-light-mode-only" alt="logo" width="100"/>
+<img src="https://user-images.githubusercontent.com/25140297/177854228-9b60703c-5821-42d5-b1a0-134289b59442.png#gh-dark-mode-only" alt="logo" width="100"/>
+
 # PC Control bot
 
 Through this bot you can execute actions on your PC directly from Telegram!
