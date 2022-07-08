@@ -22,14 +22,15 @@ import distro
 import psutil
 import pyscreenshot
 from telegram import ParseMode, ReplyKeyboardMarkup, ReplyKeyboardRemove, Update, Bot
+from telegram import error as tg_error
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater, CallbackContext
 from telegram.utils import helpers
 
 import db
 import utils
 
-if sys.version_info[0] < 3:
-    raise Exception("This bot works only with Python 3.x")
+if sys.version_info < (3, 6, 0):
+    raise Exception("This bot works only with Python 3.6+")
 
 if db.exists() is False:
     raise Exception("You need to start bot_setup first")
@@ -133,7 +134,7 @@ def message_handler(update: Update, context: CallbackContext) -> None:
         text = "Keyboard is down."
         reply_markup = ReplyKeyboardRemove()
         update.message.reply_text(text=text, reply_markup=reply_markup)
-    elif update.message.text == "Kill " + update.message.text[5:]:
+    elif update.message.text == f"Kill {update.message.text[5:]}":
         task_kill(update, context)
     elif update.message.text == "Exit":
         keyboard_up(update, context)
@@ -157,12 +158,12 @@ def shutdown_time(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     if context.args:
         if platform.system() == "Windows":
-            subprocess.run("shutdown /s /t %s" % str(int(context.args[0])*60),
+            subprocess.run(f"shutdown /s /t {str(int(context.args[0])*60)}",
                            startupinfo=startupinfo())
             text = "Shutting down..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            subprocess.run("shutdown -P +%s" % quote(context.args[0]),
+            subprocess.run(f"shutdown -P +{quote(context.args[0])}",
                            startupinfo=startupinfo(), shell=True)
             text = "Shutting down..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -191,12 +192,12 @@ def reboot_time(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     if context.args:
         if platform.system() == "Windows":
-            subprocess.run("shutdown /r /t %s" % str(int(context.args[0])*60),
+            subprocess.run(f"shutdown /r /t {str(int(context.args[0])*60)}",
                            startupinfo=startupinfo())
             text = "Rebooting..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            subprocess.run("shutdown -r +%s" % quote(context.args[0]),
+            subprocess.run(f"shutdown -r +{quote(context.args[0])}",
                            startupinfo=startupinfo(), shell=True)
             text = "Rebooting..."
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
@@ -232,7 +233,7 @@ def logout_time(update: Update, context: CallbackContext) -> None:
     else:
         time = int(context.args[0])
         if thread_name := utils.ThreadTimer().start(logout, time, update, context): 
-            text = "%s function is already running, cancel it and retry" % thread_name
+            text = f"{thread_name} function is already running, cancel it and retry"
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
@@ -259,7 +260,7 @@ def hibernate_time(update: Update, context: CallbackContext) -> None:
     else:
         time = int(context.args[0])
         if thread_name := utils.ThreadTimer().start(hibernate, time, update, context): 
-            text = "%s function is already running, cancel it and retry" % thread_name
+            text = f"{thread_name} function is already running, cancel it and retry"
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
@@ -278,7 +279,7 @@ def lock(update: Update, context: CallbackContext) -> None:
 def cancel(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     if (thread_name := utils.ThreadTimer().stop()):
-        text = "%s cancelled" % thread_name
+        text = f"{thread_name} cancelled"
     else:
         text = "Annulled."
         if platform.system() == "Windows":
@@ -293,23 +294,19 @@ def check(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     text = ""
     text += "Your PC is online.\n\n"
-    text += "PC name: " + socket.gethostname()
-    text += "\nLogged user: " + getpass.getuser()
+    text += f"PC name: {socket.gethostname()}"
+    text += f"\nLogged user: {getpass.getuser()}"
     if platform.system() == "Windows":
-        text += "\nOS: Windows " + platform.win32_ver()[0]
+        text += f"\nOS: Windows {platform.win32_ver()[0]}"
     else:
-        text += "\nOS: " + distro.id()
-    text += "\nCPU: " + str(psutil.cpu_percent()) + "%"
-    text += "\nMemory: " + str(
-        int(psutil.virtual_memory().percent)) + "%"
-    if psutil.sensors_battery():
-        if psutil.sensors_battery().power_plugged is True:
-            text += "\nBattery: " + str(
-                format(psutil.sensors_battery().percent, ".0f")) \
-                    + "% | Charging"
-        else:
-            text += "\nBattery: " + str(
-                format(psutil.sensors_battery().percent, ".0f")) + "%"
+        text += f"\nOS: {distro.id()}"
+    text += f"\nCPU: {str(psutil.cpu_percent())}%"
+    text += f"\nMemory: {str(int(psutil.virtual_memory().percent))}%"
+    battery = psutil.sensors_battery()
+    if battery:
+        text += f"\nBattery: {str(format(battery.percent, '.0f'))}%"
+        if battery.power_plugged is True:
+            text += " | Charging"
     context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
 
 
@@ -318,19 +315,21 @@ def launch(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     if context.args:
         if platform.system() == "Windows":
-            ret = subprocess.run("start %s" % quote(context.args[0]),
+            ret = subprocess.run(f"start {quote(context.args[0])}",
                                  startupinfo=startupinfo(), shell=True).returncode
-            text = "Launching " + (context.args[0]) + "..."
+            text = f"Launching {context.args[0]}..." if ret == 0 else f"Cannot launch {context.args[0]}"
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-            if ret == 1:
-                text = "Cannot launch " + (context.args[0])
-                context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
             def launch_thread():
-                text = "Launching " + (context.args[0]) + "..."
+                text = f"Launching {context.args[0]}..."
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                subprocess.run("%s" % quote(context.args[0]),
-                               startupinfo=startupinfo(), shell=True)
+                ret = subprocess.run(str(quote(context.args[0])),
+                               startupinfo=startupinfo(), shell=True).returncode
+                if ret != 0:
+                    text = f"Cannot launch {context.args[0]}"
+                    context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+                    return
+
         t = threading.Thread(target=launch_thread)
         t.start()
     else:
@@ -345,17 +344,14 @@ def link(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     if context.args:
         if platform.system() == "Windows":
-            ret = subprocess.run("start %s" % quote(context.args[0]),
+            ret = subprocess.run(f"start {quote(context.args[0])}",
                                  startupinfo=startupinfo(), shell=True).returncode
-            text = "Opening " + (context.args[0]) + "..."
+            text = f"Opening {context.args[0]}..." if ret == 0 else f"Cannot open {context.args[0]}"
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-            if ret == 1:
-                text = "Cannot open " + (context.args[0])
-                context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            subprocess.run("xdg-open %s" % quote(context.args[0]),
-                           startupinfo=startupinfo(), shell=True)
-            text = "Opening " + (context.args[0]) + "..."
+            ret = subprocess.run(f"xdg-open {quote(context.args[0])}",
+                           startupinfo=startupinfo(), shell=True).returncode
+            text = f"Opening {context.args[0]}..." if ret == 0 else f"Cannot open {context.args[0]}"
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         text = "No link inserted\n``` Usage: /link + web link```"
@@ -377,10 +373,8 @@ def memo_thread(update: Update, context: CallbackContext) -> None:
             popup.wm_title("Memo")
             label = ttk.Label(
                 popup,
-                text=args +
-                "\nsent by " +
-                update.message.from_user.name +
-                " through PC-Control",
+                text=f"{args} \
+                \nsent by {update.message.from_user.name} through PC-Control",
                 font=(
                     "Helvetica",
                     10))
@@ -400,22 +394,22 @@ def memo_thread(update: Update, context: CallbackContext) -> None:
 def task(update: Update, context: CallbackContext) -> None:
     db.update_user(update.message.from_user, context.bot)
     if context.args:
-        kill_kb = [['Kill %s' % (context.args[0])],
-                   ['Exit']]
+        kill_kb = [[f"Kill {context.args[0]}"],
+                   ["Exit"]]
         reply_markup = ReplyKeyboardMarkup(
             kill_kb, resize_keyboard=True)
         if platform.system() == "Windows":
             try:
-                out = os.popen("tasklist | findstr %s" % (context.args[0])).read()
+                out = os.popen(f"tasklist | findstr {context.args[0]}").read()
                 context.bot.sendMessage(chat_id=update.message.chat.id,
                                 text=out, reply_markup=reply_markup)
-            except BaseException:
+            except tg_error.BadRequest:
                 context.bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
         else:
             try:
-                out = os.popen("ps -A | grep %s" % (context.args[0])).read()
+                out = os.popen(f"ps -A | grep {context.args[0]}").read()
                 context.bot.sendMessage(chat_id=update.message.chat.id, text=out, reply_markup=reply_markup)
-            except BaseException:
+            except tg_error.BadRequest:
                 context.bot.sendMessage(chat_id=update.message.chat.id, text="The program is not running")
     else:
         text = "No task inserted\n``` Usage: /task + process name```"
@@ -429,23 +423,20 @@ def task_kill(update: Update, context: CallbackContext) -> None:
     args = update.message.text[5:]
     if platform.system() == "Windows":
         try:
-            subprocess.run("tskill " + quote(args), startupinfo=startupinfo())
-            context.bot.sendMessage(chat_id=update.message.chat.id,
-                            text="I've killed " + args)
-            keyboard_up(update, context)
-        except BaseException:
-            context.bot.sendMessage(chat_id=update.message.chat.id,
-                            text="The program is not running")
-    else:
-        try:
-            subprocess.run("pkill -f " + quote(args), startupinfo=startupinfo(), shell=True)
-            context.bot.sendMessage(chat_id=update.message.chat.id,
-                            text="I've killed " + args)
+            ret = subprocess.run(f"tskill {quote(args)}", startupinfo=startupinfo()).returncode
+            text =f"I've killed {args}" if ret == 0 else f"Cannot kill {args}"
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
             keyboard_up(update, context)
         except Exception as e:
-            print("error: " + str(e))
-            context.bot.sendMessage(chat_id=update.message.chat.id,
-                            text="The program is not running")
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=f"Error: {str(e)}")
+    else:
+        try:
+            ret = subprocess.run(f"pkill -f {quote(args)}", startupinfo=startupinfo(), shell=True).returncode
+            text =f"I've killed {args}" if ret == 0 else f"Cannot kill {args}"
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
+            keyboard_up(update, context)
+        except Exception as e:
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=f"Error: {str(e)}")
 
 
 @db.admin_check
@@ -465,11 +456,14 @@ def is_up_notification(bot: Bot) -> None:
     
 
 def error(update: Update, context: CallbackContext) -> None:
-    logger.warning('Update "%s" caused error "%s"' % (update, error))
+    logger.warning(f"Update {update} caused error {error}")
 
 
 def main() -> None:
     # Create the EventHandler and pass it your bot's token.
+    if not db.token_get("BotFather_token"):
+        raise ValueError("You need to add a BotFather token first")
+
     updater = Updater(db.token_get("BotFather_token"))
     # Get the dispatcher to register handlers
     dp = updater.dispatcher

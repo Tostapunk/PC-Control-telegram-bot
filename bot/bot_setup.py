@@ -21,8 +21,8 @@ import utils
 if platform.system() == "Windows":
     import winreg
 
-if sys.version_info[0] < 3:
-    raise Exception("This bot works only with Python 3.x")
+if sys.version_info < (3, 6, 0):
+    raise Exception("This bot works only with Python 3.6+")
 
 
 def startupinfo() -> Optional[int]:
@@ -75,14 +75,14 @@ def bot_start(root: Any=None) -> None:
         root.withdraw()
     if startupinfo() is not None or platform.system() == "Windows":
         if db.startup_get() == "true":
-            subprocess.run(sys.executable + " " + os.path.join(utils.current_path(), "bot.pyw"), creationflags=0x08000000, shell=True)
+            subprocess.run(f"{sys.executable} {os.path.join(utils.current_path(), 'bot.pyw')}", creationflags=0x08000000, shell=True)
         else:
-            subprocess.run(sys.executable + " " + os.path.join(utils.current_path(), "bot.py"), creationflags=0x08000000, shell=True)
+            subprocess.run(f"{sys.executable} {os.path.join(utils.current_path(), 'bot.py')}", creationflags=0x08000000, shell=True)
     else:
         if db.startup_get() == "true":
-            subprocess.run(sys.executable + " " + os.path.join(utils.current_path(), "bot.pyw"), shell=True)
+            subprocess.run(f"{sys.executable} {os.path.join(utils.current_path(), 'bot.pyw')}", shell=True)
         else:
-            subprocess.run(sys.executable + " " + os.path.join(utils.current_path(), "bot.py"), shell=True)
+            subprocess.run(f"{sys.executable} {os.path.join(utils.current_path(), 'bot.py')}", shell=True)
 
 
 def privs_window(root: Any) -> None:
@@ -188,8 +188,8 @@ def startup_enable(root: Any=None) -> None:
                 os.makedirs(xdg_autostart_user_config_path, exist_ok=True)
                 text = "[Desktop Entry]\n"
                 text += "Type=Application\n"
-                text += "Path=" + utils.current_path() + "/\n" 
-                text += "Exec=" + sys.executable + " bot.pyw\n"
+                text += f"Path={utils.current_path()}/\n" 
+                text += f"Exec={sys.executable} bot.pyw\n"
                 text += "Name=PC-Control bot\n"
                 text += "Comment=PC-Control bot startup\n"
                 text += "\n"

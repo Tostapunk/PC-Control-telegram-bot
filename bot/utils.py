@@ -10,7 +10,7 @@ class ThreadTimer:
         if self.thread and self.thread.is_alive():
             return self.thread.name
         ThreadTimer.thread = threading.Timer(time*60, fun, [*args])
-        ThreadTimer.thread.name = fun.__name__ + "_t"
+        ThreadTimer.thread.name = f"{fun.__name__}_t"
         ThreadTimer.thread.start()
 
     def stop(self) -> Optional[str]:
