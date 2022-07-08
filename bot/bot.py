@@ -431,7 +431,7 @@ def task_kill(update: Update, context: CallbackContext) -> None:
             context.bot.sendMessage(chat_id=update.message.chat.id, text=f"Error: {str(e)}")
     else:
         try:
-            ret = subprocess.run(f"pkill -f {quote(args)}", startupinfo=startupinfo(), shell=True).returncode
+            ret = subprocess.run(f'pkill -f "^"{quote(args)}', startupinfo=startupinfo(), shell=True).returncode
             text =f"I've killed {args}" if ret == 0 else f"Cannot kill {args}"
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
             keyboard_up(update, context)
