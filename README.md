@@ -31,16 +31,15 @@ To see all the available options use ```python bot/bot_setup.py -h```
 
 ## Set the permissions
 
-**The first user registered into the database will have admin permissions by default.**\
-Click the "Change user permissions" button to add or remove someone from the allowed users.\
-Just insert the wanted Telegram username (write it without @) and select if you want to add the permissions or
-remove them
+**The first user registered into the database will have admin permissions by default.** \
+You can add or remove a user from the admin group by using the UI or the command line.\
+**Note:** you need to use a Telegram username (write it without '@') 
 
-Example:
+UI example:
 
 ![privs](https://user-images.githubusercontent.com/25140297/103581006-76086c80-4edb-11eb-99a4-4e13777e7794.png)
 
-### Available commands
+## Available commands
 
 | Command | Description | Note
 | --- | --- | --- |
