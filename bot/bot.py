@@ -320,18 +320,10 @@ def launch(update: Update, context: CallbackContext) -> None:
             text = f"Launching {context.args[0]}..." if ret == 0 else f"Cannot launch {context.args[0]}"
             context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
         else:
-            def launch_thread():
-                text = f"Launching {context.args[0]}..."
-                context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                ret = subprocess.run(str(quote(context.args[0])),
-                               startupinfo=startupinfo(), shell=True).returncode
-                if ret != 0:
-                    text = f"Cannot launch {context.args[0]}"
-                    context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
-                    return
-
-        t = threading.Thread(target=launch_thread)
-        t.start()
+            ret = subprocess.run(f"{str(quote(context.args[0]))} &",
+                    startupinfo=startupinfo(), shell=True).returncode
+            text = f"Launching {context.args[0]}..." if ret == 0 else f"Cannot launch {context.args[0]}"
+            context.bot.sendMessage(chat_id=update.message.chat.id, text=text)
     else:
         text = """No program name inserted
         ``` Usage: /launch + program name```"""
