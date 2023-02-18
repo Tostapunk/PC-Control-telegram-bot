@@ -437,7 +437,7 @@ def screenshot(update: Update, context: CallbackContext) -> None:
     path = os.path.join(os.path.dirname(utils.current_path()), "tmp/screenshot.png")
     img = pyscreenshot.grab()
     img.save(path)
-    context.bot.send_photo(chat_id=update.message.chat.id, photo=open(path, 'rb'))
+    context.bot.send_document(chat_id=update.message.chat.id, document=open(path, "rb"))
     os.remove(path)
 
 
